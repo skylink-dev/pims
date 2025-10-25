@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skyplay PIMS Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 font-sans">
+
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-40">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-box text-red-600 text-2xl"></i>
+        <h1 class="text-2xl font-bold text-red-800">Skyplay PIMS Dashboard</h1>
+      </div>
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 container mx-auto px-6 py-8">
+    <!-- You can add Hero Section / Dashboard Widgets here -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Welcome, {{ user.username }}</h2>
+      <p class="text-gray-700 mb-4">Here’s a quick overview of your PIMS dashboard.</p>
+      <!-- Example Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-xl font-semibold mb-2">Total Orders</h3>
+          <p class="text-3xl font-bold text-red-600">152</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-xl font-semibold mb-2">Pending Requests</h3>
+          <p class="text-3xl font-bold text-red-600">24</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-xl font-semibold mb-2">Active Users</h3>
+          <p class="text-3xl font-bold text-red-600">87</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Additional Sections can be added like Nostra: Hero, New Arrivals, etc. -->
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white mt-auto">
+    <div class="container mx-auto px-6 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
+        <!-- About -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Skyplay</h3>
+          <p class="mb-4">Premium dashboard for managing products, users, and orders efficiently.</p>
+          <div class="flex space-x-4">
+            <a href="#" class="hover:text-red-400"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="hover:text-red-400"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="hover:text-red-400"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <!-- Quick Links -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-red-400">Dashboard</a></li>
+            <li><a href="#" class="hover:text-red-400">Orders</a></li>
+            <li><a href="#" class="hover:text-red-400">Users</a></li>
+            <li><a href="#" class="hover:text-red-400">Reports</a></li>
+          </ul>
+        </div>
+        <!-- Customer Service -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Support</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-red-400">Help Center</a></li>
+            <li><a href="#" class="hover:text-red-400">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-red-400">Terms of Service</a></li>
+          </ul>
+        </div>
+        <!-- Contact -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Contact</h3>
+          <p class="mb-2"><i class="fas fa-map-marker-alt mr-2 text-red-400"></i> 123 Skyplay Street, Mumbai, India</p>
+          <p class="mb-2"><i class="fas fa-phone-alt mr-2 text-red-400"></i> +91 98765 43210</p>
+          <p class="mb-2"><i class="fas fa-envelope mr-2 text-red-400"></i> support@skyplay.com</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-6 text-center text-gray-400">
+        <p>&copy; {{ now|date:"Y" }} Skyplay. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
