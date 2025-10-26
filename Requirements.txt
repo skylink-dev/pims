@@ -1,0 +1,24 @@
+# --- Core Framework ---
+Django==4.2.19
+
+# --- Database (PostgreSQL) ---
+psycopg2-binary>=2.9
+
+# --- Admin UI Enhancement ---
+django-jazzmin>=3.0.0
+
+# --- Environment Variables (optional but recommended) ---
+python-dotenv>=1.0
+
+# --- Image & File Handling ---
+Pillow>=10.0
+
+# --- Static File Management for Production ---
+whitenoise>=6.6
+
+# --- Utility Libraries ---
+django-filter>=24.1
+
+# --- Testing (optional for dev/test environments) ---
+pytest>=8.3
+pytest-django>=4.8

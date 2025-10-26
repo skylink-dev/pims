@@ -32,11 +32,15 @@ def home_view(request):
     categories = Category.objects.all()
     products = Asset.objects.all()
     banners = Banner.objects.filter(is_active=True).order_by('order')
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
+    # Count total items from CartItem
+    cart_count = CartItem.objects.filter(cart=cart).count()
     context = {
         'categories': categories,
         'products': products,
         'banners': banners,
+        'cart_count': cart_count,
     }
 
     if user_type == 'superadmin':

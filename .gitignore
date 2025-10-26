@@ -42,6 +42,7 @@ build/
 *.lock
 package-lock.json
 yarn.lock
+media/
 
 # Coverage
 htmlcov/

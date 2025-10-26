@@ -1,50 +1,119 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Your Cart</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="{% static 'js/cart.js' %}" defer></script>
-</head>
-<body class="bg-gray-100 p-8">
-  <h1 class="text-3xl font-bold mb-6 text-red-600">My Cart</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your Cart</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 p-8">
+    <h1 class="text-3xl font-bold mb-6 text-red-600">My Cart</h1>
 
-  <table class="min-w-full bg-white rounded shadow">
-    <thead>
-      <tr class="bg-red-100">
-        <th class="py-2 px-4 text-left">Product</th>
-        <th class="py-2 px-4 text-left">Price</th>
-        <th class="py-2 px-4 text-left">Quantity</th>
-        <th class="py-2 px-4 text-left">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asset in assets %}
-      <tr class="border-b">
-        <td class="py-2 px-4">{{ asset.name }}</td>
-        <td class="py-2 px-4 text-red-600 font-bold">₹{{ asset.purchase_price }}</td>
-        <td class="py-2 px-4">1</td>
-        <td class="py-2 px-4">
-          <button 
-            class="remove-from-cart bg-gray-200 hover:bg-red-600 hover:text-white px-4 py-1 rounded transition"
-            data-asset-id="{{ asset.id }}"
-            data-csrf="{{ csrf_token }}"
-          >
-            Remove
-          </button>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="py-2 px-4 text-center text-gray-500">Your cart is empty.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <table class="min-w-full bg-white rounded shadow">
+      <thead>
+        <tr class="bg-red-100">
+          <th class="py-2 px-4 text-left">Product</th>
+          <th class="py-2 px-4 text-left">Price</th>
+          <th class="py-2 px-4 text-left">Quantity</th>
+          <th class="py-2 px-4 text-left">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in cart_items %}
+        <tr class="border-b">
+          <td class="py-2 px-4">{{ asset.asset.name }}</td>
+          <td class="py-2 px-4 text-red-600 font-bold">
+            ₹<span class="item-price">{{ asset.asset.purchase_price }}</span>
+          </td>
+          <td class="py-2 px-4 quantity">{{ asset.quantity }}</td>
+          <td class="py-2 px-4">
+            <button
+              class="remove-from-cart bg-gray-200 hover:bg-red-600 hover:text-white px-4 py-1 rounded transition"
+              data-asset-id="{{ asset.id }}"
+              data-csrf="{{ csrf_token }}"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="py-2 px-4 text-center text-gray-500">
+            Your cart is empty.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-  <div class="mt-4 text-right font-bold text-xl text-red-600">
-    Total: ₹{{ total_price }}
-  </div>
-</body>
+    <div class="mt-4 text-right font-bold text-xl text-red-600">
+      Total: ₹<span id="cart-total">{{ total_price }}</span>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const removeButtons = document.querySelectorAll(".remove-from-cart");
+
+        function updateTotal() {
+          let total = 0;
+          document.querySelectorAll("tbody tr").forEach((tr) => {
+            const priceElem = tr.querySelector(".item-price");
+            const qtyElem = tr.querySelector(".quantity");
+            if (priceElem && qtyElem) {
+              const price = parseFloat(priceElem.textContent);
+              const qty = parseInt(qtyElem.textContent);
+              total += price * qty;
+            }
+          });
+          document.getElementById("cart-total").textContent = total;
+        }
+
+        removeButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const assetId = this.getAttribute("data-asset-id");
+            const csrfToken = this.getAttribute("data-csrf");
+
+            fetch("/delete-from-cart/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+              },
+              body: JSON.stringify({ asset_id: assetId }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Remove row from table
+                  const row = button.closest("tr");
+                  row.remove();
+
+                  // Update total price
+                  updateTotal();
+
+                  // Show empty cart message if no rows left
+                  const tbody = document.querySelector("tbody");
+                  if (tbody.querySelectorAll("tr").length === 0) {
+                    tbody.innerHTML = `
+                      <tr>
+                        <td colspan="4" class="py-2 px-4 text-center text-gray-500">
+                          Your cart is empty.
+                        </td>
+                      </tr>
+                    `;
+                    document.getElementById("cart-total").textContent = 0;
+                  }
+                } else {
+                  alert(data.error || "Could not remove item.");
+                }
+              })
+              .catch((err) => console.error("Error:", err));
+          });
+        });
+      });
+    </script>
+  </body>
 </html>
