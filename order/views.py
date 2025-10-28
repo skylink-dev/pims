@@ -55,3 +55,4 @@ def order_detail(request, pk):
         'total_amount': total_amount,
     }
     return render(request, 'order/order_detail.html', context)
+

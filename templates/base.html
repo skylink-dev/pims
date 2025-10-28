@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Skyplay ISP Store{% endblock %}</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
 
     <!-- Google Fonts -->
     <link
@@ -13,7 +13,7 @@
       rel="stylesheet"
     />
 
-    <!-- Tailwind CSS & Icons -->
+    <!-- Tailwind CSS & Font Awesome -->
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -23,19 +23,16 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
+    <!-- JS Files -->
     <script src="{% static 'js/cart.js' %}" defer></script>
+    <script src="{% static 'js/toast.js' %}" defer></script>
 
     <style>
       body {
         font-family: "Roboto", sans-serif;
         background-color: #f8f8f8;
       }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
+      h1, h2, h3, h4, h5, h6 {
         font-family: "Playfair Display", serif;
       }
       .product-card:hover {
@@ -46,12 +43,21 @@
       #mobileMenu {
         backdrop-filter: blur(8px);
       }
+      /* Toast style improvements */
+      #toast-container div {
+        z-index: 99999;
+        font-size: 16px;
+      }
     </style>
 
     {% block extra_css %}{% endblock %}
   </head>
 
   <body class="bg-gray-50">
+
+    <!-- ✅ Global Toast Message Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
     <!-- ✅ Navbar -->
     <header class="sticky top-0 bg-white shadow-md z-50">
       <div class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -64,33 +70,30 @@
         </div>
 
         <!-- ✅ Desktop Menu -->
-        <nav
-          id="desktopMenu"
-          class="hidden md:flex space-x-6 items-center text-lg font-medium"
-        >
+        <nav id="desktopMenu" class="hidden md:flex space-x-6 items-center text-lg font-medium">
           <a href="{% url 'home' %}" class="hover:text-red-600 transition">Home</a>
-          <a href="{% url 'view_cart' %}" class="hover:text-red-600 transition"
-            >Cart <i class="fas fa-shopping-cart"></i
-          ></a>
-          <a href="{% url 'wallet' %}" class="hover:text-red-600 transition"
-            >Wallet <i class="fas fa-wallet"></i
-          ></a>
-          <a href="{% url 'orders' %}" class="hover:text-red-600 transition"
-            >Orders <i class="fas fa-box"></i
-          ></a>
+          <a href="{% url 'view_cart' %}" class="hover:text-red-600 transition">
+            Cart <i class="fas fa-shopping-cart"></i>
+          </a>
+          <a href="{% url 'wallet' %}" class="hover:text-red-600 transition">
+            Wallet <i class="fas fa-wallet"></i>
+          </a>
+          <a href="{% url 'orders' %}" class="hover:text-red-600 transition">
+            Orders <i class="fas fa-box"></i>
+          </a>
+          <a href="{% url 'customer_asset_mapping' %}" class="hover:text-red-600 transition">
+            Asset Mapping <i class="fas fa-link"></i>
+          </a>
         </nav>
 
-        <!-- ✅ Right Side Buttons -->
+        <!-- ✅ Right Buttons -->
         <div class="flex items-center space-x-4">
           <input
             type="text"
             placeholder="Search..."
             class="hidden md:block px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 w-64 transition"
           />
-          <button
-            id="mobileMenuBtn"
-            class="md:hidden text-3xl text-red-600 focus:outline-none"
-          >
+          <button id="mobileMenuBtn" class="md:hidden text-3xl text-red-600 focus:outline-none">
             <i class="fas fa-bars"></i>
           </button>
           <form action="{% url 'logout' %}" method="post">
@@ -119,22 +122,21 @@
       </div>
       <div class="flex flex-col items-center mt-10 space-y-6">
         <a href="{% url 'home' %}" class="text-white text-xl hover:text-red-400">Home</a>
-        <a href="{% url 'view_cart' %}" class="text-white text-xl hover:text-red-400"
-          >Cart <i class="fas fa-shopping-cart"></i
-        ></a>
-        <a href="{% url 'wallet' %}" class="text-white text-xl hover:text-red-400"
-          >Wallet <i class="fas fa-wallet"></i
-        ></a>
-        <a href="{% url 'orders' %}" class="text-white text-xl hover:text-red-400"
-          >Orders <i class="fas fa-box"></i
-        ></a>
+        <a href="{% url 'view_cart' %}" class="text-white text-xl hover:text-red-400">
+          Cart <i class="fas fa-shopping-cart"></i>
+        </a>
+        <a href="{% url 'wallet' %}" class="text-white text-xl hover:text-red-400">
+          Wallet <i class="fas fa-wallet"></i>
+        </a>
+        <a href="{% url 'orders' %}" class="text-white text-xl hover:text-red-400">
+          Orders <i class="fas fa-box"></i>
+        </a>
+        <a href="{% url 'customer_asset_mapping' %}" class="text-white text-xl hover:text-red-400">
+          Asset Mapping <i class="fas fa-link"></i>
+        </a>
 
-        <!-- ✅ Mobile Logout Button -->
-        <form
-          action="{% url 'logout' %}"
-          method="post"
-          class="w-3/4 text-center"
-        >
+        <!-- ✅ Mobile Logout -->
+        <form action="{% url 'logout' %}" method="post" class="w-3/4 text-center">
           {% csrf_token %}
           <button
             type="submit"
@@ -159,29 +161,27 @@
       </div>
     </footer>
 
-
+    <!-- ✅ Mobile Menu JS -->
     <script>
       const mobileMenuBtn = document.getElementById("mobileMenuBtn");
       const closeMobileMenu = document.getElementById("closeMobileMenu");
       const mobileMenu = document.getElementById("mobileMenu");
 
-      function openMenu() {
-          console.log("ON Lcick open menu");
-        mobileMenu.classList.remove("-translate-x-full");
-        mobileMenu.classList.add("translate-x-0");
-        document.body.style.overflow = "hidden"; // disable scroll
+      if (mobileMenuBtn && closeMobileMenu && mobileMenu) {
+        mobileMenuBtn.addEventListener("click", () => {
+          mobileMenu.classList.remove("-translate-x-full");
+          mobileMenu.classList.add("translate-x-0");
+          document.body.style.overflow = "hidden";
+        });
+        closeMobileMenu.addEventListener("click", () => {
+          mobileMenu.classList.add("-translate-x-full");
+          mobileMenu.classList.remove("translate-x-0");
+          document.body.style.overflow = "";
+        });
       }
-
-      function closeMenu() {
-        mobileMenu.classList.add("-translate-x-full");
-        mobileMenu.classList.remove("translate-x-0");
-        document.body.style.overflow = ""; // enable scroll
-      }
-
-      mobileMenuBtn.addEventListener("click", openMenu);
-      closeMobileMenu.addEventListener("click", closeMenu);
     </script>
-     {% block extra_js %}
-    {% endblock %}
+
+    <!-- ✅ Page-specific scripts -->
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

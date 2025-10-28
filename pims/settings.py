@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'store',
     'asset',
         'order',
+        'customermapping',
 ]
 
 MIDDLEWARE = [
@@ -86,28 +87,28 @@ WSGI_APPLICATION = 'pims.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'pims',     # Database name (same as you created in pgAdmin)
-#         'USER': 'postgres',           # Default PostgreSQL user
-#         'PASSWORD': 'Admin@123',  # Password you set during installation
-#         'HOST': 'localhost',          # Database host
-#         'PORT': '5433',               # Default PostgreSQL port
-#     }
-# }
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pims',     # Database name (same as you created in pgAdmin)
         'USER': 'postgres',           # Default PostgreSQL user
-        'PASSWORD': 'postgres',  # Password you set during installation
+        'PASSWORD': 'Admin@123',  # Password you set during installation
         'HOST': 'localhost',          # Database host
-        'PORT': '5432',               # Default PostgreSQL port
+        'PORT': '5433',               # Default PostgreSQL port
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'pims',     # Database name (same as you created in pgAdmin)
+#         'USER': 'postgres',           # Default PostgreSQL user
+#         'PASSWORD': 'postgres',  # Password you set during installation
+#         'HOST': 'localhost',          # Database host
+#         'PORT': '5432',               # Default PostgreSQL port
+#     }
+# }
 
 
 # Password validation
@@ -186,3 +187,11 @@ JAZZMIN_SETTINGS = {
     # Optional: custom CSS to keep things neat
     "custom_css": "css/jazzmin_custom.css",
 }
+
+from dotenv import load_dotenv
+load_dotenv()
+API_BASE_URL = os.getenv("API_BASE_URL")
+API_AUTH_USERNAME = os.getenv("API_AUTH_USERNAME")
+API_AUTH_PASSWORD = os.getenv("API_AUTH_PASSWORD")
+
+print("🔍 API_BASE_URL:", os.getenv("API_BASE_URL"))
