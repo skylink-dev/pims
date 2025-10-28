@@ -4,159 +4,186 @@
 {% block title %}Store Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mx-auto p-6">
-  <h1 class="text-3xl font-bold mb-8">📊 Store Insights Dashboard</h1>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+  <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h11l4-8H5.4M7 13l-1.6 8h13.2L17 13M9 21a1 1 0 110-2m6 2a1 1 0 110-2"/>
+    </svg>
+    Store Insights Dashboard
+  </h1>
+</div>
+
 
   <!-- ✅ KPI SUMMARY -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-      <p class="text-gray-500 text-sm">Total Orders</p>
-      <h2 class="text-2xl font-bold text-blue-600">{{ total_orders|default:0 }}</h2>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-      <p class="text-gray-500 text-sm">Completed</p>
-      <h2 class="text-2xl font-bold text-green-600">{{ completed_orders|default:0 }}</h2>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-      <p class="text-gray-500 text-sm">Pending</p>
-      <h2 class="text-2xl font-bold text-yellow-600">{{ pending_orders|default:0 }}</h2>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-      <p class="text-gray-500 text-sm">Total Revenue</p>
-      <h2 class="text-2xl font-bold text-purple-600">₹{{ total_amount|default:"0.00" }}</h2>
+ <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-10">
+  <!-- Total Orders -->
+  <div class="bg-white rounded-xl shadow-sm p-4 border hover:shadow-md transition-all duration-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-500 text-xs sm:text-sm">Total Orders</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-blue-600 mt-1">{{ total_orders|default:0 }}</h2>
+      </div>
+      <div class="bg-blue-100 p-2 sm:p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h11l4-8H5.4M7 13l-1.6 8h13.2L17 13M9 21a1 1 0 110-2m6 2a1 1 0 110-2"/>
+        </svg>
+      </div>
     </div>
   </div>
 
+  <!-- Completed -->
+  <div class="bg-white rounded-xl shadow-sm p-4 border hover:shadow-md transition-all duration-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-500 text-xs sm:text-sm">Completed</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-green-600 mt-1">{{ completed_orders|default:0 }}</h2>
+      </div>
+      <div class="bg-green-100 p-2 sm:p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending -->
+  <div class="bg-white rounded-xl shadow-sm p-4 border hover:shadow-md transition-all duration-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-500 text-xs sm:text-sm">Pending</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-yellow-600 mt-1">{{ pending_orders|default:0 }}</h2>
+      </div>
+      <div class="bg-yellow-100 p-2 sm:p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6 1a9 9 0 11-18 0a9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Revenue -->
+  <div class="bg-white rounded-xl shadow-sm p-4 border hover:shadow-md transition-all duration-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-500 text-xs sm:text-sm">Total Revenue</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-purple-600 mt-1">{{ " " }} ₹{{ total_amount|default:"0.00" }}</h2>
+      </div>
+      <div class="bg-purple-100 p-2 sm:p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2h4V9h-4z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <!-- ✅ CHARTS -->
-  <div class="grid md:grid-cols-2 gap-6 mb-8">
-    <!-- Orders by Status -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">📈 Orders by Status</h2>
-      <canvas id="statusChart" height="140"></canvas>
+  <div class="grid md:grid-cols-2 gap-6 mb-10">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+        </svg>
+        Orders by Status
+      </h2>
+      <div class="relative w-full max-w-[240px] mx-auto">
+          <canvas id="statusChart"></canvas>
+        </div>
     </div>
 
-    <!-- Daily Orders Trend -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold mb-3">📆 Daily Orders Trend</h2>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-indigo-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6l4 4l8-8" />
+        </svg>
+        Daily Orders Trend
+      </h2>
       <canvas id="dailyChart" height="140"></canvas>
     </div>
   </div>
 
-  <!-- ✅ INSIGHTS -->
-  <div class="grid md:grid-cols-2 gap-6">
-    <!-- Category Insights -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold mb-3">📦 Category Insights</h2>
-      {% if category_data %}
-      <ul class="divide-y divide-gray-100">
-        {% for category in category_data %}
-        <li class="flex justify-between py-2">
-          <span class="text-gray-700">{{ category.asset__category__name|default:"Uncategorized" }}</span>
-          <span class="font-medium text-gray-900">
-            {{ category.item_count }} {{ category.item_count|pluralize:"Item,Items" }}
-          </span>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p class="text-gray-500 italic text-sm">No category data available.</p>
-      {% endif %}
-    </div>
-
-    <!-- Top Ordered Assets -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold mb-3">🏅 Top Ordered Assets</h2>
-      {% if top_assets %}
-      <ul class="divide-y divide-gray-100">
-        {% for asset in top_assets %}
-        <li class="flex justify-between py-2">
-          <span class="text-gray-700">{{ asset.asset__name|default:"Unnamed Asset" }}</span>
-          <span class="font-medium text-gray-900">
-            {{ asset.total_orders }} {{ asset.total_orders|pluralize:"Order,Orders" }}
-          </span>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p class="text-gray-500 italic text-sm">No asset data available yet.</p>
-      {% endif %}
-    </div>
-  </div>
-
   <!-- ✅ RECENT ORDERS -->
-  <div class="bg-white mt-8 p-6 rounded-xl shadow-sm border border-gray-100">
-    <h2 class="text-lg font-semibold mb-4">🧾 Recent Orders</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-sm border overflow-x-auto">
+    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-teal-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16m-7 4h7" />
+      </svg>
+      Recent Orders
+    </h2>
     {% if orders %}
-    <div class="overflow-x-auto">
-      <table class="min-w-full border border-gray-100 rounded-lg text-sm">
-        <thead class="bg-gray-50 text-gray-600">
-          <tr>
-            <th class="py-2 px-4 text-left">Order ID</th>
-            <th class="py-2 px-4 text-left">DC No</th>
-            <th class="py-2 px-4 text-left">Items</th>
-            <th class="py-2 px-4 text-left">Amount</th>
-            <th class="py-2 px-4 text-left">Status</th>
-            <th class="py-2 px-4 text-left">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for order in orders %}
-          <tr class="border-t hover:bg-gray-50">
-            <td class="py-2 px-4">{{ order.order_id }}</td>
-            <td class="py-2 px-4">{{ order.dc_number }}</td>
-            <td class="py-2 px-4">{{ order.total_items }}</td>
-            <td class="py-2 px-4">₹{{ order.amount|default:"0.00" }}</td>
-            <td class="py-2 px-4">
-              <span class="px-2 py-1 rounded text-xs 
-                {% if order.status == 'Completed' %}
-                  bg-green-100 text-green-700
-                {% elif order.status == 'Pending' %}
-                  bg-yellow-100 text-yellow-700
-                {% else %}
-                  bg-gray-100 text-gray-700
-                {% endif %}">
-                {{ order.status }}
-              </span>
-            </td>
-            <td class="py-2 px-4">{{ order.created_at|date:"d M Y" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600">
+        <tr>
+          <th class="py-2 px-4 text-left">Order ID</th>
+          <th class="py-2 px-4 text-left">DC No</th>
+          <th class="py-2 px-4 text-left">Items</th>
+          <th class="py-2 px-4 text-left">Amount</th>
+          <th class="py-2 px-4 text-left">Status</th>
+          <th class="py-2 px-4 text-left">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr class="border-t hover:bg-gray-50">
+          <td class="py-2 px-4">{{ order.order_id }}</td>
+          <td class="py-2 px-4">{{ order.dc_number }}</td>
+          <td class="py-2 px-4">{{ order.total_items }}</td>
+          <td class="py-2 px-4 font-semibold">₹{{ order.amount|default:"0.00" }}</td>
+          <td class="py-2 px-4">
+            <span class="px-2 py-1 rounded text-xs font-medium
+              {% if order.status == 'Completed' %} bg-green-100 text-green-700
+              {% elif order.status == 'Pending' %} bg-yellow-100 text-yellow-700
+              {% else %} bg-gray-100 text-gray-700 {% endif %}">
+              {{ order.status }}
+            </span>
+          </td>
+          <td class="py-2 px-4">{{ order.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% else %}
-    <p class="text-gray-500 text-sm">No orders yet.</p>
+    <p class="text-gray-500 italic text-sm">No recent orders found.</p>
     {% endif %}
   </div>
 </div>
 
-<!-- ✅ Tailwind + Chart.js -->
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- ✅ Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // ✅ Orders by Status
   const statusCtx = document.getElementById('statusChart');
   new Chart(statusCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Completed', 'Pending'],
-      datasets: [{
-        data: [{{ completed_orders|default:0 }}, {{ pending_orders|default:0 }}],
-        backgroundColor: ['#22c55e', '#facc15'],
-        borderWidth: 0
-      }]
+  type: 'doughnut',
+  data: {
+    labels: ['Completed', 'Pending'],
+    datasets: [{
+      data: [{{ completed_orders|default:0 }}, {{ pending_orders|default:0 }}],
+      backgroundColor: ['#22c55e', '#facc15'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // key: let container decide size
+    cutout: '70%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 12, font: { size: 12 } }
+      }
     },
-    options: {
-      plugins: { legend: { position: 'bottom' } },
-      cutout: '70%'
-    }
-  });
+    layout: { padding: 10 }
+  }
+});
 
-  // ✅ Daily Orders Trend
+
+
   const dailyOrders = JSON.parse('{{ daily_orders_json|default:"[]"|escapejs }}');
-  if (dailyOrders.length > 0) {
+  if (dailyOrders.length) {
     new Chart(document.getElementById('dailyChart'), {
       type: 'line',
       data: {
@@ -167,13 +194,10 @@ document.addEventListener("DOMContentLoaded", () => {
           fill: true,
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59,130,246,0.15)',
-          tension: 0.3
+          tension: 0.4
         }]
       },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-      }
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
 });
