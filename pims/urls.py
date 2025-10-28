@@ -30,6 +30,7 @@ urlpatterns = [
 
     # ✅ Order app (orders list, detail, etc.)
     path('order/', include('order.urls')),
+    path('store/', include('store.urls')),  # store-related pages
 ]
 
 # ✅ Serve media files in debug mode

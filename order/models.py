@@ -9,6 +9,7 @@ class Order(models.Model):
         ('Paid', 'Paid'),
         ('Failed', 'Failed'),
         ('Cancelled', 'Cancelled'),
+        ('Completed', 'Completed'),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ✅ Fix here
@@ -64,3 +65,12 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Order Item"
         verbose_name_plural = "Order Items"
+
+
+class OrderItemSerial(models.Model):
+    order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='serials')
+    serial_number = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.order_item.asset.name} - {self.serial_number}"
