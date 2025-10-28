@@ -5,12 +5,21 @@
 
 {% block content %}
 <section class="container mx-auto px-4 sm:px-6 py-12">
-  <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-red-600 text-center animate-pulse">🛒 My Cart</h1>
+  <!-- Title -->
+  <div class="flex items-center justify-center mb-10 space-x-3">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24"
+      stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h13L17 13M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+    </svg>
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">My Cart</h1>
+  </div>
 
-  <div class="overflow-x-auto bg-white rounded-xl shadow-md transition-transform duration-300 hover:shadow-2xl">
+  <!-- Cart Table -->
+  <div class="overflow-x-auto bg-white rounded-2xl shadow-md transition-all duration-300 hover:shadow-2xl">
     <table class="min-w-full text-sm sm:text-base">
       <thead>
-        <tr class="bg-red-100">
+        <tr class="bg-gradient-to-r from-red-50 to-red-100">
           <th class="py-3 px-4 text-left text-gray-700 font-semibold">Product</th>
           <th class="py-3 px-4 text-left text-gray-700 font-semibold">Price</th>
           <th class="py-3 px-4 text-left text-gray-700 font-semibold">Quantity</th>
@@ -20,29 +29,54 @@
       <tbody>
         {% for item in cart_items %}
         <tr class="border-b hover:bg-gray-50 transition duration-300">
-          <td class="py-3 px-4 font-medium">{{ item.asset.name }}</td>
-          <td class="py-3 px-4 text-red-600 font-bold">₹{{ item.asset.purchase_price }}</td>
-          <td class="py-3 px-4">
+          <td class="py-4 px-4 font-medium flex items-center space-x-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 7l9 6 9-6M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+            </svg>
+            <span>{{ item.asset.name }}</span>
+          </td>
+          <td class="py-4 px-4 text-red-600 font-bold">₹{{ item.asset.purchase_price }}</td>
+          <td class="py-4 px-4">
             <form class="update-cart-form flex items-center space-x-2" data-asset-id="{{ item.asset.id }}">
               {% csrf_token %}
               <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
                 class="w-14 sm:w-20 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none transition" />
               <button type="submit"
-                class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-xs sm:text-sm">
+                class="flex items-center bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-xs sm:text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 13l4 4L19 7" />
+                </svg>
                 Update
               </button>
             </form>
           </td>
-          <td class="py-3 px-4">
-            <button class="remove-from-cart bg-gray-200 hover:bg-red-600 hover:text-white px-4 py-1 rounded-lg transition"
+          <td class="py-4 px-4">
+            <button
+              class="flex items-center remove-from-cart bg-gray-100 hover:bg-red-600 hover:text-white px-3 py-1 rounded-lg transition text-xs sm:text-sm"
               data-asset-id="{{ item.asset.id }}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+              </svg>
               Remove
             </button>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="4" class="py-4 px-4 text-center text-gray-500">Your cart is empty.</td>
+          <td colspan="4" class="py-6 px-4 text-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+            </svg>
+            Your cart is empty.
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -50,17 +84,34 @@
   </div>
 
   {% if cart_items %}
-  <div class="mt-6 text-right font-bold text-2xl text-red-600">
-    Total: ₹{{ total_price }}
-  </div>
+  <!-- Total -->
+  <div class="mt-8 flex flex-col sm:flex-row justify-between items-center text-center sm:text-right">
+    <div class="text-xl sm:text-2xl font-semibold text-gray-800">
+      Total: <span class="text-red-600 font-bold">₹{{ total_price }}</span>
+    </div>
 
-  <div class="flex flex-col sm:flex-row justify-end mt-8 gap-4 sm:gap-6">
-    <a href="{% url 'home' %}" class="inline-block bg-gray-300 text-gray-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-400 transition transform hover:scale-105">
-      ← Add More Items
-    </a>
-    <a href="{% url 'checkout' %}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition transform hover:scale-105">
-      Proceed to Checkout →
-    </a>
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row mt-6 sm:mt-0 gap-4">
+      <a href="{% url 'home' %}"
+        class="flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold transition transform hover:scale-105">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 19l-7-7 7-7" />
+        </svg>
+        Add More Items
+      </a>
+
+      <a href="{% url 'checkout' %}"
+        class="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition transform hover:scale-105">
+        Proceed to Checkout
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
   </div>
   {% endif %}
 </section>
@@ -68,11 +119,31 @@
 <!-- ✅ Success Modal -->
 <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
   <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-lg animate-fadeIn">
-    <i class="fas fa-check-circle text-green-500 text-5xl mb-3 animate-bounce"></i>
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto text-green-500 mb-3" fill="none"
+      viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z" />
+    </svg>
     <h2 class="text-2xl font-bold text-gray-800 mb-2">Success!</h2>
     <p id="successMessage" class="text-gray-600 mb-4"></p>
-    <button onclick="closeModal()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+    <button onclick="closeModal('successModal')" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
       OK
+    </button>
+  </div>
+</div>
+
+<!-- ❌ Failure Modal -->
+<div id="failureModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-lg animate-fadeIn">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto text-red-500 mb-3" fill="none"
+      viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Oops!</h2>
+    <p id="failureMessage" class="text-gray-600 mb-4"></p>
+    <button onclick="closeModal('failureModal')" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+      Try Again
     </button>
   </div>
 </div>
@@ -80,18 +151,34 @@
 
 {% block extra_js %}
 <script>
-function showModal(message) {
-  document.getElementById('successMessage').textContent = message;
-  document.getElementById('successModal').classList.remove('hidden');
-}
-function closeModal() {
-  document.getElementById('successModal').classList.add('hidden');
+function showModal(modalId, message) {
+  const modal = document.getElementById(modalId);
+  const messageEl = modal.querySelector("p");
+  messageEl.textContent = message;
+  modal.classList.remove('hidden');
+
+  // ⏳ Auto close after 3 seconds (adjustable)
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 3000);
 }
 
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add('hidden');
+}
+
+// ✅ Example success/failure triggers
 document.querySelectorAll('.update-cart-form').forEach(form => {
   form.addEventListener('submit', e => {
     e.preventDefault();
-    showModal("Cart updated successfully!");
+
+    // Fake example — replace with real success/failure logic
+    const success = Math.random() > 0.3; // 70% chance success
+    if (success) {
+      showModal("successModal", "Cart updated successfully!");
+    } else {
+      showModal("failureModal", "Failed to update cart. Please try again!");
+    }
   });
 });
 </script>

@@ -5,15 +5,23 @@
 
 {% block content %}
 <section class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-  <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-red-600 text-center tracking-tight animate-fadeDown">
+  <h1 class="flex items-center justify-center gap-3 text-3xl sm:text-4xl font-extrabold mb-8 text-gray-900 tracking-tight animate-fadeDown">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18l-2 13H5L3 3zm3 16a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z" />
+    </svg>
     Checkout
   </h1>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 animate-fadeUp">
-    
+
     <!-- 🧾 Order Summary -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300">
-      <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">Order Summary</h2>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300 border border-gray-100">
+      <h2 class="flex items-center gap-2 text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+        Order Summary
+      </h2>
 
       {% if cart_items %}
         <div class="divide-y divide-gray-200">
@@ -34,50 +42,66 @@
           <p class="text-xl font-bold text-gray-800">Total: ₹{{ total_price|floatformat:2 }}</p>
         </div>
       {% else %}
-        <p class="text-gray-500 text-center py-6">Your cart is empty.</p>
+        <div class="flex flex-col items-center text-center py-6 text-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14h6m2 0a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v5a2 2 0 002 2h10z" />
+          </svg>
+          <p>Your cart is empty.</p>
+        </div>
       {% endif %}
     </div>
 
-    <!-- 🧍 Customer Information -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300">
-      <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">Billing Details</h2>
-      
+    <!-- 🧍 Billing Details -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300 border border-gray-100">
+      <h2 class="flex items-center gap-2 text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-3.31 0-6 2.69-6 6h12c0-3.31-2.69-6-6-6z" />
+        </svg>
+        Billing Details
+      </h2>
+
       <form method="POST" action="{% url 'place_order' %}" class="space-y-5 animate-slideIn">
         {% csrf_token %}
-        
-        <div class="w-full">
+
+        <div>
           <label class="block text-gray-700 font-medium mb-1">Full Name</label>
           <input type="text" name="name" value="{{ partner.first_name }} {{ partner.last_name }}" required
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none shadow-sm transition" />
         </div>
 
-        <div class="w-full">
+        <div>
           <label class="block text-gray-700 font-medium mb-1">Email</label>
           <input type="email" name="email" value="{{ request.user.email }}" required
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none shadow-sm transition" />
         </div>
 
-        <div class="w-full">
+        <div>
           <label class="block text-gray-700 font-medium mb-1">Phone Number</label>
           <input type="text" name="phone" value="{{ partner.phone }}" required
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none shadow-sm transition" />
         </div>
 
-        <div class="w-full">
+        <div>
           <label class="block text-gray-700 font-medium mb-1">Address</label>
           <textarea name="address" rows="3" required
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm resize-none">{{ partner.address }}</textarea>
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none shadow-sm resize-none">{{ partner.address }}</textarea>
         </div>
 
         <!-- 🔘 Payment Button -->
         <button type="submit"
-          class="w-full bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 active:scale-95 shadow-md transition-all duration-200 ease-out">
+          class="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-500 active:scale-95 shadow-md transition-all duration-200 ease-out flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2H5v12h14V9h-2zm-8 0V7a3 3 0 016 0v2H9z" />
+          </svg>
           Proceed to Payment
         </button>
 
         <!-- 🔙 Continue Shopping -->
-        <a href="{% url 'home' %}" 
-          class="block text-center w-full mt-3 bg-gray-100 text-gray-800 font-medium py-3 rounded-xl hover:bg-gray-200 active:scale-95 transition-all duration-200">
+        <a href="{% url 'home' %}"
+          class="flex items-center justify-center gap-2 text-center w-full mt-3 bg-gray-100 text-gray-800 font-medium py-3 rounded-xl hover:bg-gray-200 active:scale-95 transition-all duration-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
           Continue Shopping
         </a>
       </form>
@@ -85,33 +109,19 @@
   </div>
 </section>
 
-<!-- ✨ Animations + Mobile Styles -->
+<!-- ✨ Animations + Responsive Tweaks -->
 <style>
 @keyframes fadeDown { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
 @keyframes fadeUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
 @keyframes slideIn { from {opacity: 0; transform: translateX(15px);} to {opacity: 1; transform: translateX(0);} }
+
 .animate-fadeDown { animation: fadeDown 0.6s ease-out; }
 .animate-fadeUp { animation: fadeUp 0.6s ease-out; }
 .animate-slideIn { animation: slideIn 0.6s ease-in-out; }
 
-textarea {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: #1f2937;
-  resize: none;
-  transition: all 0.2s ease;
-}
-textarea:focus {
-  outline: none;
-  border-color: #dc2626;
-  box-shadow: 0 0 0 2px rgba(220,38,38,0.2);
-}
-
 @media (max-width: 768px) {
   section { padding: 1.5rem 1rem; }
-  h1 { font-size: 1.8rem; }
+  h1 { font-size: 1.9rem; }
   .grid { gap: 1.5rem; }
   input, textarea { font-size: 16px; }
   button, a { font-size: 1rem; }

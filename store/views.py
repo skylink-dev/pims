@@ -6,7 +6,8 @@ def order_list(request):
     orders = Order.objects.all().order_by('-created_at')
     return render(request, 'store/order_list.html', {'orders': orders})
 
-def update_serials(request, item_id):
+def update_serials(request, item_id):  # ✅ moved inside
+
     item = get_object_or_404(OrderItem, id=item_id)
     if request.method == 'POST':
         serials = request.POST.getlist('serial_numbers')
@@ -28,7 +29,6 @@ def update_serials(request, item_id):
         return redirect('order_list')
 
     return redirect('order_list')
-
 def mark_order_completed(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order.status = "Completed"
