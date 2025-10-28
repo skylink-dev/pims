@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Skyplay ISP Store{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- JS -->
+  <script src="{% static 'js/cart.js' %}" defer></script>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f8f8f8;
+    }
+    h1,h2,h3,h4,h5,h6 {
+      font-family: 'Playfair Display', serif;
+    }
+    .banner-slide { transition: opacity 1s ease-in-out; }
+    .product-card:hover {
+      transform: translateY(-8px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .filter-btn.active {
+      background-color: #c53030;
+      color: #fff;
+    }
+    #mobileMenu { backdrop-filter: blur(8px); }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- ✅ Navbar -->
+  <header class="sticky top-0 bg-white shadow-md z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-network-wired text-red-600 text-3xl"></i>
+        <h1 class="text-2xl md:text-3xl font-bold text-red-800">Skyplay ISP Store</h1>
+      </div>
+
+      <!-- ✅ Desktop Menu -->
+      <nav id="desktopMenu" class="hidden md:flex space-x-6 items-center text-lg font-medium">
+        <a href="{% url 'home' %}" class="hover:text-red-600 transition">Home</a>
+        <a href="{% url 'view_cart' %}" class="hover:text-red-600 transition">
+          Cart <i class="fas fa-shopping-cart"></i>
+        </a>
+        <a href="{% url 'wallet' %}" class="hover:text-red-600 transition">
+          Wallet <i class="fas fa-wallet"></i>
+        </a>
+        <a href="{% url 'orders' %}" class="hover:text-red-600 transition">
+          Orders <i class="fas fa-box"></i>
+        </a>
+      </nav>
+
+      <!-- ✅ Right Side Buttons -->
+      <div class="flex items-center space-x-4">
+        <input type="text" placeholder="Search..." class="hidden md:block px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 w-64 transition" />
+        <button id="mobileMenuBtn" class="md:hidden text-3xl text-red-600"><i class="fas fa-bars"></i></button>
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <!-- ✅ Mobile Menu -->
+  <div id="mobileMenu" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-95 z-50 transform -translate-x-full transition-transform duration-300">
+    <div class="flex justify-end p-4">
+      <button id="closeMobileMenu" class="text-white text-3xl"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="flex flex-col items-center mt-10 space-y-6">
+      <a href="{% url 'home' %}" class="text-white text-xl hover:text-red-400">Home</a>
+      <a href="{% url 'view_cart' %}" class="text-white text-xl hover:text-red-400">
+        Cart <i class="fas fa-shopping-cart"></i>
+      </a>
+      <a href="{% url 'wallet' %}" class="text-white text-xl hover:text-red-400">
+        Wallet <i class="fas fa-wallet"></i>
+      </a>
+      <a href="{% url 'orders' %}" class="text-white text-xl hover:text-red-400">
+        Orders <i class="fas fa-box"></i>
+      </a>
+
+      <!-- ✅ Mobile Logout Button -->
+      <form action="{% url 'logout' %}" method="post" class="w-3/4">
+        {% csrf_token %}
+        <button type="submit"
+          class="w-full mt-6 bg-red-600 text-white text-lg font-semibold py-3 rounded-lg shadow-md hover:bg-red-700 transition flex items-center justify-center space-x-2">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ✅ Main Content -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- ✅ Footer -->
+  <footer class="bg-gray-900 text-white py-16 mt-10">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-lg">&copy; {{ now|date:"Y" }} Skyplay ISP Store. All rights reserved.</p>
+    </div>
+  </footer>
+
+  {% block extra_js %}
+  <script>
+    // ✅ Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeMobileMenu = document.getElementById('closeMobileMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileMenu.style.transform = 'translateX(0)');
+    if (closeMobileMenu) closeMobileMenu.addEventListener('click', () => mobileMenu.style.transform = 'translateX(-100%)');
+  </script>
+  {% endblock %}
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- ✅ Hidden popup overlay -->
+<div id="successPopup" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 text-center w-11/12 sm:w-96 animate-popIn">
+    <div class="flex justify-center mb-4">
+      <div class="bg-green-100 text-green-600 rounded-full p-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful 🎉</h2>
+    <p class="text-gray-600 mb-6">Your order has been placed successfully. Thank you for shopping with Skyplay!</p>
+
+    <button id="closePopup" class="w-full bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 transition">
+      Continue to Home
+    </button>
+  </div>
+</div>
+
+<script>
+// ✅ Animation
+document.addEventListener("DOMContentLoaded", function() {
+  const popup = document.getElementById("successPopup");
+  const closeBtn = document.getElementById("closePopup");
+
+  // Show popup automatically
+  popup.classList.remove("hidden");
+
+  // Auto close after 4 seconds
+  setTimeout(() => {
+    window.location.href = "{% url 'home' %}";
+  }, 6000);
+
+  // Close on button click
+  closeBtn.addEventListener("click", () => {
+    window.location.href = "{% url 'home' %}";
+  });
+});
+</script>
+
+<style>
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-popIn {
+  animation: popIn 0.5s ease-out;
+}
+</style>
+{% endblock %}

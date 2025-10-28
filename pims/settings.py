@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'partner',
     'store',
     'asset',
+        'order',
 ]
 
 MIDDLEWARE = [
@@ -60,12 +61,13 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
-
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -166,14 +168,20 @@ JAZZMIN_SETTINGS = {
     "site_title": "PIMS Admin",
     "site_header": "PIMS Admin Panel",
     "welcome_sign": "Welcome to PIMS Dashboard",
-    "site_logo": None,  # You can add a logo path here
+    "site_logo": None,
+
     "search_model": "auth.User",
     "topmenu_links": [
-        {"name": "Home",  "url": "/", "permissions": ["auth.view_user"]},
-        {"name": "Support",  "url": "/admin/", "permissions": ["auth.view_user"]},
+        {"name": "Home", "url": "/", "permissions": ["auth.view_user"]},
+        {"name": "Support", "url": "/admin/", "permissions": ["auth.view_user"]},
     ],
-    "show_sidebar": True,
-    "navigation_expanded": True,
+
+    # ✅ Sidebar behavior
+    "show_sidebar": True,            # Show sidebar
+    "navigation_expanded": False,    # Hide submenus until user clicks to open
+    "hide_apps": [],                 # Optional: show all apps
+    "hide_models": [],               # Optional: show all models
+
+    # Optional: custom CSS to keep things neat
+    "custom_css": "css/jazzmin_custom.css",
 }
-
-

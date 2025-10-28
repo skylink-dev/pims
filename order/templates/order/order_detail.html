@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.order_id }} — Skyplay{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-bold mb-2">Order #{{ order.order_id }}</h2>
+    <div class="text-sm text-gray-600 mb-4">
+      Placed: {{ order.created_at|date:"d M Y, H:i" }}
+    </div>
+
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="p-2 text-left">Item</th>
+          <th class="p-2 text-center">Qty</th>
+          <th class="p-2 text-right">Price</th>
+          <th class="p-2 text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr class="border-b">
+          <td class="p-2">{{ it.asset.name }}</td>
+          <td class="p-2 text-center">{{ it.quantity }}</td>
+          <td class="p-2 text-right">₹{{ it.price|floatformat:2 }}</td>
+          <td class="p-2 text-right">
+            ₹{% widthratio it.price 1 it.quantity %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="p-2 text-right font-bold">Total</td>
+          <td class="p-2 text-right font-bold">
+            ₹{{ order.amount|floatformat:2 }}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="mt-4 flex gap-3">
+      <a href="#" onclick="window.print()" class="px-4 py-2 bg-gray-100 rounded">
+        Print
+      </a>
+      <a href="{% url 'orders' %}" class="px-4 py-2 bg-red-600 text-white rounded">
+        Back to Orders
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
