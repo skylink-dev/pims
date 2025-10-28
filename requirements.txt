@@ -1,0 +1,19 @@
+# Core Django framework
+Django==4.2.19
+
+# Environment variable management
+python-decouple==3.8
+
+# PostgreSQL database adapter
+psycopg2-binary==2.9.9
+
+# PDF generation
+reportlab==4.2.2
+
+# Django Admin Theme
+django-jazzmin==3.0.0
+
+# Optional — commonly used with Django projects
+Pillow==10.4.0             # For image uploads (MEDIA files)
+gunicorn==23.0.0           # For production server (optional)
+whitenoise==6.7.0          # For serving static files in production
