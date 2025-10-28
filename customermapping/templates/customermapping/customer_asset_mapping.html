@@ -4,32 +4,56 @@
 {% block title %}Customer Asset Mapping{% endblock %}
 
 {% block content %}
-<div class="container mx-auto p-6">
-  <h2 class="text-3xl font-bold mb-6 text-red-700">Customer Asset Mapping</h2>
+<div class="container mx-auto px-4 sm:px-6 py-8">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-900 flex items-center gap-2">
+    <svg class="w-7 h-7 text-red-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    Customer Asset Mapping
+  </h2>
 
   <!-- Modal -->
   <div
     id="mapModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4"
   >
-    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-      <h3 class="text-xl font-semibold mb-3">Map Asset to Customer</h3>
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl relative">
+      <!-- Close button -->
+      <button id="cancelMap" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <h3 class="text-2xl font-semibold mb-5 text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Map Asset to Customer
+      </h3>
 
       <!-- Search Section -->
-      <div class="mb-4 flex items-center space-x-2">
+      <div class="flex items-center gap-2 mb-4">
         <input
           id="searchPhone"
-          class="border p-2 rounded w-full"
-          placeholder="Enter customer phone"
+          class="border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition rounded-lg p-2 w-full"
+          placeholder="Enter customer phone number"
         />
-        <button id="btnSearch" class="bg-red-600 text-white px-3 py-2 rounded">
+        <button
+          id="btnSearch"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-1 transition"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+          </svg>
           Search
         </button>
       </div>
+
       <div id="searchStatus" class="mb-3 text-sm text-gray-600"></div>
 
       <!-- Customer Info -->
-      <div id="customerCard" class="hidden bg-gray-50 p-3 rounded mb-4 border">
+      <div id="customerCard" class="hidden bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
         <p><strong>Name:</strong> <span id="cust_name"></span></p>
         <p><strong>Phone:</strong> <span id="cust_phone"></span></p>
         <p><strong>Email:</strong> <span id="cust_email"></span></p>
@@ -37,14 +61,14 @@
       </div>
 
       <!-- Buttons -->
-      <div class="flex justify-end space-x-2">
-        <button id="cancelMap" class="px-3 py-2 rounded bg-gray-300">
-          Cancel
-        </button>
+      <div class="flex justify-end space-x-3 mt-6">
         <button
           id="confirmMap"
-          class="px-3 py-2 rounded bg-green-600 text-white hidden"
+          class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-1 transition"
         >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
           Assign
         </button>
       </div>
@@ -52,119 +76,101 @@
   </div>
 
   <!-- Asset Table -->
-  <form method="post">
-    {% csrf_token %}
-    <table class="min-w-full bg-white border rounded shadow-sm">
-     <thead class="bg-gray-100">
-            <tr>
-                <th class="p-2 border">Order ID</th>
-                <th class="p-2 border">Asset Name</th>
-                <th class="p-2 border">Serial</th>
-                <th class="p-2 border">Mapped To</th>
-                <th class="p-2 border">Sky ID</th>
-                <th class="p-2 border">Payment Status</th>
-                <th class="p-2 border">Mapped Date</th>
-                <th class="p-2 border">Assigned By</th>
-                <th class="p-2 border">Action</th>
-            </tr>
-        </thead>
+  <div class="overflow-x-auto bg-white shadow-lg rounded-xl">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr class="text-gray-700 text-sm sm:text-base">
+          <th class="p-3 text-left">Order ID</th>
+          <th class="p-3 text-left">Asset Name</th>
+          <th class="p-3 text-left">Serial</th>
+          <th class="p-3 text-left">Mapped To</th>
+          <th class="p-3 text-left">Sky ID</th>
+          <th class="p-3 text-left">Payment</th>
+          <th class="p-3 text-left">Mapped Date</th>
+          <th class="p-3 text-left">Assigned By</th>
+          <th class="p-3 text-center">Action</th>
+        </tr>
+      </thead>
 
-        <tbody>
-            {% for s in serials %}
-            {% with mapping=s.customerassetmapping_set.first %}
-            <tr class="border-b hover:bg-gray-50">
-                <!-- Order ID -->
-                <td class="p-2">
-                {{ s.order_item.order.order_id }}
-                </td>
-
-                <!-- Asset Name -->
-                <td class="p-2">
-                {{ s.order_item.asset.name }}
-                </td>
-
-                <!-- Serial Number -->
-                <td class="p-2">
-                {{ s.serial_number }}
-                </td>
-
-                <!-- Customer Info -->
-                <td class="p-2">
-                {% if mapping %}
-                    {{ mapping.customer_name }} ({{ mapping.phone }})
-                {% else %}
-                    —
-                {% endif %}
-                </td>
-
-                <!-- Sky ID -->
-                <td class="p-2">
-                {% if mapping.skyid %}
-                    {{ mapping.skyid }}
-                {% else %}
-                    —
-                {% endif %}
-                </td>
-
-                <!-- Payment Status -->
-                <td class="p-2">
-                {% if s.order_item.order.payment_status %}
-                    {{ s.order_item.order.payment_status }}
-                {% else %}
-                    Paid
-                {% endif %}
-                </td>
-
-                <!-- Mapped Date -->
-                <td class="p-2">
-                {% if mapping %}
-                    {{ mapping.assigned_at|date:"d-M-Y h:i A" }}
-                {% else %}
-                    —
-                {% endif %}
-                </td>
-
-                <!-- Assigned By -->
-                <td class="p-2">
-                {% if mapping.assigned_by %}
-                    {{ mapping.assigned_by.username }}
-                {% else %}
-                    —
-                {% endif %}
-                </td>
-
-                <!-- Action -->
-                <td class="p-2 text-center">
-                {% if mapping %}
-                    <button class="px-3 py-1 rounded bg-gray-400 text-white" disabled>
-                    Mapped
-                    </button>
-                {% else %}
-                    <button
-                    type="button"
-                    class="px-3 py-1 rounded bg-green-600 text-white open-map-modal"
-                    data-serial="{{ s.id }}"
-                    >
-                    Map Customer
-                    </button>
-                {% endif %}
-                </td>
-            </tr>
-            {% endwith %}
-            {% empty %}
-            <tr>
-                <td colspan="9" class="text-center p-4 text-gray-500">
-                No assets available for mapping.
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
-  </form>
+      <tbody class="divide-y divide-gray-100 text-gray-800">
+        {% for s in serials %}
+        {% with mapping=s.customerassetmapping_set.first %}
+        <tr class="hover:bg-gray-50 transition">
+          <td class="p-3">{{ s.order_item.order.order_id }}</td>
+          <td class="p-3">{{ s.order_item.asset.name }}</td>
+          <td class="p-3 font-mono text-sm">{{ s.serial_number }}</td>
+          <td class="p-3">
+            {% if mapping %}
+            {{ mapping.customer_name }} ({{ mapping.phone }})
+            {% else %}
+            <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="p-3">
+            {% if mapping.skyid %}
+            {{ mapping.skyid }}
+            {% else %}
+            <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="p-3">
+            {% if s.order_item.order.payment_status %}
+            {{ s.order_item.order.payment_status }}
+            {% else %}
+            Paid
+            {% endif %}
+          </td>
+          <td class="p-3 text-sm">
+            {% if mapping %}
+            {{ mapping.assigned_at|date:"d-M-Y h:i A" }}
+            {% else %}
+            <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="p-3 text-sm">
+            {% if mapping.assigned_by %}
+            {{ mapping.assigned_by.username }}
+            {% else %}
+            <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="p-3 text-center">
+            {% if mapping %}
+            <button
+              class="px-3 py-1 rounded-lg bg-gray-400 text-white flex items-center gap-1 justify-center text-sm cursor-not-allowed"
+              disabled
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Mapped
+            </button>
+            {% else %}
+            <button
+              type="button"
+              class="open-map-modal px-3 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm flex items-center gap-1 justify-center transition"
+              data-serial="{{ s.id }}"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Map Customer
+            </button>
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center p-6 text-gray-500">No assets available for mapping.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'js/customer_mapping.js' %}"></script>
+<script src="{% static 'js/customer_mapping.js' %}"></script>
 {% endblock %}
