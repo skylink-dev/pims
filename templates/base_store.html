@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Skyplay Store{% endblock %}</title>
+ <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f9fafb;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* ✅ Popup Animation */
+    #popup-message {
+      transition: all 0.4s ease-in-out;
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    #popup-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- ✅ Global Popup Message -->
+  <div id="popup-message" 
+       class="fixed top-5 right-5 z-50 hidden bg-white border-l-4 text-gray-800 px-5 py-3 rounded-lg shadow-lg w-72 sm:w-80 transition-all transform">
+    <div class="flex items-center space-x-3">
+      <span id="popup-icon" class="text-green-500 text-xl">✅</span>
+      <div>
+        <p class="font-semibold text-sm" id="popup-title">Success</p>
+        <p class="text-xs text-gray-600" id="popup-text">Action completed successfully.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Navbar -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <img
+        src="{% static 'images/logo.png' %}"
+        alt="Skyplay ISP Store Logo"
+        class="w-10 h-10 object-contain"
+      />
+        <h1 class="text-2xl font-bold text-red-800">Skyplay Store</h1>
+      </div>
+
+      <nav class="hidden md:flex space-x-6 font-medium">
+        <a href="{% url 'home' %}" class="hover:text-red-600 transition">Dashboard</a>
+        <a href="{% url 'order_list' %}" class="hover:text-red-600 transition">Orders</a>
+      </nav>
+
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <!-- ✅ Main Content -->
+  <main class="container mx-auto mt-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ✅ Footer -->
+  <footer class="bg-gray-900 text-white py-6 mt-10 text-center">
+    <p>&copy; {{ now|date:"Y" }} Skyplay ISP Store. All rights reserved.</p>
+  </footer>
+
+  <!-- ✅ Popup Logic JS -->
+  <script>
+  function showPopup(title, text, color = 'green') {
+    const popup = document.getElementById('popup-message');
+    const icon = document.getElementById('popup-icon');
+    const titleEl = document.getElementById('popup-title');
+    const textEl = document.getElementById('popup-text');
+
+    titleEl.textContent = title;
+    textEl.textContent = text;
+
+    // Reset and set border color
+    popup.classList.remove('border-red-500', 'border-green-500', 'border-blue-500');
+    popup.classList.add(`border-${color}-500`);
+
+    // Update icon color and symbol
+    if (color === 'green') {
+      icon.textContent = '✅';
+      icon.className = 'text-green-500 text-xl';
+    } else if (color === 'red') {
+      icon.textContent = '⚠️';
+      icon.className = 'text-red-500 text-xl';
+    } else {
+      icon.textContent = 'ℹ️';
+      icon.className = 'text-blue-500 text-xl';
+    }
+
+    // Show popup
+    popup.classList.remove('hidden');
+    popup.classList.add('show');
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      popup.classList.remove('show');
+      setTimeout(() => popup.classList.add('hidden'), 400);
+    }, 3000);
+  }
+
+  function validateSerials(form) {
+    const inputs = form.querySelectorAll('.serial-input');
+    for (const input of inputs) {
+      if (input.value.trim() === '') {
+        showPopup('Incomplete Form', 'Please fill all serial numbers before updating.', 'red');
+        input.focus();
+        return false;
+      }
+    }
+    showPopup('Success', 'Serial numbers updated successfully!', 'green');
+    return true;
+  }
+  </script>
+  {% if messages %}
+<div class="fixed top-4 right-4 z-50 space-y-2">
+  {% for message in messages %}
+  <div
+    class="px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium
+    {% if message.tags == 'success' %}bg-green-600
+    {% elif message.tags == 'error' %}bg-red-600
+    {% else %}bg-gray-600{% endif %}">
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
