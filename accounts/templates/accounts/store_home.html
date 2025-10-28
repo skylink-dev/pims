@@ -106,33 +106,36 @@
   </div>
 
   <!-- ✅ RECENT ORDERS -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border overflow-x-auto">
-    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-teal-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16m-7 4h7" />
-      </svg>
-      Recent Orders
-    </h2>
-    {% if orders %}
-    <table class="min-w-full text-sm">
-      <thead class="bg-gray-50 text-gray-600">
+  <div class="bg-white p-6 rounded-2xl shadow-sm border">
+  <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-teal-600">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16m-7 4h7" />
+    </svg>
+    Recent Orders
+  </h2>
+
+  {% if orders %}
+  <!-- Desktop Table -->
+  <div class="hidden md:block overflow-x-auto">
+    <table class="min-w-full text-sm border-collapse">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
         <tr>
-          <th class="py-2 px-4 text-left">Order ID</th>
-          <th class="py-2 px-4 text-left">DC No</th>
-          <th class="py-2 px-4 text-left">Items</th>
-          <th class="py-2 px-4 text-left">Amount</th>
-          <th class="py-2 px-4 text-left">Status</th>
-          <th class="py-2 px-4 text-left">Date</th>
+          <th class="py-3 px-4 text-left">Order ID</th>
+          <th class="py-3 px-4 text-left">DC No</th>
+          <th class="py-3 px-4 text-left">Items</th>
+          <th class="py-3 px-4 text-left">Amount</th>
+          <th class="py-3 px-4 text-left">Status</th>
+          <th class="py-3 px-4 text-left">Date</th>
         </tr>
       </thead>
       <tbody>
         {% for order in orders %}
-        <tr class="border-t hover:bg-gray-50">
-          <td class="py-2 px-4">{{ order.order_id }}</td>
-          <td class="py-2 px-4">{{ order.dc_number }}</td>
-          <td class="py-2 px-4">{{ order.total_items }}</td>
-          <td class="py-2 px-4 font-semibold">₹{{ order.amount|default:"0.00" }}</td>
-          <td class="py-2 px-4">
+        <tr class="border-b hover:bg-gray-50 transition">
+          <td class="py-3 px-4 font-medium text-gray-800">{{ order.order_id }}</td>
+          <td class="py-3 px-4">{{ order.dc_number }}</td>
+          <td class="py-3 px-4">{{ order.total_items }}</td>
+          <td class="py-3 px-4 font-semibold text-gray-700">₹{{ order.amount|default:"0.00" }}</td>
+          <td class="py-3 px-4">
             <span class="px-2 py-1 rounded text-xs font-medium
               {% if order.status == 'Completed' %} bg-green-100 text-green-700
               {% elif order.status == 'Pending' %} bg-yellow-100 text-yellow-700
@@ -140,15 +143,43 @@
               {{ order.status }}
             </span>
           </td>
-          <td class="py-2 px-4">{{ order.created_at|date:"d M Y" }}</td>
+          <td class="py-3 px-4 text-gray-600">{{ order.created_at|date:"d M Y" }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% else %}
-    <p class="text-gray-500 italic text-sm">No recent orders found.</p>
-    {% endif %}
   </div>
+
+  <!-- Mobile Cards -->
+  <div class="md:hidden space-y-4">
+    {% for order in orders %}
+    <div class="border rounded-xl p-4 shadow-sm hover:shadow-md transition bg-gray-50">
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-semibold text-gray-800">Order #{{ order.order_id }}</p>
+        <span class="px-2 py-1 rounded text-xs font-medium
+          {% if order.status == 'Completed' %} bg-green-100 text-green-700
+          {% elif order.status == 'Pending' %} bg-yellow-100 text-yellow-700
+          {% else %} bg-gray-100 text-gray-700 {% endif %}">
+          {{ order.status }}
+        </span>
+      </div>
+      <div class="text-sm text-gray-600 space-y-1">
+        <p><span class="font-medium text-gray-700">DC No:</span> {{ order.dc_number }}</p>
+        <p><span class="font-medium text-gray-700">Items:</span> {{ order.total_items }}</p>
+        <p><span class="font-medium text-gray-700">Amount:</span> ₹{{ order.amount|default:"0.00" }}</p>
+        <p class="text-xs text-gray-500 mt-2">{{ order.created_at|date:"d M Y" }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-500 italic text-sm">No recent orders found.</p>
+  {% endif %}
+</div>
+
+
+
+
 </div>
 
 <!-- ✅ Chart.js -->
