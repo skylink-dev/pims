@@ -49,6 +49,28 @@
       }
     </style>
 
+<style>
+  /* 📱 Mobile-friendly adjustments */
+  @media (max-width: 640px) {
+    #cartPanel {
+      width: 90%;
+      right: -100%;
+      border-radius: 1rem 1rem 0 0;
+      top: auto;
+      bottom: 0;
+      transform: none;
+    }
+
+    #cartToggle {
+      right: 1rem;
+      bottom: 1.5rem;
+      top: auto;
+      transform: none;
+      border-radius: 9999px;
+      padding: 0.75rem 1rem;
+    }
+  }
+</style>
     {% block extra_css %}{% endblock %}
   </head>
 
@@ -217,6 +239,33 @@
   </div>
 </header>
 
+
+
+<!-- 🌐 Floating Cart Toggle Button -->
+<div id="cartToggle" 
+     class="fixed right-4 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-3 rounded-full shadow-lg cursor-pointer z-50 hover:bg-blue-700 transition">
+  🛒
+</div>
+
+<!-- 🛍️ Floating Cart Panel (hidden initially) -->
+<div id="cartPanel"
+     class="fixed top-1/2 -translate-y-1/2 right-[-320px] bg-white shadow-xl w-72 rounded-l-2xl border transition-all duration-500 ease-in-out z-40 sm:w-80 opacity-0 pointer-events-none">
+  <div class="p-4 border-b flex justify-between items-center bg-blue-600 text-white rounded-tl-2xl">
+    <h3 class="text-lg font-semibold">Your Cart</h3>
+    <button id="closeCart" class="text-white text-xl font-bold">&times;</button>
+  </div>
+
+  <div class="p-4 text-center text-gray-600">
+    <p>🛒 View and manage your cart items.</p>
+    <a href="{% url 'view_cart' %}"
+       class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+       Go to Cart
+    </a>
+  </div>
+</div>
+
+
+
     <!-- ✅ Mobile Menu -->
     <div
       id="mobileMenu"
@@ -288,6 +337,38 @@
     </p>
   </div>
 </footer>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const cartToggle = document.getElementById("cartToggle");
+    const cartPanel = document.getElementById("cartPanel");
+    const closeCart = document.getElementById("closeCart");
+
+    const showCart = () => {
+      cartPanel.style.right = "0px";
+      cartPanel.style.opacity = "1";
+      cartPanel.style.pointerEvents = "auto";
+    };
+
+    const hideCart = () => {
+      cartPanel.style.right = "-320px";
+      cartPanel.style.opacity = "0";
+      cartPanel.style.pointerEvents = "none";
+    };
+
+    cartToggle.addEventListener("click", () => {
+      if (cartPanel.style.right === "0px") {
+        hideCart();
+      } else {
+        showCart();
+      }
+    });
+
+    closeCart.addEventListener("click", hideCart);
+  });
+</script>
 
 
     <script>
