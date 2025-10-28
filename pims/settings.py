@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'store',
     'asset',
         'order',
+        'customermapping',
 ]
 
 MIDDLEWARE = [
@@ -186,3 +187,11 @@ JAZZMIN_SETTINGS = {
     # Optional: custom CSS to keep things neat
     "custom_css": "css/jazzmin_custom.css",
 }
+
+from dotenv import load_dotenv
+load_dotenv()
+API_BASE_URL = os.getenv("API_BASE_URL")
+API_AUTH_USERNAME = os.getenv("API_AUTH_USERNAME")
+API_AUTH_PASSWORD = os.getenv("API_AUTH_PASSWORD")
+
+print("🔍 API_BASE_URL:", os.getenv("API_BASE_URL"))

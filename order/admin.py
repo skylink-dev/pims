@@ -7,10 +7,14 @@ from django.utils.html import format_html
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from .models import Order, OrderItem
+
+from .models import Order, OrderItem, OrderItemSerial
 from partner.models import Partner
 
 
+# --------------------------------------------
+# COMPANY INFO (Constant)
+# --------------------------------------------
 COMPANY_INFO = """
 <strong>From:</strong><br>
 Skylink Fibernet Private Limited,<br>
@@ -22,17 +26,35 @@ info@skylink.net.in<br>
 """
 
 
+# --------------------------------------------
+# INLINE ADMIN CLASSES
+# --------------------------------------------
+
+class OrderItemSerialInline(admin.TabularInline):
+    """Inline for serial numbers — appears under OrderItemAdmin"""
+    model = OrderItemSerial
+    extra = 0
+    fields = ('serial_number', 'created_at')
+    readonly_fields = ('created_at',)
+
+
 class OrderItemInline(admin.TabularInline):
+    """Inline for order items — appears under OrderAdmin"""
     model = OrderItem
     extra = 0
-    fields = ('asset', 'quantity', 'price', 'serial_number', 'subtotal')
+    fields = ('asset', 'quantity', 'price', 'subtotal')
     readonly_fields = ('subtotal',)
 
     def subtotal(self, obj):
-        return f"₹{obj.price * obj.quantity:.2f}" if obj.price and obj.quantity else "-"
+        if obj.price and obj.quantity:
+            return f"₹{obj.price * obj.quantity:.2f}"
+        return "-"
     subtotal.short_description = "Subtotal"
 
 
+# --------------------------------------------
+# MAIN ADMIN: ORDER
+# --------------------------------------------
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
@@ -42,7 +64,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('order_id', 'user__username', 'dc_number')
     date_hierarchy = 'created_at'
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline]  # ✅ Only OrderItem here (Serial belongs to OrderItemAdmin)
 
     readonly_fields = (
         'order_id', 'user', 'amount', 'razorpay_payment_id',
@@ -62,14 +84,14 @@ class OrderAdmin(admin.ModelAdmin):
     )
 
     # ----------------------------
-    # DISPLAY FORMATTED AMOUNT
+    # FORMATTED AMOUNT DISPLAY
     # ----------------------------
     def amount_display(self, obj):
         return f"₹{obj.amount:.2f}"
     amount_display.short_description = "Amount"
 
     # ----------------------------
-    # LINK TO POPUP SUMMARY
+    # LINK TO DELIVERY CHALLAN POPUP
     # ----------------------------
     def view_summary_link(self, obj):
         url = reverse('admin:order_summary_popup', args=[obj.id])
@@ -82,18 +104,19 @@ class OrderAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('summary/<int:order_id>/', self.admin_site.admin_view(self.order_summary_popup), name='order_summary_popup'),
-            path('summary/<int:order_id>/pdf/', self.admin_site.admin_view(self.download_dc_pdf), name='order_dc_pdf'),
+            path('summary/<int:order_id>/', self.admin_site.admin_view(self.order_summary_popup),
+                 name='order_summary_popup'),
+            path('summary/<int:order_id>/pdf/', self.admin_site.admin_view(self.download_dc_pdf),
+                 name='order_dc_pdf'),
         ]
         return custom_urls + urls
 
     # ----------------------------
-    # HTML POPUP VIEW (in Admin)
+    # POPUP SUMMARY VIEW (HTML)
     # ----------------------------
     def order_summary_popup(self, request, order_id):
         order = Order.objects.get(pk=order_id)
         partner = getattr(order.user, 'partner', None)
-
         return HttpResponse(render_to_string('admin/order_summary_popup.html', {
             'order': order,
             'partner': partner,
@@ -101,7 +124,7 @@ class OrderAdmin(admin.ModelAdmin):
         }))
 
     # ----------------------------
-    # PDF DOWNLOAD VIEW
+    # DOWNLOAD PDF VIEW
     # ----------------------------
     def download_dc_pdf(self, request, order_id):
         order = Order.objects.get(pk=order_id)
@@ -122,7 +145,7 @@ class OrderAdmin(admin.ModelAdmin):
         y -= 15
         p.drawString(50, y, "Email: info@skylink.net.in  |  Phone: (+91) 99441 99445")
 
-        # Order Details
+        # Order Info
         y -= 30
         p.setFont("Helvetica-Bold", 11)
         p.drawString(50, y, f"Challan No: {order.dc_number or '-'}")
@@ -132,7 +155,7 @@ class OrderAdmin(admin.ModelAdmin):
         p.drawString(50, y, "Mode of Transport: -")
         p.drawString(250, y, "Vehicle No: -")
 
-        # Partner (To Address)
+        # Partner Info
         partner = getattr(order.user, 'partner', None)
         y -= 40
         p.setFont("Helvetica-Bold", 11)
@@ -168,7 +191,7 @@ class OrderAdmin(admin.ModelAdmin):
         y -= 20
         p.setFont("Helvetica", 10)
         for item in order.orderitem_set.all():
-            if y < 80:  # New Page if content too long
+            if y < 80:
                 p.showPage()
                 y = height - 50
             subtotal = item.price * item.quantity
@@ -176,7 +199,9 @@ class OrderAdmin(admin.ModelAdmin):
             p.drawString(250, y, str(item.quantity))
             p.drawString(300, y, f"₹{item.price:.2f}")
             p.drawString(370, y, f"₹{subtotal:.2f}")
-            p.drawString(460, y, item.serial_number or "-")
+            # FIXED: Get serials from related model
+            serials = ", ".join([s.serial_number for s in item.orderitemserial_set.all()])
+            p.drawString(460, y, serials or "-")
             y -= 15
 
         # Total
@@ -184,7 +209,7 @@ class OrderAdmin(admin.ModelAdmin):
         p.setFont("Helvetica-Bold", 11)
         p.drawString(300, y, f"Total: ₹{order.amount:.2f}")
 
-        # Footer / Signature
+        # Footer
         y -= 50
         p.line(400, y, 550, y)
         y -= 10
@@ -200,7 +225,7 @@ class OrderAdmin(admin.ModelAdmin):
         return response
 
     # ----------------------------
-    # INLINE HTML SUMMARY (in Admin Detail Page)
+    # INLINE HTML SUMMARY (ADMIN DETAIL)
     # ----------------------------
     def order_summary(self, obj):
         items = obj.orderitem_set.all()
@@ -216,17 +241,18 @@ class OrderAdmin(admin.ModelAdmin):
         Code: {partner.code or '-'}
         """ if partner else "<i>No partner found</i>"
 
-        rows_html = "".join([
-            f"""
-            <tr>
-                <td>{item.asset.name}</td>
-                <td style='text-align:center'>{item.quantity}</td>
-                <td style='text-align:right'>₹{item.price:.2f}</td>
-                <td style='text-align:right'>₹{item.price * item.quantity:.2f}</td>
-                <td style='text-align:center'>{item.serial_number or '-'}</td>
-            </tr>
-            """ for item in items
-        ])
+        rows_html = ""
+        for item in items:
+            serials = ", ".join([s.serial_number for s in item.orderitemserial_set.all()])
+            rows_html += f"""
+                <tr>
+                    <td>{item.asset.name}</td>
+                    <td style='text-align:center'>{item.quantity}</td>
+                    <td style='text-align:right'>₹{item.price:.2f}</td>
+                    <td style='text-align:right'>₹{item.price * item.quantity:.2f}</td>
+                    <td style='text-align:center'>{serials or '-'}</td>
+                </tr>
+            """
 
         total = sum(i.price * i.quantity for i in items)
 
@@ -258,3 +284,19 @@ class OrderAdmin(admin.ModelAdmin):
         return format_html(html)
 
     order_summary.short_description = "Delivery Challan"
+
+
+# --------------------------------------------
+# SEPARATE ADMIN FOR ORDER ITEMS & SERIALS
+# --------------------------------------------
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('order', 'asset', 'quantity', 'price')
+    search_fields = ('order__order_id', 'asset__name')
+    inlines = [OrderItemSerialInline]
+
+
+@admin.register(OrderItemSerial)
+class OrderItemSerialAdmin(admin.ModelAdmin):
+    list_display = ('order_item', 'serial_number', 'created_at')
+    search_fields = ('serial_number', 'order_item__asset__name')
