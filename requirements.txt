@@ -1,19 +1,24 @@
-# Core Django framework
+# Core Framework
 Django==4.2.19
 
-# Environment variable management
-python-decouple==3.8
-
-# PostgreSQL database adapter
+# PostgreSQL Database Driver
 psycopg2-binary==2.9.9
 
-# PDF generation
-reportlab==4.2.2
+# Environment Variable Management
+python-decouple==3.8
+python-dotenv==1.0.1
 
-# Django Admin Theme
+# Payment Gateway (Razorpay)
+razorpay==1.4.2
+
+# Admin Theme
 django-jazzmin==3.0.0
 
-# Optional — commonly used with Django projects
-Pillow==10.4.0             # For image uploads (MEDIA files)
-gunicorn==23.0.0           # For production server (optional)
-whitenoise==6.7.0          # For serving static files in production
+# Static and Media Handling (optional but good to have)
+Pillow==10.4.0
+
+# Security & Utility Libraries
+requests==2.32.3
+
+# For development / debugging
+django-debug-toolbar==4.4.2
