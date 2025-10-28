@@ -44,22 +44,20 @@ class Banner(models.Model):
     def __str__(self):
         return self.title
     
-
 class Cart(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    assets = models.ManyToManyField(Asset, blank=True)
 
     def total_items(self):
-        return self.assets.count()
+        # Count total quantity (not just distinct assets)
+        return sum(item.quantity for item in self.cartitem_set.all())
 
     def total_price(self):
-        return sum(asset.purchase_price for asset in self.assets.all())  # <--- fixed
+        return sum(item.asset.purchase_price * item.quantity for item in self.cartitem_set.all())
 
     def __str__(self):
         return f"Cart of {self.user.username}"
-    
 
-    
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)

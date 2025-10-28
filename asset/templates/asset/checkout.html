@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout | Skyplay ISP Store{% endblock %}
+
+{% block content %}
+<section class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-red-600 text-center tracking-tight animate-fadeDown">
+    Checkout
+  </h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 animate-fadeUp">
+    
+    <!-- 🧾 Order Summary -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">Order Summary</h2>
+
+      {% if cart_items %}
+        <div class="divide-y divide-gray-200">
+          {% for item in cart_items %}
+          <div class="flex justify-between items-center py-4">
+            <div class="flex flex-col">
+              <p class="font-medium text-gray-900 text-base">{{ item.asset.name }}</p>
+              <p class="text-sm text-gray-500 mt-1">Qty: {{ item.quantity }}</p>
+            </div>
+            <div class="text-right font-semibold text-red-600">
+              ₹{{ item.asset.purchase_price|floatformat:2 }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="border-t mt-4 pt-4 text-right">
+          <p class="text-xl font-bold text-gray-800">Total: ₹{{ total_price|floatformat:2 }}</p>
+        </div>
+      {% else %}
+        <p class="text-gray-500 text-center py-6">Your cart is empty.</p>
+      {% endif %}
+    </div>
+
+    <!-- 🧍 Customer Information -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 transform transition hover:shadow-2xl duration-300">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-3">Billing Details</h2>
+      
+      <form method="POST" action="{% url 'place_order' %}" class="space-y-5 animate-slideIn">
+        {% csrf_token %}
+        
+        <div class="w-full">
+          <label class="block text-gray-700 font-medium mb-1">Full Name</label>
+          <input type="text" name="name" value="{{ partner.first_name }} {{ partner.last_name }}" required
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+        </div>
+
+        <div class="w-full">
+          <label class="block text-gray-700 font-medium mb-1">Email</label>
+          <input type="email" name="email" value="{{ request.user.email }}" required
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+        </div>
+
+        <div class="w-full">
+          <label class="block text-gray-700 font-medium mb-1">Phone Number</label>
+          <input type="text" name="phone" value="{{ partner.phone }}" required
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm" />
+        </div>
+
+        <div class="w-full">
+          <label class="block text-gray-700 font-medium mb-1">Address</label>
+          <textarea name="address" rows="3" required
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-red-600 focus:border-red-500 focus:outline-none transition duration-200 shadow-sm resize-none">{{ partner.address }}</textarea>
+        </div>
+
+        <!-- 🔘 Payment Button -->
+        <button type="submit"
+          class="w-full bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 active:scale-95 shadow-md transition-all duration-200 ease-out">
+          Proceed to Payment
+        </button>
+
+        <!-- 🔙 Continue Shopping -->
+        <a href="{% url 'home' %}" 
+          class="block text-center w-full mt-3 bg-gray-100 text-gray-800 font-medium py-3 rounded-xl hover:bg-gray-200 active:scale-95 transition-all duration-200">
+          Continue Shopping
+        </a>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ✨ Animations + Mobile Styles -->
+<style>
+@keyframes fadeDown { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+@keyframes fadeUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+@keyframes slideIn { from {opacity: 0; transform: translateX(15px);} to {opacity: 1; transform: translateX(0);} }
+.animate-fadeDown { animation: fadeDown 0.6s ease-out; }
+.animate-fadeUp { animation: fadeUp 0.6s ease-out; }
+.animate-slideIn { animation: slideIn 0.6s ease-in-out; }
+
+textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #1f2937;
+  resize: none;
+  transition: all 0.2s ease;
+}
+textarea:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220,38,38,0.2);
+}
+
+@media (max-width: 768px) {
+  section { padding: 1.5rem 1rem; }
+  h1 { font-size: 1.8rem; }
+  .grid { gap: 1.5rem; }
+  input, textarea { font-size: 16px; }
+  button, a { font-size: 1rem; }
+}
+</style>
+{% endblock %}

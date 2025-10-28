@@ -1,50 +1,98 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Your Cart</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="{% static 'js/cart.js' %}" defer></script>
-</head>
-<body class="bg-gray-100 p-8">
-  <h1 class="text-3xl font-bold mb-6 text-red-600">My Cart</h1>
 
-  <table class="min-w-full bg-white rounded shadow">
-    <thead>
-      <tr class="bg-red-100">
-        <th class="py-2 px-4 text-left">Product</th>
-        <th class="py-2 px-4 text-left">Price</th>
-        <th class="py-2 px-4 text-left">Quantity</th>
-        <th class="py-2 px-4 text-left">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asset in assets %}
-      <tr class="border-b">
-        <td class="py-2 px-4">{{ asset.name }}</td>
-        <td class="py-2 px-4 text-red-600 font-bold">₹{{ asset.purchase_price }}</td>
-        <td class="py-2 px-4">1</td>
-        <td class="py-2 px-4">
-          <button 
-            class="remove-from-cart bg-gray-200 hover:bg-red-600 hover:text-white px-4 py-1 rounded transition"
-            data-asset-id="{{ asset.id }}"
-            data-csrf="{{ csrf_token }}"
-          >
-            Remove
-          </button>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="py-2 px-4 text-center text-gray-500">Your cart is empty.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block title %}My Cart | Skyplay ISP Store{% endblock %}
 
-  <div class="mt-4 text-right font-bold text-xl text-red-600">
+{% block content %}
+<section class="container mx-auto px-4 sm:px-6 py-12">
+  <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-red-600 text-center animate-pulse">🛒 My Cart</h1>
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow-md transition-transform duration-300 hover:shadow-2xl">
+    <table class="min-w-full text-sm sm:text-base">
+      <thead>
+        <tr class="bg-red-100">
+          <th class="py-3 px-4 text-left text-gray-700 font-semibold">Product</th>
+          <th class="py-3 px-4 text-left text-gray-700 font-semibold">Price</th>
+          <th class="py-3 px-4 text-left text-gray-700 font-semibold">Quantity</th>
+          <th class="py-3 px-4 text-left text-gray-700 font-semibold">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr class="border-b hover:bg-gray-50 transition duration-300">
+          <td class="py-3 px-4 font-medium">{{ item.asset.name }}</td>
+          <td class="py-3 px-4 text-red-600 font-bold">₹{{ item.asset.purchase_price }}</td>
+          <td class="py-3 px-4">
+            <form class="update-cart-form flex items-center space-x-2" data-asset-id="{{ item.asset.id }}">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                class="w-14 sm:w-20 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none transition" />
+              <button type="submit"
+                class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-xs sm:text-sm">
+                Update
+              </button>
+            </form>
+          </td>
+          <td class="py-3 px-4">
+            <button class="remove-from-cart bg-gray-200 hover:bg-red-600 hover:text-white px-4 py-1 rounded-lg transition"
+              data-asset-id="{{ item.asset.id }}">
+              Remove
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="py-4 px-4 text-center text-gray-500">Your cart is empty.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if cart_items %}
+  <div class="mt-6 text-right font-bold text-2xl text-red-600">
     Total: ₹{{ total_price }}
   </div>
-</body>
-</html>
+
+  <div class="flex flex-col sm:flex-row justify-end mt-8 gap-4 sm:gap-6">
+    <a href="{% url 'home' %}" class="inline-block bg-gray-300 text-gray-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-400 transition transform hover:scale-105">
+      ← Add More Items
+    </a>
+    <a href="{% url 'checkout' %}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition transform hover:scale-105">
+      Proceed to Checkout →
+    </a>
+  </div>
+  {% endif %}
+</section>
+
+<!-- ✅ Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-lg animate-fadeIn">
+    <i class="fas fa-check-circle text-green-500 text-5xl mb-3 animate-bounce"></i>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Success!</h2>
+    <p id="successMessage" class="text-gray-600 mb-4"></p>
+    <button onclick="closeModal()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+      OK
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showModal(message) {
+  document.getElementById('successMessage').textContent = message;
+  document.getElementById('successModal').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('successModal').classList.add('hidden');
+}
+
+document.querySelectorAll('.update-cart-form').forEach(form => {
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    showModal("Cart updated successfully!");
+  });
+});
+</script>
+{% endblock %}

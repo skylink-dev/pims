@@ -1,74 +1,23 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skyplay ISP Store</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+{% block title %}Home | Skyplay ISP Store{% endblock %}
 
-  <!-- Tailwind CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="{% static 'js/cart.js' %}"></script>
-  <style>
-    body { font-family: 'Roboto', sans-serif; background-color: #f8f8f8; }
-    h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
-    #mobileMenu { display: none; }
-    @media (max-width: 768px) { #desktopMenu { display: none; } #mobileMenu { display: block; } }
+{% block extra_css %}
+<style>
+  .banner-slide { transition: opacity 1s ease-in-out; }
+  .product-card:hover {
+    transform: translateY(-8px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+  .filter-btn.active { background-color: #c53030; color: #fff; }
+</style>
+{% endblock %}
 
-    .banner-slide { transition: opacity 1s ease-in-out; }
-    .product-card:hover { transform: translateY(-8px); transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-    .filter-btn.active { background-color: #c53030; color: #fff; }
-  </style>
-</head>
-<body class="bg-gray-50">
+{% block content %}
 
-<!-- Navbar -->
-<header class="sticky top-0 bg-white shadow-md z-50">
-  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-      <i class="fas fa-network-wired text-red-600 text-3xl"></i>
-      <h1 class="text-2xl md:text-3xl font-bold text-red-800">Skyplay ISP Store</h1>
-    </div>
-
-    <nav id="desktopMenu" class="hidden md:flex space-x-6 items-center text-lg font-medium">
-      <a href="#" class="hover:text-red-600 transition">Home</a>
-      <a href="#" class="hover:text-red-600 transition">Products</a>
-      <a href="#" class="hover:text-red-600 transition">Categories</a>
-      <a href="#" class="hover:text-red-600 transition">Cart <i class="fas fa-shopping-cart"></i></a>
-    </nav>
-
-    <div class="flex items-center space-x-4">
-      <input type="text" placeholder="Search..." class="hidden md:block px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 w-64 transition" />
-      <button id="mobileMenuBtn" class="md:hidden text-3xl text-red-600"><i class="fas fa-bars"></i></button>
-      <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit" class="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </button>
-      </form>
-    </div>
-  </div>
-</header>
-
-<!-- Mobile Menu -->
-<div id="mobileMenu" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-95 z-50 transform -translate-x-full transition-transform duration-300">
-  <div class="flex justify-end p-4">
-    <button id="closeMobileMenu" class="text-white text-3xl"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="flex flex-col items-center mt-10 space-y-6">
-    <a href="#" class="text-white text-xl hover:text-red-400">Home</a>
-    <a href="#" class="text-white text-xl hover:text-red-400">Products</a>
-    <a href="#" class="text-white text-xl hover:text-red-400">Categories</a>
-    <a href="#" class="text-white text-xl hover:text-red-400">Cart <i class="fas fa-shopping-cart"></i></a>
-  </div>
-</div>
-
-<!-- Banner Slider -->
+<!-- ✅ Banner Slider -->
 <section class="relative py-16 bg-white">
   <div class="container mx-auto px-6 relative">
     <div id="bannerSlider" class="relative w-full h-96 overflow-hidden rounded-xl shadow-lg">
@@ -82,6 +31,8 @@
           </div>
         </div>
       </div>
+      {% empty %}
+      <div class="text-center text-gray-500 py-16">No banners available.</div>
       {% endfor %}
     </div>
 
@@ -94,7 +45,7 @@
   </div>
 </section>
 
-<!-- Category Filter -->
+<!-- ✅ Category Filter -->
 <section class="py-8 bg-gray-50">
   <div class="container mx-auto px-6 flex flex-wrap justify-center gap-4">
     <button class="filter-btn active bg-red-600 text-white px-5 py-2 rounded-full shadow font-semibold" data-category="all">All</button>
@@ -104,12 +55,12 @@
   </div>
 </section>
 
-<!-- Product Grid -->
+<!-- ✅ Product Grid -->
 <section class="py-16 bg-white">
   <div class="container mx-auto px-6">
     <h2 class="text-5xl font-extrabold mb-12 text-center text-red-600 tracking-wide">Hot Picks for You</h2>
 
-    <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       {% for product in products %}
       <div class="product-card group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2" data-category="{{ product.category.id }}">
         <div class="relative w-full h-64 overflow-hidden rounded-t-2xl">
@@ -125,54 +76,51 @@
         <div class="p-4 flex flex-col justify-between items-center text-center">
           <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors truncate">{{ product.name }}</h3>
           <span class="text-red-600 font-bold text-xl mb-3">₹{{ product.purchase_price }}</span>
-            <form class="add-to-cart-form" data-asset-id="{{ product.id }}">
-                {% csrf_token %}
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-6 py-2 rounded-full flex items-center space-x-2 transition">
-                    <i class="fas fa-cart-plus"></i>
-                    <span>Add to Cart</span>
-                </button>
-            </form>
+
+          <form class="add-to-cart-form" data-asset-id="{{ product.id }}">
+            {% csrf_token %}
+            <div class="flex items-center justify-center space-x-3 mb-3">
+              <label for="quantity_{{ product.id }}" class="text-sm font-semibold text-gray-700">Qty:</label>
+              <input type="number" id="quantity_{{ product.id }}" name="quantity" value="1" min="1" class="w-16 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none" />
+            </div>
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-6 py-2 rounded-full flex items-center space-x-2 transition">
+              <i class="fas fa-cart-plus"></i>
+              <span>Add to Cart</span>
+            </button>
+          </form>
         </div>
       </div>
+      {% empty %}
+      <div class="col-span-full text-center text-gray-500 text-lg">No products available.</div>
       {% endfor %}
     </div>
   </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white py-16">
-  <div class="container mx-auto px-6 text-center">
-    <p class="text-lg">&copy; {{ now|date:"Y" }} Skyplay ISP Store. All rights reserved.</p>
-  </div>
-</footer>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  // Mobile Menu
-  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-  const closeMobileMenu = document.getElementById('closeMobileMenu');
-  const mobileMenu = document.getElementById('mobileMenu');
-  mobileMenuBtn.addEventListener('click',()=>mobileMenu.style.transform='translateX(0)');
-  closeMobileMenu.addEventListener('click',()=>mobileMenu.style.transform='translateX(-100%)');
-
-  // Banner Slider
+  // ✅ Banner Slider
   const slides = document.querySelectorAll('.banner-slide');
   let currentSlide = 0;
-  function showSlide(index){slides.forEach((s,i)=>s.style.opacity=i===index?'1':'0');}
-  document.getElementById('prevBanner').addEventListener('click',()=>{currentSlide=(currentSlide-1+slides.length)%slides.length;showSlide(currentSlide);});
-  document.getElementById('nextBanner').addEventListener('click',()=>{currentSlide=(currentSlide+1)%slides.length;showSlide(currentSlide);});
+  function showSlide(i){slides.forEach((s,idx)=>s.style.opacity=idx===i?'1':'0');}
+  document.getElementById('prevBanner')?.addEventListener('click',()=>{currentSlide=(currentSlide-1+slides.length)%slides.length;showSlide(currentSlide);});
+  document.getElementById('nextBanner')?.addEventListener('click',()=>{currentSlide=(currentSlide+1)%slides.length;showSlide(currentSlide);});
   setInterval(()=>{currentSlide=(currentSlide+1)%slides.length;showSlide(currentSlide);},5000);
 
-  // Category Filter
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const products = document.querySelectorAll('.product-card');
-  filterButtons.forEach(btn=>{
+  // ✅ Category Filter
+  const filterBtns=document.querySelectorAll('.filter-btn');
+  const products=document.querySelectorAll('.product-card');
+  filterBtns.forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const category=btn.getAttribute('data-category');
-      filterButtons.forEach(b=>b.classList.remove('bg-red-600','text-white','active'));
+      const cat=btn.dataset.category;
+      filterBtns.forEach(b=>b.classList.remove('bg-red-600','text-white','active'));
       btn.classList.add('bg-red-600','text-white','active');
-      products.forEach(p=>p.style.display=(category==='all'||p.getAttribute('data-category')===category)?'block':'none');
+      products.forEach(p=>{
+        p.style.display=(cat==='all'||p.dataset.category===cat)?'block':'none';
+      });
     });
   });
 </script>
-</body>
-</html>
+{% endblock %}

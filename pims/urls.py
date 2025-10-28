@@ -19,11 +19,19 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # ✅ Accounts (home page etc.)
     path('', include('accounts.urls')),
+
+    # ✅ Partner app (wallet, etc.)
+    path('partner/', include('partner.urls')),
+
+    # ✅ Order app (orders list, detail, etc.)
+    path('order/', include('order.urls')),
 ]
 
+# ✅ Serve media files in debug mode
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Wallet — Skyplay{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+  <h1 class="text-2xl font-bold mb-4">Wallet</h1>
+
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <p class="text-sm text-gray-600">Refundable Balance</p>
+    <p class="text-3xl font-semibold text-green-600">₹{{ partner.refundable_wallet|floatformat:2 }}</p>
+  </div>
+
+  <div class="bg-white p-4 rounded-lg shadow">
+    <h2 class="font-semibold mb-3">Transaction History</h2>
+    {% if transactions %}
+      <table class="min-w-full">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="py-2 px-3 text-left">Date</th>
+            <th class="py-2 px-3 text-left">Type</th>
+            <th class="py-2 px-3 text-right">Amount</th>
+            <th class="py-2 px-3 text-left">Order</th>
+            <th class="py-2 px-3 text-left">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr class="border-b">
+            <td class="py-2 px-3">{{ t.transaction_date }}</td>
+            <td class="py-2 px-3">{{ t.transaction_type }}</td>
+            <td class="py-2 px-3 text-right">₹{{ t.amount|floatformat:2 }}</td>
+            <td class="py-2 px-3">{% if t.order %}
+    {{ t.order.order_id }}
+{% else %}
+    N/A
+{% endif %}</td>
+            <td class="py-2 px-3">{{ t.description }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-gray-500">No transactions yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

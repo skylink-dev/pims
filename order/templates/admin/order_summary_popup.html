@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Delivery Challan - {{ order.order_number }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+      font-size: 14px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+    }
+    .company-info {
+      width: 60%;
+    }
+    .company-info h2 {
+      margin: 0;
+      font-size: 22px;
+      color: #222;
+    }
+    .gst-info {
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .document-title {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .details {
+      margin-top: 20px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-collapse: collapse;
+    }
+    .details td {
+      padding: 6px 10px;
+      vertical-align: top;
+    }
+    .details .label {
+      background-color: #f8f8f8;
+      font-weight: bold;
+      width: 25%;
+    }
+    table.items {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 13px;
+    }
+    .items th, .items td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .items th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    .totals {
+      margin-top: 10px;
+      width: 40%;
+      float: right;
+      border: 1px solid #ccc;
+      border-collapse: collapse;
+    }
+    .totals td {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+    }
+    .footer {
+      margin-top: 80px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .sign {
+      text-align: center;
+      width: 40%;
+    }
+    .sign p {
+      margin-top: 40px;
+      border-top: 1px solid #000;
+      display: inline-block;
+      padding-top: 4px;
+    }
+    .print-btn {
+      text-align: right;
+      margin-top: 20px;
+    }
+    a.button {
+      background-color: #0078d7;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="company-info">
+      <h2>{{ COMPANY_NAME }}</h2>
+      <div class="gst-info">
+        {{ COMPANY_ADDRESS }}<br>
+        GSTIN: {{ COMPANY_GSTIN }}<br>
+        CIN: {{ COMPANY_CIN }}<br>
+        Email: {{ COMPANY_EMAIL }} | Phone: {{ COMPANY_PHONE }}
+      </div>
+    </div>
+    <div class="doc-info">
+      <table class="details">
+        <tr><td class="label">Challan No:</td><td>{{ order.order_number }}</td></tr>
+        <tr><td class="label">Date:</td><td>{{ order.date|date:"d/m/Y" }}</td></tr>
+        <tr><td class="label">Mode of Transport:</td><td>{{ order.transport_mode|default:"-" }}</td></tr>
+        <tr><td class="label">Vehicle No:</td><td>{{ order.vehicle_no|default:"-" }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="document-title">DELIVERY CHALLAN</div>
+
+  <table class="details" style="margin-top:15px;">
+    <tr>
+      <td class="label">Billed To:</td>
+      <td>
+        <strong>{{ partner.first_name }} {{ partner.last_name }}</strong><br>
+        {{ partner.address }}<br>
+        GSTIN: {{ partner.gstin|default:"N/A" }}<br>
+        Phone: {{ partner.phone }}<br>
+        Code: {{ partner.code }}
+      </td>
+    </tr>
+  </table>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Item Description</th>
+        <th>HSN/SAC</th>
+        <th>Qty</th>
+        <th>Unit Price (₹)</th>
+        <th>Taxable Value (₹)</th>
+        <th>GST %</th>
+        <th>Total (₹)</th>
+        <th>Serial No.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.orderitem_set.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.asset.name }}</td>
+        <td>{{ item.asset.hsn_code|default:"-" }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.price|floatformat:2 }}</td>
+        <td>{{ item.price|floatformat:2 }}</td>
+        <td>{{ item.asset.gst_rate|default:"18" }}%</td>
+        <td>{{ item.price|add:item.price|floatformat:2 }}</td>
+        <td>{{ item.serial_number|default:"-" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td><strong>Sub Total</strong></td><td>₹{{ order.subtotal|floatformat:2 }}</td></tr>
+    <tr><td>CGST (9%)</td><td>₹{{ order.cgst|floatformat:2 }}</td></tr>
+    <tr><td>SGST (9%)</td><td>₹{{ order.sgst|floatformat:2 }}</td></tr>
+    <tr><td><strong>Grand Total</strong></td><td><strong>₹{{ order.total|floatformat:2 }}</strong></td></tr>
+  </table>
+
+  <div class="footer">
+    <div class="sign">
+      <p>Receiver’s Signature</p>
+    </div>
+    <div class="sign">
+      <p>Authorized Signatory</p>
+    </div>
+  </div>
+
+  <div class="print-btn">
+    <a href="/admin/order/summary/{{ order.id }}/pdf/" class="button">Download PDF</a>
+  </div>
+
+</body>
+</html>
