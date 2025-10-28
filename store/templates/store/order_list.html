@@ -1,0 +1,128 @@
+{% extends 'base_store.html' %}
+{% load static %}
+
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<div class="p-4 sm:p-6">
+  <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center sm:text-left">📦 Store Orders</h1>
+
+  {% for order in orders %}
+  <div class="bg-white shadow-md rounded-2xl mb-6 border border-gray-200 hover:shadow-lg transition">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-4 sm:p-5 bg-gray-50 rounded-t-2xl border-b border-gray-200">
+      <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-800">Order ID: {{ order.order_id }}</h2>
+        <p class="text-xs sm:text-sm text-gray-500">📅 {{ order.created_at|date:"d M Y, h:i A" }}</p>
+        <p class="text-xs sm:text-sm text-gray-500">
+          Status:
+          <span class="px-2 py-1 rounded-lg text-xs font-semibold text-white 
+            {% if order.status == 'Completed' %}bg-green-600
+            {% elif order.status == 'Serial Updated' %}bg-blue-500
+            {% else %}bg-gray-500{% endif %}">
+            {{ order.status }}
+          </span>
+        </p>
+      </div>
+
+      <form action="{% url 'mark_order_completed' order.id %}" method="post" class="flex-shrink-0">
+        {% csrf_token %}
+        <button type="submit" 
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm text-xs sm:text-sm font-medium transition w-full sm:w-auto">
+          ✅ Mark as Completed
+        </button>
+      </form>
+    </div>
+
+    <!-- Items Table -->
+    <div class="overflow-x-auto p-4 sm:p-5">
+      <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+        <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold hidden sm:table-header-group">
+          <tr>
+            <th class="px-4 py-3 text-left">Asset</th>
+            <th class="px-4 py-3 text-left">Quantity</th>
+            <th class="px-4 py-3 text-left">Price</th>
+            <th class="px-4 py-3 text-left">Serial Numbers</th>
+            <th class="px-4 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for item in order.orderitem_set.all %}
+          <tr class="block sm:table-row bg-gray-50 sm:bg-transparent mb-4 sm:mb-0 rounded-xl sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none">
+            
+            <!-- Mobile Card View -->
+            <td colspan="5" class="block sm:table-cell p-4 sm:p-2">
+              <div class="sm:hidden mb-2">
+                <p class="font-semibold text-gray-800">{{ item.asset.name }}</p>
+                <p class="text-gray-600 text-sm">Qty: {{ item.quantity }} | ₹{{ item.price }}</p>
+              </div>
+
+              <div class="hidden sm:table-cell px-4 py-2 font-medium">{{ item.asset.name }}</div>
+              <div class="hidden sm:table-cell px-4 py-2">{{ item.quantity }}</div>
+              <div class="hidden sm:table-cell px-4 py-2">₹{{ item.price }}</div>
+
+              <!-- Serial Numbers -->
+              <div class="px-1 sm:px-4 py-2">
+                <ul class="list-disc ml-5 text-gray-700">
+                  {% for serial in item.serials.all %}
+                    <li>{{ serial.serial_number }}</li>
+                  {% empty %}
+                    <li class="text-gray-400 italic">No serials yet</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- Update Serial Form -->
+              <div class="mt-2 sm:mt-0">
+                <form action="{% url 'update_serials' item.id %}" method="post" 
+                      class="space-y-2 sm:space-y-1 serial-form" 
+                      onsubmit="return validateSerials(this)">
+                  {% csrf_token %}
+
+                  {% with existing_serials=item.serials.all|length %}
+                    {% if existing_serials > 0 %}
+                      {% for serial in item.serials.all %}
+                        <input type="text" name="serial_numbers" value="{{ serial.serial_number }}" 
+                               class="serial-input border border-gray-300 rounded-md px-2 py-1 text-sm w-full focus:ring-2 focus:ring-blue-500" />
+                      {% endfor %}
+                    {% else %}
+                      {% for i in ""|center:item.quantity %}
+                        <input type="text" name="serial_numbers" placeholder="Serial {{ forloop.counter }}" 
+                               class="serial-input border border-gray-300 rounded-md px-2 py-1 text-sm w-full focus:ring-2 focus:ring-blue-500" />
+                      {% endfor %}
+                    {% endif %}
+                  {% endwith %}
+
+                  <button type="submit" 
+                          class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium shadow-sm transition w-full sm:w-auto">
+                    💾 Update Serials
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-gray-500 text-center mt-10 italic">No orders available at the moment.</p>
+  {% endfor %}
+</div>
+
+<!-- ✅ JS Validation -->
+<script>
+function validateSerials(form) {
+  const inputs = form.querySelectorAll('.serial-input');
+  for (const input of inputs) {
+    if (input.value.trim() === '') {
+      alert('⚠️ Please fill all serial numbers before updating.');
+      input.focus();
+      return false;
+    }
+  }
+  return true;
+}
+</script>
+{% endblock %}

@@ -8,8 +8,10 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from partner.models import Partner 
-
-
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncDate
+from django.utils import timezone
+from order.models import Order
 from django.contrib.auth.decorators import login_required
 def login_view(request):
     if request.user.is_authenticated:
@@ -45,6 +47,66 @@ def home_view(request):
     elif user_type == 'partner':
         return render(request, 'accounts/partner_home.html', context)
     elif user_type == 'store':
+         # ✅ Top ordered assets
+          # ✅ Top ordered assets
+        top_assets = (
+            OrderItem.objects.values('asset__name')
+            .annotate(total_orders=Count('id'))
+            .order_by('-total_orders')[:5]
+        )
+
+        # ✅ Daily order trends
+        daily_orders = (
+            Order.objects.values('created_at__date')
+            .annotate(count=Count('id'))
+            .order_by('created_at__date')
+        )
+
+        # ✅ Category insights
+        category_insights = (
+            OrderItem.objects.values('asset__category__name')
+            .annotate(item_count=Count('id'))
+            .order_by('-item_count')[:5]
+        )
+
+        # ✅ KPI summary
+        total_orders = Order.objects.count()
+        completed_orders = Order.objects.filter(status='Completed').count()
+        pending_orders = Order.objects.filter(status='Pending').count()
+        total_amount = (
+            Order.objects.aggregate(total=Sum('amount'))['total'] or 0  # ✅ fixed field name
+        )
+
+        # ✅ Convert for JSON-safe chart data
+        top_assets_json = json.dumps([
+            {'asset': t['asset__name'], 'orders': t['total_orders']}
+            for t in top_assets
+        ])
+        daily_orders_json = json.dumps([
+            {'date': str(d['created_at__date']), 'count': d['count']}
+            for d in daily_orders
+        ])
+        category_json = json.dumps([
+            {'category': c['asset__category__name'], 'count': c['item_count']}
+            for c in category_insights
+        ])
+
+        # ✅ Recent orders (last 10)
+        orders = Order.objects.order_by('-created_at')[:10]
+
+        context = {
+            'top_assets': top_assets,
+            'category_data': category_insights,
+            'orders': orders,
+            'top_assets_json': top_assets_json,
+            'daily_orders_json': daily_orders_json,
+            'category_json': category_json,
+            'total_orders': total_orders,
+            'completed_orders': completed_orders,
+            'pending_orders': pending_orders,
+            'total_amount': total_amount,
+        }
+
         return render(request, 'accounts/store_home.html', context)
     else:
         return render(request, 'accounts/default_home.html', context)
