@@ -1,0 +1,68 @@
+{% extends "base_store.html" %}
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+  <h2 class="text-xl font-bold mb-4 text-gray-800">✏️ Edit Shipment Details</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    <!-- Courier Name -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Courier Partner</label>
+      <input type="text" name="courier_name" value="{{ shipment.courier_name|default_if_none:'' }}"
+             class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">
+    </div>
+
+    <!-- Tracking ID -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Tracking ID</label>
+      <input type="text" name="tracking_id" value="{{ shipment.tracking_id|default_if_none:'' }}"
+             class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">
+    </div>
+
+    <!-- Dispatched Date -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Dispatched At</label>
+      <input type="datetime-local" name="dispatched_at"
+             value="{{ shipment.dispatched_at|date:'Y-m-d\\TH:i' }}"
+             class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">
+    </div>
+
+    <!-- Delivered Date -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Delivered At</label>
+      <input type="datetime-local" name="delivered_at"
+             value="{{ shipment.delivered_at|date:'Y-m-d\\TH:i' }}"
+             class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">
+    </div>
+
+    <!-- Remarks -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Remarks / Delivery Note</label>
+      <textarea name="remarks" rows="3"
+                class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">{{ shipment.remarks }}</textarea>
+    </div>
+
+    <!-- Shipping Status -->
+    <div class="mb-4">
+      <label class="block font-medium text-gray-700">Shipping Status</label>
+      <select name="shipping_status"
+              class="w-full mt-1 border-gray-300 rounded-lg focus:ring focus:ring-blue-300 p-2">
+        {% for value, label in shipment.SHIPPING_STATUS_CHOICES %}
+          <option value="{{ value }}" {% if shipment.shipping_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-between items-center mt-6">
+      <a href="{% url 'store_order_detail' shipment.order.id %}" 
+         class="text-gray-600 hover:underline">← Back</a>
+      <button type="submit" 
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        💾 Save Changes
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

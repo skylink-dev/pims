@@ -8,7 +8,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 
-from .models import Order, OrderItem, OrderItemSerial
+from .models import Order, OrderItem, OrderItemSerial,OrderShipment
 from partner.models import Partner
 
 
@@ -300,3 +300,11 @@ class OrderItemAdmin(admin.ModelAdmin):
 class OrderItemSerialAdmin(admin.ModelAdmin):
     list_display = ('order_item', 'serial_number', 'created_at')
     search_fields = ('serial_number', 'order_item__asset__name')
+
+
+
+@admin.register(OrderShipment)
+class OrderShipmentAdmin(admin.ModelAdmin):
+    list_display = ('order', 'courier_name', 'tracking_id', 'shipping_status', 'dispatched_at', 'delivered_at')
+    search_fields = ('order__order_id', 'courier_name', 'tracking_id')
+    list_filter = ('shipping_status',)

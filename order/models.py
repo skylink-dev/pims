@@ -80,3 +80,28 @@ class OrderItemSerial(models.Model):
 
     def __str__(self):
         return f"{self.order_item.asset.name} - {self.serial_number}"
+    
+
+
+class OrderShipment(models.Model):
+    SHIPPING_STATUS_CHOICES = [
+        (0, 'Pending'),
+        (1, 'In Transit'),
+        (2, 'Delivered'),
+        (3, 'Returned'),
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipment')
+    courier_name = models.CharField(max_length=100, blank=True, null=True)
+    tracking_id = models.CharField(max_length=100, blank=True, null=True)
+    dispatched_at = models.DateTimeField(blank=True, null=True)
+    delivered_at = models.DateTimeField(blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True)
+    shipping_status = models.IntegerField(choices=SHIPPING_STATUS_CHOICES, default=0)
+
+    def __str__(self):
+        return f"Shipment for Order #{self.order.order_id}"
+
+    class Meta:
+        verbose_name = "Order Shipment"
+        verbose_name_plural = "Order Shipments"
