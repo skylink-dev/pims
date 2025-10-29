@@ -149,37 +149,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-function showModal(modalId, message) {
-  const modal = document.getElementById(modalId);
-  const messageEl = modal.querySelector("p");
-  messageEl.textContent = message;
-  modal.classList.remove('hidden');
 
-  // ⏳ Auto close after 3 seconds (adjustable)
-  setTimeout(() => {
-    modal.classList.add('hidden');
-  }, 3000);
-}
-
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.add('hidden');
-}
-
-// ✅ Example success/failure triggers
-document.querySelectorAll('.update-cart-form').forEach(form => {
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-
-    // Fake example — replace with real success/failure logic
-    const success = Math.random() > 0.3; // 70% chance success
-    if (success) {
-      showModal("successModal", "Cart updated successfully!");
-    } else {
-      showModal("failureModal", "Failed to update cart. Please try again!");
-    }
-  });
-});
-</script>
-{% endblock %}

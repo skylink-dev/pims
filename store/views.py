@@ -35,3 +35,11 @@ def mark_order_completed(request, order_id):
     order.save()
     messages.success(request, f"✅ Order {order.order_id} marked as completed successfully!")
     return redirect('order_list')
+
+
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    items = order.orderitem_set.all()
+    return render(request, 'store/order_detail.html', {'order': order, 'items': items})
+
+

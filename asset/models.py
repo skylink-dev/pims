@@ -24,6 +24,18 @@ class Asset(models.Model):
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     asset_code = models.CharField(max_length=50, unique=True)
     location = models.CharField(max_length=100, blank=True, null=True)
+
+    # 🆕 New Fields
+    is_refundable_wallet_deposit = models.BooleanField(
+        default=False,
+        help_text="Mark this asset as a refundable wallet deposit item."
+    )
+
+    max_order_per_partner = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="Optional: Set a limit if this asset should have a max order restriction per partner."
+    )
     
     def __str__(self):
         return f"{self.name} ({self.asset_code})"
@@ -62,6 +74,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
+    class Meta:
+        unique_together = ('cart', 'asset')  # ✅ Enforce unique pair
     def __str__(self):
         return f"{self.quantity} x {self.asset.name}"
