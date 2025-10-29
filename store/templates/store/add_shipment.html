@@ -1,0 +1,33 @@
+{% extends 'base_store.html' %}
+{% block title %}Add Shipment for Order #{{ order.order_id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white shadow-md rounded-xl p-6 mt-10">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">
+    🚚 Add Shipment Details for Order #{{ order.order_id }}
+  </h2>
+
+  <form method="POST" class="space-y-4">
+    {% csrf_token %}
+    <div>
+      <label class="block text-gray-700 font-medium">Courier Partner</label>
+      <input type="text" name="courier_name" required class="w-full border rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500">
+    </div>
+
+    <div>
+      <label class="block text-gray-700 font-medium">Tracking ID</label>
+      <input type="text" name="tracking_id" required class="w-full border rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500">
+    </div>
+
+    <div>
+      <label class="block text-gray-700 font-medium">Remarks (Optional)</label>
+      <textarea name="remarks" rows="3" class="w-full border rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500"></textarea>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <a href="{% url 'store_order_detail' order.id %}" class="px-4 py-2 bg-gray-200 rounded-lg text-gray-800 hover:bg-gray-300">Cancel</a>
+      <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Save Shipment</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

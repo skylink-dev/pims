@@ -1,161 +1,134 @@
 {% extends 'base_store.html' %}
 {% load static %}
 
-{% block title %}Orders{% endblock %}
+{% block title %}My Store Orders{% endblock %}
 
 {% block content %}
-<div class="p-4 sm:p-6">
-  <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24"
-      stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-        d="M3 3h18l-1.68 13.44A2 2 0 0117.34 18H6.66a2 2 0 01-1.98-1.56L3 3z" />
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-        d="M16 21a2 2 0 100-4 2 2 0 000 4zM8 21a2 2 0 100-4 2 2 0 000 4z" />
-    </svg>
-    Store Orders
-  </h1>
+<div class="p-4 sm:p-6 animate-fadeIn">
+  <!-- 🧾 Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 3h18l-1.68 13.44A2 2 0 0117.34 18H6.66a2 2 0 01-1.98-1.56L3 3z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M16 21a2 2 0 100-4 2 2 0 000 4zM8 21a2 2 0 100-4 2 2 0 000 4z" />
+      </svg>
+      Store Orders
+    </h1>
+  </div>
 
-  {% for order in orders %}
-  <div
-    class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-200 transition-transform transform hover:scale-[1.01]">
-    <!-- Header -->
-    <div
-      class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-4 sm:p-5 bg-gray-50 rounded-t-2xl border-b border-gray-200">
-      <div class="space-y-1">
-        <h2 class="text-lg font-semibold text-gray-800">Order #{{ order.order_id }}</h2>
-        <p class="text-sm text-gray-500 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V8H3v11a2 2 0 002 2z" />
-          </svg>
-          {{ order.created_at|date:"d M Y, h:i A" }}
-        </p>
-        <p class="text-sm text-gray-600">
-          Status:
-          <span
-            class="px-2 py-1 rounded-lg text-xs font-semibold text-white
-            {% if order.status == 'Completed' %}bg-green-600
-            {% elif order.status == 'Serial Updated' %}bg-blue-500
-            {% else %}bg-gray-500{% endif %}">
-            {{ order.status }}
-          </span>
-        </p>
-      </div>
-
-        <!-- 👁️ View Button -->
-  <a href="{% url 'order_detail' order.id %}"
-     class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow text-sm font-medium transition">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-    View
-  </a>
-
-
-      {% if order.status != 'Completed' %}
-      <form action="{% url 'mark_order_completed' order.id %}" method="post" class="flex-shrink-0">
-        {% csrf_token %}
-        <button type="submit"
-          class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow text-sm font-medium transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 13l4 4L19 7" />
-          </svg>
-          Mark Completed
-        </button>
-      </form>
-      {% endif %}
-    </div>
-
-    <!-- Order Items -->
-    <div class="p-4 sm:p-6 space-y-4">
-      {% for item in order.orderitem_set.all %}
-      <div x-data="{ open: false }" class="border border-gray-100 rounded-xl bg-gray-50 hover:bg-gray-100 transition">
-        <div
-          class="flex justify-between items-center p-4 cursor-pointer select-none"
-          @click="open = !open">
-          <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M4 6h16M4 10h16M10 14h10M10 18h10" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-gray-800 font-semibold text-base">{{ item.asset.name }}</p>
-              <p class="text-gray-600 text-sm">Qty: {{ item.quantity }} | ₹{{ item.price }}</p>
-            </div>
-          </div>
-
-          <!-- Dropdown icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transition-transform"
-            :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 9l-7 7-7-7" />
-          </svg>
+  {% if orders %}
+    {% for order in orders %}
+    <div class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <!-- 🔖 Order Header -->
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-9-9" />
+            </svg>
+            Order #{{ order.order_id }}
+          </h2>
+          <p class="text-sm text-gray-600">📅 {{ order.created_at|date:"d M Y, h:i A" }}</p>
         </div>
 
-        <!-- Hidden content (expandable) -->
-        <div x-show="open" x-collapse class="p-4 border-t border-gray-200 space-y-3 bg-white">
-          
-          {% if order.status != 'Completed' %}
-          <!-- Update form (only if not completed) -->
-          <form action="{% url 'update_serials' item.id %}" method="post"
-            class="mt-2 serial-form space-y-2" onsubmit="return validateSerials(this)">
-            {% csrf_token %}
-            {% with existing_serials=item.serials.all|length %}
-            <div class="grid sm:grid-cols-2 gap-2">
-              {% if existing_serials > 0 %}
-              {% for serial in item.serials.all %}
-              <input type="text" name="serial_numbers" value="{{ serial.serial_number }}"
-                class="serial-input border border-gray-300 rounded-md px-3 py-1.5 text-sm w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-              {% endfor %}
-              {% else %}
-              {% for i in ""|center:item.quantity %}
-              <input type="text" name="serial_numbers" placeholder="Serial {{ forloop.counter }}"
-                class="serial-input border border-gray-300 rounded-md px-3 py-1.5 text-sm w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-              {% endfor %}
-              {% endif %}
-            </div>
-            {% endwith %}
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1 text-xs font-semibold rounded-full text-white
+            {% if order.status == 'Completed' %} bg-green-600 {% elif order.status == 'Serial Updated' %} bg-blue-500 {% else %} bg-gray-500 {% endif %}">
+            {{ order.status }}
+          </span>
 
+          <a href="{% url 'store_order_detail' order.id %}"
+             class="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition">
+            👁️ View
+          </a>
+
+          {% if order.status != 'Completed' %}
+          <form action="{% url 'mark_order_completed' order.id %}" method="post">
+            {% csrf_token %}
             <button type="submit"
-              class="mt-3 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium shadow-sm transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 13l4 4L19 7" />
-              </svg>
-              Update Serials
+              class="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg shadow transition">
+              ✅ Complete
             </button>
           </form>
-          {% else %}
-          <!-- Read-only serials for completed orders -->
-          <div class="grid sm:grid-cols-2 gap-2">
-            {% for serial in item.serials.all %}
-            <input type="text" value="{{ serial.serial_number }}" readonly
-              class="border border-gray-200 bg-gray-100 text-gray-500 rounded-md px-3 py-1.5 text-sm w-full cursor-not-allowed" />
-            {% empty %}
-            <p class="text-sm text-gray-500 italic col-span-2">No serial numbers recorded.</p>
-            {% endfor %}
-          </div>
           {% endif %}
         </div>
       </div>
-      {% endfor %}
+
+      <!-- 🧩 Items -->
+      <div class="p-5 space-y-4">
+        {% for item in order.orderitem_set.all %}
+        <div x-data="{ open: false }"
+             class="border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 overflow-hidden transition-all duration-300">
+          <button @click="open = !open"
+                  class="flex justify-between items-center w-full p-4 text-left">
+            <div class="flex items-center gap-3">
+              <div class="bg-white w-12 h-12 flex items-center justify-center rounded-lg shadow-inner">
+                📦
+              </div>
+              <div>
+                <p class="text-gray-800 font-semibold text-base">{{ item.asset.name }}</p>
+                <p class="text-gray-600 text-sm">Qty: {{ item.quantity }} • ₹{{ item.price }}</p>
+              </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transform transition-transform"
+                 :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div x-show="open" x-collapse class="p-4 bg-white border-t border-gray-200">
+            {% if order.status != 'Completed' %}
+            <form action="{% url 'update_serials' item.id %}" method="post" class="space-y-2" onsubmit="return validateSerials(this)">
+              {% csrf_token %}
+              <div class="grid sm:grid-cols-2 gap-2">
+                {% for serial in item.serials.all %}
+                <input type="text" name="serial_numbers" value="{{ serial.serial_number }}"
+                       class="serial-input border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 w-full" />
+                {% empty %}
+                {% for i in ""|center:item.quantity %}
+                <input type="text" name="serial_numbers" placeholder="Serial {{ forloop.counter }}"
+                       class="serial-input border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 w-full" />
+                {% endfor %}
+                {% endfor %}
+              </div>
+
+              <button type="submit"
+                class="mt-2 w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition">
+                💾 Update Serials
+              </button>
+            </form>
+            {% else %}
+            <div class="grid sm:grid-cols-2 gap-2">
+              {% for serial in item.serials.all %}
+              <input type="text" value="{{ serial.serial_number }}" readonly
+                     class="border border-gray-200 bg-gray-100 text-gray-500 rounded-md px-3 py-2 text-sm w-full cursor-not-allowed" />
+              {% empty %}
+              <p class="text-sm text-gray-500 italic col-span-2">No serial numbers added.</p>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
+    {% endfor %}
+  {% else %}
+  <div class="text-center py-16 text-gray-500 italic">
+    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3 h-10 w-10 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 8v4l3 3m6-3a9 9 0 11-9-9" />
+    </svg>
+    No orders available at the moment.
   </div>
-  {% empty %}
-  <p class="text-gray-500 text-center mt-10 italic">No orders available at the moment.</p>
-  {% endfor %}
+  {% endif %}
 </div>
 
-<!-- ✅ JS Validation -->
+<!-- 🌟 Animations & JS -->
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 function validateSerials(form) {
@@ -170,4 +143,11 @@ function validateSerials(form) {
   return true;
 }
 </script>
+
+<style>
+@keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+.animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+@keyframes bounceSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.animate-bounce-slow { animation: bounceSlow 2s infinite; }
+</style>
 {% endblock %}
