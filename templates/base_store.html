@@ -80,20 +80,66 @@
       <div class="flex items-center space-x-10">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
-          <img src="{% static 'images/logo.png' %}" alt="Skyplay Logo" class="w-10 h-10 object-contain" />
-          <h1 class="text-2xl md:text-3xl font-bold text-red-800">Skyplay Store</h1>
+          <img src="{% static 'images/new logo.png' %}" alt="Skyplay Logo" class="w-30 h-10 object-contain" />
         </div>
 
         <!-- Menu beside logo -->
         <nav class="hidden md:flex space-x-8 text-lg font-semibold text-gray-800">
-          <a href="{% url 'home' %}" class="nav-link hover:text-red-600 transition">
-            <i class="fas fa-home text-red-600"></i> Dashboard
-          </a>
-          <a href="{% url 'store_orders' %}" class="nav-link hover:text-red-600 transition">
-            <i class="fas fa-box text-red-600"></i> Orders
-          </a>
-      
-        </nav>
+  <!-- Dashboard -->
+  <a
+    href="{% url 'home' %}"
+    class="flex items-center space-x-2 group transition relative p-3 h-full {% if request.path == '/' %}bg-red-100 rounded -xl{% endif %}
+           {% if request.path == '/' %}text-red-600{% else %}hover:text-red-600{% endif %}"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-5 h-5 {% if request.path == '/' %}text-red-600{% else %}text-gray-700 group-hover:text-red-600{% endif %} transition"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h14a1 1 0 001-1V10"
+      />
+    </svg>
+    <span>Dashboard</span>
+
+    {% if request.path == '/' %}
+      <span class="absolute left-0 -bottom-1 w-full h-[2px] bg-red-600 rounded-full"></span>
+    {% endif %}
+  </a>
+
+  <!-- Orders -->
+  <a
+    href="{% url 'store_orders' %}"
+    class="flex items-center space-x-2 group transition relative
+           hover:text-red-600 p-3 h-full {% if '/store/' in request.path %}bg-red-100 rounded -xl{% endif %} "
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-5 h-5 {% if '/orders/' in request.path %}text-red-600{% else %} text-gray-700 group-hover:text-red-600{% endif %} transition"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M3 3h18l-2 13H5L3 3zm3 16a2 2 0 104 0m7 0a2 2 0 104 0"
+      />
+    </svg>
+    <span>Orders</span>
+
+    {% if '/orders/' in request.path %}
+      <span class="absolute left-0 -bottom-1 w-full h-[2px] bg-red-600 rounded-full"></span>
+    {% endif %}
+  </a>
+</nav>
+
       </div>
 
       <!-- Buttons -->
@@ -123,10 +169,10 @@
       </button>
     </div>
     <div class="flex flex-col items-center mt-10 space-y-6">
-      <a href="{% url 'home' %}" class="w-3/4 py-3 text-center text-lg font-semibold bg-white/10 backdrop-blur-md text-white rounded-xl shadow hover:bg-red-600/10 border border-transparent hover:border-red-500 transition">
+      <a href="{% url 'home' %}" class="w-3/4 py-3 text-center text-lg font-semibold bg-white/10 backdrop-blur-md text-white rounded-xl shadow hover:bg-red-600/10 border {% if request.path == '/' %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} border-transparent hover:border-red-500 transition">
         <i class="fas fa-home mr-2"></i> Dashboard
       </a>
-      <a href="{% url 'store_orders' %}" class="w-3/4 py-3 text-center text-lg font-semibold bg-white/10 backdrop-blur-md text-white rounded-xl shadow hover:bg-blue-600/10 border border-transparent hover:border-blue-500 transition">
+      <a href="{% url 'store_orders' %}" class="w-3/4 py-3 text-center text-lg font-semibold bg-white/10 backdrop-blur-md text-white rounded-xl shadow hover:bg-blue-600/10 {% if '/store/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} border border-transparent hover:border-blue-500 transition">
         <i class="fas fa-box mr-2"></i> Orders
       </a>
   Mobile Logout -->

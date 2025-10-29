@@ -86,12 +86,12 @@
     <!-- ✅ Logo -->
     <div class="flex items-center space-x-2">
       <img
-        src="{% static 'images/logo.png' %}"
+        src="{% static 'images/new logo.png' %}"
         alt="Skyplay ISP Store Logo"
-        class="w-10 h-10 object-contain"
+        class="w-30 h-10 object-contain"
       />
       <h1 class="text-2xl md:text-3xl font-bold text-red-800">
-        Skyplay Store
+         {{" "}}
       </h1>
     </div>
 
@@ -128,7 +128,7 @@
   <!-- Cart -->
   <a
     href="{% url 'view_cart' %}"
-    class="flex items-center space-x-2 group transition p-3 h-full {% if request.path == '/cart/' %}bg-red-100 rounded -xl{% endif %}"
+    class="flex items-center space-x-2 group transition p-3 h-full {% if '/cart/' in request.path %} bg-red-100 border-red-10 rounded -xl{% endif %}"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -277,34 +277,34 @@
         </button>
       </div>
       <div class="flex flex-col items-center mt-10 space-y-6">
-        <a href="{% url 'home' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md hover:bg-gradient-to-r from-red-500/10 to-red-600/10 hover:border-red-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+        <a href="{% url 'home' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {% if request.path == '/' %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-red-500/10 to-red-600/10 hover:border-red-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h14a1 1 0 001-1V10" />
   </svg>
   <span>Home</span>
 </a>
 
-<a href="{% url 'view_cart' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md hover:bg-gradient-to-r from-blue-500/10 to-blue-600/10 hover:border-blue-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+<a href="{% url 'view_cart' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {% if '/cart/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-blue-500/10 to-blue-600/10 hover:border-blue-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6H19M7 13L5.4 7M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
   </svg>
   <span>Cart</span>
 </a>
 
-<a href="{% url 'wallet' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md hover:bg-gradient-to-r from-green-500/10 to-green-600/10 hover:border-green-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+<a href="{% url 'wallet' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {%if '/partner/wallet/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-green-500/10 to-green-600/10 hover:border-green-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-5h-4a1 1 0 00-1 1v4a1 1 0 001 1h4v-6z" />
   </svg>
   <span>Wallet</span>
 </a>
 
-<a href="{% url 'orders' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md hover:bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 hover:border-yellow-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+<a href="{% url 'orders' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {% if '/order/orders/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 hover:border-yellow-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V9a2 2 0 00-2-2h-3V5a2 2 0 00-2-2H8a2 2 0 00-2 2v2H3a2 2 0 00-2 2v4h19zM3 13v6a2 2 0 002 2h14a2 2 0 002-2v-6" />
   </svg>
   <span>Orders</span>
 </a>
-          <a href="{% url 'customer_asset_mapping' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md hover:bg-gradient-to-r from-purple-500/10 to-purple-600/10 hover:border-purple-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+          <a href="{% url 'customer_asset_mapping' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {% if '/customer-mapping/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-purple-500/10 to-purple-600/10 hover:border-purple-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 015.656 5.656l-4.95 4.95a4 4 0 01-5.656 0l-4.95-4.95a4 4 0 015.656-5.656l.586.586a2 2 0 002.828 0l.586-.586z" />
   </svg>
