@@ -5,35 +5,63 @@
 
 {% block extra_css %}
 <style>
+  /* --- Banner --- */
   .banner-slide { transition: opacity 1s ease-in-out; }
-  .product-card:hover {
-    transform: translateY(-8px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+  /* --- Product card animations --- */
+  .product-card {
+    transition: all 0.3s ease;
   }
-  .filter-btn.active { background-color: #c53030; color: #fff; }
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  /* --- Category buttons --- */
+  .filter-btn.active {
+    background-color: #c53030;
+    color: #fff;
+  }
+
+  /* --- Responsive grid adjustments --- */
+  @media (max-width: 768px) {
+    .product-card {
+      width: 100%;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 
+<!-- ✅ Banner Section -->
 <!-- ✅ Banner Slider -->
-<section class="relative py-10 sm:py-14 md:py-16 bg-white">
+<section class="relative py-10 sm:py-14 md:py-16 bg-gray-50">
   <div class="container mx-auto px-4 sm:px-6 relative">
-    <div id="bannerSlider" class="relative w-full h-60 sm:h-72 md:h-96 overflow-hidden rounded-xl shadow-lg">
+    <div id="bannerSlider" class="relative w-full h-60 sm:h-72 md:h-96 overflow-hidden rounded-2xl shadow-lg">
       {% for banner in banners %}
-      <div class="banner-slide absolute inset-0 {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} transition-opacity duration-700 ease-in-out">
+      <div
+        class="banner-slide absolute inset-0 {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} transition-opacity duration-700 ease-in-out">
 
-        <!-- Banner Image -->
-        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-full object-cover object-center rounded-xl">
+        <!-- Banner Image with Gradient Overlay -->
+        <div class="relative w-full h-full">
+          <img src="{{ banner.image.url }}" alt="{{ banner.title }}"
+            class="w-full h-full object-cover object-center rounded-2xl" />
 
-        <!-- Banner Text Overlay (always left-aligned) -->
-        <div class="absolute inset-0 flex items-center justify-start">
-          <div style="background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(211, 211, 211, 0.5));" class="bg-gradient-to-r from-red to-white rounded-2xl bg-opacity-80 p-4 sm:p-8 md:p-12 lg:p-16 rounded-r-lg text-left max-w-[90%] sm:max-w-md md:max-w-lg">
-            <h3 class="text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <!-- 🔥 Dark overlay for visibility -->
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent rounded-2xl"></div>
+        </div>
+
+        <!-- Text Overlay -->
+        <div class="absolute inset-0 flex items-center justify-start px-6 sm:px-12 md:px-16">
+          <div class="max-w-xl text-left text-gray font-[Poppins]">
+            <h3
+              class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight drop-shadow-lg">
               {{ banner.title }}
             </h3>
-            <p class="text-white mt-3 sm:mt-4 text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed">
+            <p
+              class="mt-3 sm:mt-4 text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-200 font-[Inter]">
               {{ banner.description }}
             </p>
           </div>
@@ -46,60 +74,64 @@
 
     <!-- Slider Buttons -->
     <button id="prevBanner"
-      class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 p-2 sm:p-3 rounded-full hover:bg-opacity-70 transition">
-      <i class="fas fa-chevron-left text-base sm:text-xl"></i>
+      class="absolute left-3 sm:left-6 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition">
+      <i class="fas fa-chevron-left text-lg"></i>
     </button>
 
     <button id="nextBanner"
-      class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 p-2 sm:p-3 rounded-full hover:bg-opacity-70 transition">
-      <i class="fas fa-chevron-right text-base sm:text-xl"></i>
+      class="absolute right-3 sm:right-6 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition">
+      <i class="fas fa-chevron-right text-lg"></i>
     </button>
   </div>
 </section>
 
 
-
 <!-- ✅ Category Filter -->
-<section class="py-8 bg-gray-50">
-  <div class="container mx-auto px-6 flex flex-wrap justify-center gap-4">
+<section class="py-8 bg-gray-50 border-t border-gray-100">
+  <div class="container mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-4">
     <button class="filter-btn active bg-red-600 text-white px-5 py-2 rounded-full shadow font-semibold" data-category="all">All</button>
     {% for category in categories %}
-    <button class="filter-btn bg-gray-200 text-gray-800 px-5 py-2 rounded-full shadow hover:bg-red-600 hover:text-white transition font-semibold" data-category="{{ category.id }}">{{ category.name }}</button>
+    <button class="filter-btn bg-gray-100 hover:bg-red-600 hover:text-white text-gray-800 px-5 py-2 rounded-full font-semibold transition" data-category="{{ category.id }}">{{ category.name }}</button>
     {% endfor %}
   </div>
 </section>
 
 <!-- ✅ Product Grid -->
-<section class="py-16 bg-white">
-  <div class="container mx-auto px-6">
-    <h2 class="text-5xl font-extrabold mb-12 text-center text-red-600 tracking-wide">Hot Picks for You</h2>
+<section class="py-14 bg-white">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl sm:text-4xl font-extrabold mb-10 text-center text-red-600 tracking-tight">🔥 Hot Picks for You</h2>
 
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <!-- Responsive grid -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
       {% for product in products %}
-      <div class="product-card group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2" data-category="{{ product.category.id }}">
-        <div class="relative w-full h-64 overflow-hidden rounded-t-2xl">
+      <div class="product-card group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300" data-category="{{ product.category.id }}">
+        <!-- Image -->
+        <div class="relative w-full h-56 sm:h-64 bg-gray-50 flex items-center justify-center overflow-hidden">
           {% if product.image %}
           <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
           {% else %}
-          <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">No Image</div>
+          <div class="text-gray-400 text-sm">No Image</div>
           {% endif %}
           {% if product.is_new %}
-          <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">NEW</span>
+          <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">NEW</span>
           {% endif %}
         </div>
-        <div class="p-4 flex flex-col justify-between items-center text-center">
-          <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors truncate">{{ product.name }}</h3>
-          <span class="text-red-600 font-bold text-xl mb-3">₹{{ product.purchase_price }}</span>
 
-          <form class="add-to-cart-form" data-asset-id="{{ product.id }}">
+        <!-- Info -->
+        <div class="p-5 text-center flex flex-col items-center">
+          <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-1 group-hover:text-red-600 truncate transition">{{ product.name }}</h3>
+          <p class="text-red-600 font-semibold text-lg mb-3">₹{{ product.purchase_price }}</p>
+
+          <form class="add-to-cart-form w-full flex flex-col items-center" data-asset-id="{{ product.id }}">
             {% csrf_token %}
             <div class="flex items-center justify-center space-x-3 mb-3">
-              <label for="quantity_{{ product.id }}" class="text-sm font-semibold text-gray-700">Qty:</label>
-              <input type="number" id="quantity_{{ product.id }}" name="quantity" value="1" min="1" class="w-16 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none" />
+              <label for="quantity_{{ product.id }}" class="text-sm font-medium text-gray-700">Qty:</label>
+              <input type="number" id="quantity_{{ product.id }}" name="quantity" value="1" min="1"
+                class="w-16 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none" />
             </div>
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-6 py-2 rounded-full flex items-center space-x-2 transition">
-              <i class="fas fa-cart-plus"></i>
-              <span>Add to Cart</span>
+            <button type="submit"
+              class="bg-red-600 hover:bg-red-700 text-white text-sm px-5 py-2 rounded-full flex items-center gap-2 transition-all">
+              <i class="fas fa-cart-plus"></i> <span>Add to Cart</span>
             </button>
           </form>
         </div>
@@ -118,21 +150,32 @@
   // ✅ Banner Slider
   const slides = document.querySelectorAll('.banner-slide');
   let currentSlide = 0;
-  function showSlide(i){slides.forEach((s,idx)=>s.style.opacity=idx===i?'1':'0');}
-  document.getElementById('prevBanner')?.addEventListener('click',()=>{currentSlide=(currentSlide-1+slides.length)%slides.length;showSlide(currentSlide);});
-  document.getElementById('nextBanner')?.addEventListener('click',()=>{currentSlide=(currentSlide+1)%slides.length;showSlide(currentSlide);});
-  setInterval(()=>{currentSlide=(currentSlide+1)%slides.length;showSlide(currentSlide);},5000);
+  function showSlide(i) {
+    slides.forEach((s, idx) => s.style.opacity = idx === i ? '1' : '0');
+  }
+  document.getElementById('prevBanner')?.addEventListener('click', () => {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  });
+  document.getElementById('nextBanner')?.addEventListener('click', () => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  });
+  setInterval(() => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }, 6000);
 
   // ✅ Category Filter
-  const filterBtns=document.querySelectorAll('.filter-btn');
-  const products=document.querySelectorAll('.product-card');
-  filterBtns.forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const cat=btn.dataset.category;
-      filterBtns.forEach(b=>b.classList.remove('bg-red-600','text-white','active'));
-      btn.classList.add('bg-red-600','text-white','active');
-      products.forEach(p=>{
-        p.style.display=(cat==='all'||p.dataset.category===cat)?'block':'none';
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const products = document.querySelectorAll('.product-card');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.category;
+      filterBtns.forEach(b => b.classList.remove('bg-red-600', 'text-white', 'active'));
+      btn.classList.add('bg-red-600', 'text-white', 'active');
+      products.forEach(p => {
+        p.classList.toggle('hidden', !(cat === 'all' || p.dataset.category === cat));
       });
     });
   });
