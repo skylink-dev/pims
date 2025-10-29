@@ -1,80 +1,126 @@
-document.addEventListener("DOMContentLoaded", function() {
-  // Common CSRF fetch helper
+document.addEventListener("DOMContentLoaded", function () {
+  // 🔒 Common helper for POST with CSRF
   async function postData(url, data, csrfToken) {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
+        "X-CSRFToken": csrfToken,
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     return response.json();
   }
 
-  // 🛒 Add to cart
-  document.querySelectorAll(".add-to-cart-form").forEach(form => {
-    form.addEventListener("submit", async e => {
+  // 🧩 Helper: show success/error messages
+  function showMessage(msgBox, text, isSuccess = true) {
+    msgBox.textContent = text;
+    msgBox.classList.remove("text-green-600", "text-red-600");
+    msgBox.classList.add(isSuccess ? "text-green-600" : "text-red-600");
+    msgBox.style.opacity = "1";
+
+    // Auto hide after 2s
+    setTimeout(() => {
+      msgBox.style.opacity = "0";
+      setTimeout(() => {
+        msgBox.textContent = "";
+        msgBox.style.opacity = "1";
+      }, 500);
+    }, 2000);
+  }
+
+  // 🛒 Add to Cart
+  document.querySelectorAll(".add-to-cart-form").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const assetId = form.dataset.assetId;
       const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
+      const quantity = parseInt(form.querySelector("[name=quantity]").value) || 1;
+
+      let msgBox = form.querySelector(".cart-message");
+      if (!msgBox) {
+        msgBox = document.createElement("div");
+        msgBox.className =
+          "cart-message mt-2 text-sm font-medium transition-opacity duration-500";
+        form.appendChild(msgBox);
+      }
 
       try {
-        const data = await postData("/add-to-cart/", { asset_id: assetId }, csrfToken);
+        const data = await postData("/add-to-cart/", { asset_id: assetId, quantity }, csrfToken);
         if (data.success) {
-          alert(data.message);
+          showMessage(msgBox, data.message || "Item added to cart!", true);
+
+          // Update cart count if available
           const cartCount = document.getElementById("cartCount");
           if (cartCount) cartCount.textContent = data.cart_count;
         } else {
-          alert(data.error || "Failed to add item to cart.");
+          showMessage(msgBox, data.error || "Failed to add item to cart.", false);
         }
       } catch (err) {
         console.error(err);
-        alert("Error adding to cart!");
+        showMessage(msgBox, "Error adding to cart!", false);
       }
     });
   });
 
-  // 🔁 Update cart quantity
-  document.querySelectorAll(".update-cart-form").forEach(form => {
-    form.addEventListener("submit", async e => {
+  // 🔁 Update Cart Quantity
+  document.querySelectorAll(".update-cart-form").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const assetId = form.dataset.assetId;
       const quantity = form.querySelector("input[name='quantity']").value;
       const csrf = form.querySelector("[name=csrfmiddlewaretoken]").value;
 
+      let msgBox = form.querySelector(".cart-message");
+      if (!msgBox) {
+        msgBox = document.createElement("div");
+        msgBox.className =
+          "cart-message mt-2 text-sm font-medium transition-opacity duration-500";
+        form.appendChild(msgBox);
+      }
+
       try {
         const data = await postData("/update-cart/", { asset_id: assetId, quantity }, csrf);
         if (data.success) {
-          location.reload();
+          showMessage(msgBox, "Quantity updated successfully!", true);
         } else {
-          alert(data.error || "Failed to update cart.");
+          showMessage(msgBox, data.error || "Failed to update cart.", false);
         }
       } catch (err) {
         console.error(err);
-        alert("Error updating cart!");
+        showMessage(msgBox, "Error updating cart!", false);
       }
     });
   });
 
-  // ❌ Remove from cart
-  document.querySelectorAll(".remove-from-cart").forEach(btn => {
+  // ❌ Remove from Cart
+  document.querySelectorAll(".remove-from-cart").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const assetId = btn.dataset.assetId;
-      const csrf = btn.dataset.csrf;
+      const csrf = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
+      const row = btn.closest("tr");
 
-      if (!confirm("Are you sure you want to remove this item?")) return;
+      let msgBox = row.querySelector(".cart-message");
+      if (!msgBox) {
+        msgBox = document.createElement("div");
+        msgBox.className =
+          "cart-message mt-2 text-sm font-medium transition-opacity duration-500";
+        row.appendChild(msgBox);
+      }
 
       try {
         const data = await postData("/delete-from-cart/", { asset_id: assetId }, csrf);
         if (data.success) {
-          location.reload();
+          showMessage(msgBox, "Item removed successfully!", true);
+          row.style.transition = "opacity 0.5s ease";
+          row.style.opacity = "0";
+          setTimeout(() => row.remove(), 500);
         } else {
-          alert(data.error || "Failed to remove item.");
+          showMessage(msgBox, data.error || "Failed to remove item.", false);
         }
       } catch (err) {
         console.error(err);
-        alert("Error removing item from cart!");
+        showMessage(msgBox, "Error removing item!", false);
       }
     });
   });

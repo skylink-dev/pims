@@ -11,10 +11,16 @@ class Order(models.Model):
         ('Cancelled', 'Cancelled'),
         ('Completed', 'Completed'),
     ]
+    SHIPPING_STATUS_CHOICES = [
+        (0, 'Pending'),
+        (1, 'In Transit'),
+        (2, 'Received'),
+    ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ✅ Fix here
     order_id = models.CharField(max_length=100, unique=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    shipping_status = models.IntegerField(choices=SHIPPING_STATUS_CHOICES, default=0)  #
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

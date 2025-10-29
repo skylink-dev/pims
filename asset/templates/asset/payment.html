@@ -66,7 +66,11 @@ document.addEventListener("DOMContentLoaded", function() {
           "contact": "{{ partner.phone|default:'' }}"
       },
 
-     "handler": function (response){
+    "handler": function (response) {
+    // Show loading
+    loading.classList.remove("hidden");
+    payBtn.classList.add("hidden");
+
     // Send payment details to Django for verification
     fetch("{% url 'success_page' %}", {
         method: "POST",
@@ -80,11 +84,30 @@ document.addEventListener("DOMContentLoaded", function() {
             razorpay_signature: response.razorpay_signature
         })
     })
-    .then(res => res.text())
+    .then(res => {
+        if (res.redirected) {
+            // If Django returns a redirect (ex: redirect('home'))
+            window.location.href = res.url;
+        } else {
+            // Convert to text to check if success page HTML
+            return res.text();
+        }
+    })
     .then(html => {
-        document.body.innerHTML = html;  // directly load success page popup
+        if (html) {
+            // ✅ Show success page HTML from server
+            document.open();
+            document.write(html);
+            document.close();
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Payment verification failed. Please contact support.");
+        window.location.href = "{% url 'checkout' %}";
     });
 },
+
       "theme": {
           "color": "#2563eb"
       }

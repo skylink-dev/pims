@@ -1,94 +1,142 @@
 {% extends 'base.html' %}
-{% block title %}Order {{ order.order_id }} — Skyplay{% endblock %}
+{% block title %}Order #{{ order.order_id }} — Skyplay{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
-  <div class="bg-white shadow-md rounded-lg p-4 sm:p-6 print:shadow-none print:p-0">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 border-b pb-3">
+<div class="max-w-5xl mx-auto px-4 py-8 animate-fadeIn">
+
+  <!-- 🧾 Order Header -->
+  <div class="bg-gradient-to-br from-red-600 to-red-700 text-white rounded-2xl p-6 shadow-lg mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800">Order #{{ order.order_id }}</h2>
-        <p class="text-sm text-gray-600 mt-1">
-          Placed: {{ order.created_at|date:"d M Y, H:i" }}
-        </p>
+        <h2 class="text-2xl font-bold">Order #{{ order.order_id }}</h2>
+        <p class="text-sm text-red-100">Placed on {{ order.created_at|date:"d M Y, H:i" }}</p>
       </div>
-      <div class="mt-3 sm:mt-0 text-sm text-gray-700">
-        <span class="font-semibold">Amount:</span>
-        ₹{{ order.amount|floatformat:2 }}
+      <div class="mt-3 sm:mt-0 text-right">
+        <span class="text-xl font-semibold">₹{{ total_amount|floatformat:2 }}</span><br>
+        <span class="text-sm bg-white text-red-700 px-3 py-1 rounded-full font-semibold">
+          {{ order.status }}
+        </span>
       </div>
     </div>
+  </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full border-collapse text-sm sm:text-base">
-        <thead>
-          <tr class="bg-gray-100 text-gray-700">
-            <th class="py-2 px-3 text-left font-semibold">Item</th>
-            <th class="py-2 px-3 text-center font-semibold">Qty</th>
-            <th class="py-2 px-3 text-right font-semibold">Price</th>
-            <th class="py-2 px-3 text-right font-semibold">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for it in items %}
-          <tr class="border-b hover:bg-gray-50">
-            <td class="py-2 px-3">{{ it.asset.name }}</td>
-            <td class="py-2 px-3 text-center">{{ it.quantity }}</td>
-            <td class="py-2 px-3 text-right">₹{{ it.price|floatformat:2 }}</td>
-            <td class="py-2 px-3 text-right">
-              ₹{% widthratio it.price 1 it.quantity %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-        <tfoot>
-          <tr class="bg-gray-100 font-semibold">
-            <td colspan="3" class="py-2 px-3 text-right">Total</td>
-            <td class="py-2 px-3 text-right">₹{{ order.amount|floatformat:2 }}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+  <!-- 👤 Customer / Partner Details -->
+  <div class="bg-white rounded-xl shadow-md p-5 mb-6">
+    <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M5.121 17.804A4 4 0 017 16h10a4 4 0 011.879.804M15 11a3 3 0 10-6 0 3 3 0 006 0z" />
+      </svg>
+      Customer Details
+    </h3>
 
-    <!-- Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-end print:hidden">
-      <button
-        onclick="window.print()"
-        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition"
-      >
-        Print Receipt
-      </button>
-      <a
-        href="{% url 'orders' %}"
-        class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium text-center transition"
-      >
-        Back to Orders
-      </a>
+    <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
+      <p><span class="font-semibold">Name:</span> {{ order.user.first_name }} {{ order.user.last_name }}</p>
+      <p><span class="font-semibold">User ID:</span> {{ order.user.username }}</p>
+      {% if order.user.partner %}
+        <p><span class="font-semibold">Phone:</span> {{ order.user.partner.phone }}</p>
+        <p><span class="font-semibold">Address:</span> {{ order.user.partner.address|default:"—" }}</p>
+      {% endif %}
+      <p><span class="font-semibold">User Type:</span> {{ order.user.get_user_type_display }}</p>
+      <p><span class="font-semibold">DC Number:</span> {{ order.dc_number }}</p>
     </div>
+  </div>
+
+  <!-- 📦 Ordered Items -->
+  <div class="bg-white rounded-xl shadow-md p-5 mb-6 overflow-x-auto">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M3 3h18M9 3v18m6-18v18M3 9h18M3 15h18" />
+      </svg>
+      Order Items
+    </h3>
+
+    <table class="min-w-full border-collapse text-sm sm:text-base">
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="py-2 px-3 text-left">Item</th>
+          <th class="py-2 px-3 text-center">Qty</th>
+          <th class="py-2 px-3 text-right">Price</th>
+          <th class="py-2 px-3 text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr class="border-b hover:bg-gray-50 transition">
+          <td class="py-2 px-3">
+            <div class="font-semibold text-gray-800">{{ it.asset.name }}</div>
+            {% for serial in it.serials.all %}
+              <div class="text-xs text-gray-500">SN: {{ serial.serial_number }}</div>
+            {% endfor %}
+          </td>
+          <td class="py-2 px-3 text-center">{{ it.quantity }}</td>
+          <td class="py-2 px-3 text-right">₹{{ it.price|floatformat:2 }}</td>
+          <td class="py-2 px-3 text-right">₹{% widthratio it.price 1 it.quantity %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="bg-gray-100 font-semibold text-gray-800">
+          <td colspan="3" class="py-2 px-3 text-right">Total</td>
+          <td class="py-2 px-3 text-right">₹{{ total_amount|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- 💳 Payment Info -->
+  <div class="bg-white rounded-xl shadow-md p-5 mb-6">
+    <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M12 8c1.657 0 3-.895 3-2s-1.343-2-3-2-3 .895-3 2 1.343 2 3 2zm0 2a9 9 0 00-9 9v1h18v-1a9 9 0 00-9-9z" />
+      </svg>
+      Payment Details
+    </h3>
+
+    <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
+      <p><span class="font-semibold">Payment ID:</span> {{ order.razorpay_payment_id|default:"—" }}</p>
+
+   <p>
+  <span class="font-semibold">Signature:</span>
+  {% if order.razorpay_signature %}
+    <span id="signatureFull" class="break-all text-gray-800">{{ order.razorpay_signature }}</span>   
+  {% else %}
+    —
+  {% endif %}
+</p>
+
+      <p><span class="font-semibold">Status:</span> {{ order.status }}</p>
+    </div>
+  </div>
+
+  <!-- 🔘 Actions -->
+  <div class="flex flex-col sm:flex-row gap-3 justify-end print:hidden">
+    <button onclick="window.print()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition">
+      🖨️ Print
+    </button>
+    <a href="{% url 'orders' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition text-center">
+      ⬅ Back to Orders
+    </a>
   </div>
 </div>
 
-<!-- Print Styles -->
+<!-- 🌈 Animations + Scripts -->
 <style>
-  @media print {
-    body {
-      background: white !important;
-      color: black !important;
-    }
-    a, button {
-      display: none !important;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 6px;
-    }
-    th {
-      background-color: #f8f8f8;
-    }
-  }
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(15px);}
+  to {opacity:1; transform:translateY(0);}
+}
+.animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+@media print {
+  a, button { display:none !important; }
+  .shadow-md, .shadow-lg { box-shadow:none !important; }
+}
+#signatureFull, #signatureShort { word-break:break-all; max-width:100%; display:inline-block; }
 </style>
+
+<script>
+
+</script>
 {% endblock %}

@@ -3,6 +3,10 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa  # pip install xhtml2pdf
 from .models import Order  # update this import if your model name differs
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
 def order_summary_pdf(request, order_id):
     order = Order.objects.get(id=order_id)
     template_path = 'order/delivery_challan.html'  # path to your HTML template
@@ -55,4 +59,18 @@ def order_detail(request, pk):
         'total_amount': total_amount,
     }
     return render(request, 'order/order_detail.html', context)
+
+
+
+@csrf_exempt
+def mark_order_received(request, order_id):
+    if request.method == "POST":
+        try:
+            order = Order.objects.get(id=order_id)
+            order.shipping_status = 2  # 1 = transit, 2 = received
+            order.save()
+            return JsonResponse({"success": True, "message": f"Order #{order.order_id} marked as received!"})
+        except Order.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Order not found."})
+    return JsonResponse({"success": False, "message": "Invalid request."})
 
