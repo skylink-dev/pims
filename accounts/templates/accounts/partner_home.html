@@ -5,37 +5,48 @@
 
 {% block extra_css %}
 <style>
-  /* 🔹 Banner and Product Animations */
-  @import url('https://fonts.googleapis.com/css2?family=Playfair:ital,opsz@1,5..1200&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+  body {
+    font-family: 'Inter', sans-serif;
+  }
   .font-playfair {
-    font-family: 'Playfair', serif;
+    font-family: 'Playfair Display', serif;
   }
-
-  .banner-slide { transition: opacity 1s ease-in-out; }
-  .product-card:hover {
-    transform: translateY(-8px);
+  .banner-slide {
+    transition: opacity 1s ease-in-out;
+  }
+  .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   }
-  .filter-btn.active { background-color: #c53030; color: #fff; }
-  .cart-message { transition: opacity 0.5s ease; }
-
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
+  }
+  .filter-btn.active {
+    background: linear-gradient(to right, #dc2626, #ef4444);
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ✅ Banner Slider -->
-<section class="relative py-10 sm:py-14 md:py-16 bg-white">
+<!-- ✅ Banner Section -->
+<section class="relative py-8 sm:py-12 bg-white">
   <div class="container mx-auto px-4 sm:px-6 relative">
-    <div id="bannerSlider" class="relative w-full h-60 sm:h-72 md:h-96 overflow-hidden rounded-xl shadow-lg">
+    <div id="bannerSlider" class="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden rounded-2xl shadow-lg">
       {% for banner in banners %}
       <div class="banner-slide absolute inset-0 {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}">
-        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-full object-cover object-center rounded-xl">
-        <div class="absolute inset-0 flex items-center justify-start">
-          <div class="bg-gradient-to-r from-black/70 to-gray-400/50 p-6 sm:p-10 md:p-16 rounded-r-2xl text-left max-w-[90%] sm:max-w-lg">
-            <h3 class="text-gray-700 font-playfair text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">{{ banner.title }}</h3>
-            <p class="text-gray-500 font-playfair mt-3 sm:mt-4 text-base sm:text-lg md:text-xl">{{ banner.description }}</p>
+        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-full object-cover rounded-2xl">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
+          <div class="p-6 sm:p-10 text-white max-w-lg sm:max-w-xl">
+            <h3 class="text-3xl sm:text-5xl font-playfair font-bold leading-tight drop-shadow-lg">
+              {{ banner.title }}
+            </h3>
+            <p class="mt-3 sm:mt-4 text-gray-200 text-sm sm:text-lg leading-relaxed">
+              {{ banner.description }}
+            </p>
           </div>
         </div>
       </div>
@@ -44,59 +55,96 @@
       {% endfor %}
     </div>
 
-    <!-- Slider Buttons -->
-    <button id="prevBanner" class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 p-2 sm:p-3 rounded-full hover:bg-black/70 transition">
-      <i class="fas fa-chevron-left"></i>
+    <!-- Slider Controls -->
+    <button id="prevBanner"
+      class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/60 p-2 sm:p-3 rounded-full backdrop-blur transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
     </button>
-    <button id="nextBanner" class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 p-2 sm:p-3 rounded-full hover:bg-black/70 transition">
-      <i class="fas fa-chevron-right"></i>
+    <button id="nextBanner"
+      class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/60 p-2 sm:p-3 rounded-full backdrop-blur transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
     </button>
   </div>
 </section>
 
 <!-- ✅ Category Filter -->
 <section class="py-8 bg-gray-50">
-  <div class="container mx-auto px-6 flex flex-wrap justify-center gap-4">
-    <button class="filter-btn active bg-red-600 text-white px-5 py-2 rounded-full shadow font-semibold" data-category="all">All</button>
+  <div class="container mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-4">
+    <button class="filter-btn active px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold shadow-sm bg-red-600 text-white"
+      data-category="all">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zM4 8h16v11a1 1 0 01-1 1H5a1 1 0 01-1-1V8z" />
+      </svg>
+      All
+    </button>
     {% for category in categories %}
-    <button class="filter-btn bg-gray-200 text-gray-800 px-5 py-2 rounded-full shadow hover:bg-red-600 hover:text-white transition font-semibold" data-category="{{ category.id }}">{{ category.name }}</button>
+    <button
+      class="filter-btn px-5 py-2 sm:px-6 sm:py-2.5 bg-white border border-gray-300 rounded-full text-gray-800 hover:bg-red-600 hover:text-white transition font-semibold text-sm sm:text-base"
+      data-category="{{ category.id }}">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4h9m-9 8h9M4 4h.01M4 12h.01M4 20h.01" />
+      </svg>
+      {{ category.name }}
+    </button>
     {% endfor %}
   </div>
 </section>
 
 <!-- ✅ Product Grid -->
-<section class="py-16 bg-white">
-  <div class="container mx-auto px-6">
-    <h2 class="text-4xl sm:text-5xl font-extrabold mb-12 text-center text-red-600 tracking-wide">Hot Picks for You</h2>
+<section class="py-14 bg-white">
+  <div class="container mx-auto px-4 sm:px-6">
+    <h2 class="text-3xl sm:text-4xl font-extrabold mb-10 text-center text-gray-800 font-playfair tracking-wide">
+      🌟 Hot Picks for You
+    </h2>
 
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div id="productGrid"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-8 lg:gap-10 justify-center">
       {% for product in products %}
-      <div class="product-card group bg-white rounded-2xl overflow-hidden shadow-lg transition duration-300 hover:-translate-y-2" data-category="{{ product.category.id }}">
-        <div class="relative w-full h-64 overflow-hidden">
+      <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl" data-category="{{ product.category.id }}">
+        <div class="relative w-full h-48 sm:h-60 overflow-hidden">
           {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}"
+            class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
           {% else %}
           <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">No Image</div>
           {% endif %}
           {% if product.is_new %}
-          <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">NEW</span>
+          <span
+            class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">NEW</span>
           {% endif %}
         </div>
         <div class="p-4 flex flex-col items-center text-center">
-          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition">{{ product.name }}</h3>
-          <span class="text-red-600 font-bold text-lg mb-3">₹{{ product.purchase_price }}</span>
+          <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-1 hover:text-red-600 transition">
+            {{ product.name }}
+          </h3>
+          <span class="text-red-600 font-bold text-base sm:text-lg mb-3">₹{{ product.purchase_price }}</span>
 
           <form class="add-to-cart-form" data-asset-id="{{ product.id }}">
             {% csrf_token %}
-            <div class="flex items-center justify-center space-x-3 mb-3">
-              <label for="quantity_{{ product.id }}" class="text-sm font-semibold text-gray-700">Qty:</label>
+            <div class="flex items-center justify-center space-x-2 mb-3">
+              <label for="quantity_{{ product.id }}" class="text-xs sm:text-sm font-medium text-gray-700">Qty:</label>
               <input type="number" id="quantity_{{ product.id }}" name="quantity" value="1" min="1"
-                class="w-16 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none" />
+                class="w-14 sm:w-16 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none" />
             </div>
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-6 py-2 rounded-full flex items-center space-x-2 transition">
-              <i class="fas fa-cart-plus"></i><span>Add to Cart</span>
+            <button type="submit"
+              class="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm px-5 py-2 rounded-full flex items-center gap-2 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6H19M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+              </svg>
+              <span>Add to Cart</span>
             </button>
-            <div class="cart-message mt-2 text-sm font-medium text-center"></div>
+            <div class="cart-message mt-2 text-sm text-gray-600 font-medium text-center"></div>
           </form>
         </div>
       </div>
@@ -116,9 +164,18 @@
   const slides = document.querySelectorAll('.banner-slide');
   let currentSlide = 0;
   const showSlide = i => slides.forEach((s, idx) => s.style.opacity = idx === i ? '1' : '0');
-  document.getElementById('prevBanner')?.addEventListener('click', () => { currentSlide = (currentSlide - 1 + slides.length) % slides.length; showSlide(currentSlide); });
-  document.getElementById('nextBanner')?.addEventListener('click', () => { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); });
-  setInterval(() => { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); }, 5000);
+  document.getElementById('prevBanner')?.addEventListener('click', () => {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  });
+  document.getElementById('nextBanner')?.addEventListener('click', () => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  });
+  setInterval(() => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }, 5000);
 
   // ✅ Category Filter
   const filterBtns = document.querySelectorAll('.filter-btn');
@@ -126,9 +183,12 @@
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const cat = btn.dataset.category;
-      filterBtns.forEach(b => b.classList.remove('bg-red-600', 'text-white', 'active'));
-      btn.classList.add('bg-red-600', 'text-white', 'active');
-      products.forEach(p => p.style.display = (cat === 'all' || p.dataset.category === cat) ? 'block' : 'none');
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      products.forEach(p => {
+        p.style.display = (cat === 'all' || p.dataset.category === cat) ? 'block' : 'none';
+      });
+
     });
   });
 </script>

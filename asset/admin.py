@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
+
+from partner.models import PartnerAssetLimit
 from .models import Asset, Category, Banner
 
 @admin.register(Asset)
@@ -36,3 +38,4 @@ class BannerAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" width="100" />'.format(obj.image.url))
         return "-"
     image_tag.short_description = 'Banner Image'
+

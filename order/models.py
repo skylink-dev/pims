@@ -25,7 +25,7 @@ class Order(models.Model):
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
-
+    # ✅ NEW FIELD: Store signature image (optional)
     dc_number = models.CharField(
         max_length=50,
         blank=True,
@@ -98,6 +98,7 @@ class OrderShipment(models.Model):
     delivered_at = models.DateTimeField(blank=True, null=True)
     remarks = models.TextField(blank=True, null=True)
     shipping_status = models.IntegerField(choices=SHIPPING_STATUS_CHOICES, default=0)
+    signature = models.ImageField(upload_to='signatures/', blank=True, null=True)
 
     def __str__(self):
         return f"Shipment for Order #{self.order.order_id}"

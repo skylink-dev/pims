@@ -6,43 +6,57 @@
 {% block content %}
 <div class="p-4 sm:p-6 animate-fadeIn">
   <!-- 🧾 Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <div class="flex justify-between items-center mb-8 flex-wrap gap-3">
+    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
               d="M3 3h18l-1.68 13.44A2 2 0 0117.34 18H6.66a2 2 0 01-1.98-1.56L3 3z" />
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
               d="M16 21a2 2 0 100-4 2 2 0 000 4zM8 21a2 2 0 100-4 2 2 0 000 4z" />
       </svg>
-      Store Orders
+      <span>Store Orders</span>
     </h1>
   </div>
 
   {% if orders %}
     {% for order in orders %}
-    <div class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      <!-- 🔖 Order Header -->
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200">
+    <div class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+      <!-- Order Header -->
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-indigo-100 border-b border-gray-200">
         <div>
           <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M12 8v4l3 3m6-3a9 9 0 11-9-9" />
             </svg>
             Order #{{ order.order_id }}
           </h2>
-          <p class="text-sm text-gray-600">📅 {{ order.created_at|date:"d M Y, h:i A" }}</p>
+          <p class="text-sm text-gray-600 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M8 7V3m8 4V3M3 11h18M5 19h14a2 2 0 002-2V7H3v10a2 2 0 002 2z" />
+            </svg>
+            {{ order.created_at|date:"d M Y, h:i A" }}
+          </p>
         </div>
 
         <div class="flex flex-wrap gap-2">
           <span class="px-3 py-1 text-xs font-semibold rounded-full text-white
-            {% if order.status == 'Completed' %} bg-green-600 {% elif order.status == 'Serial Updated' %} bg-blue-500 {% else %} bg-gray-500 {% endif %}">
+            {% if order.status == 'Completed' %} bg-green-600
+            {% elif order.status == 'Serial Updated' %} bg-blue-500
+            {% else %} bg-gray-500 {% endif %}">
             {{ order.status }}
           </span>
 
           <a href="{% url 'store_order_detail' order.id %}"
              class="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition">
-            👁️ View
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View
           </a>
 
           {% if order.status != 'Completed' %}
@@ -50,14 +64,18 @@
             {% csrf_token %}
             <button type="submit"
               class="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg shadow transition">
-              ✅ Complete
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M5 13l4 4L19 7" />
+              </svg>
+              Complete
             </button>
           </form>
           {% endif %}
         </div>
       </div>
 
-      <!-- 🧩 Items -->
+      <!-- Order Items -->
       <div class="p-5 space-y-4">
         {% for item in order.orderitem_set.all %}
         <div x-data="{ open: false }"
@@ -66,7 +84,10 @@
                   class="flex justify-between items-center w-full p-4 text-left">
             <div class="flex items-center gap-3">
               <div class="bg-white w-12 h-12 flex items-center justify-center rounded-lg shadow-inner">
-                📦
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M3 3h18v18H3V3z" />
+                </svg>
               </div>
               <div>
                 <p class="text-gray-800 font-semibold text-base">{{ item.asset.name }}</p>
@@ -82,9 +103,9 @@
 
           <div x-show="open" x-collapse class="p-4 bg-white border-t border-gray-200">
             {% if order.status != 'Completed' %}
-            <form action="{% url 'update_serials' item.id %}" method="post" class="space-y-2" onsubmit="return validateSerials(this)">
+            <form action="{% url 'update_serials' item.id %}" method="post" class="space-y-3" onsubmit="return validateSerials(this)">
               {% csrf_token %}
-              <div class="grid sm:grid-cols-2 gap-2">
+              <div class="grid sm:grid-cols-2 gap-3">
                 {% for serial in item.serials.all %}
                 <input type="text" name="serial_numbers" value="{{ serial.serial_number }}"
                        class="serial-input border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 w-full" />
@@ -97,8 +118,12 @@
               </div>
 
               <button type="submit"
-                class="mt-2 w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition">
-                💾 Update Serials
+                class="mt-3 w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 13l4 4L19 7" />
+                </svg>
+                Update Serials
               </button>
             </form>
             {% else %}
@@ -128,7 +153,7 @@
   {% endif %}
 </div>
 
-<!-- 🌟 Animations & JS -->
+<!-- 🌟 Alpine + Validation -->
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 function validateSerials(form) {

@@ -38,8 +38,12 @@ def home_view(request):
     categories = Category.objects.all()
     products = Asset.objects.all()
     banners = Banner.objects.filter(is_active=True).order_by('order')
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count=0
 
-    context = {'categories': categories, 'products': products, 'banners': banners}
+    if cart:
+        cart_count =cart_items = CartItem.objects.filter(cart=cart).count()
+    context = {'categories': categories, 'products': products, 'banners': banners,"cart_count": cart_count}
 
     if user_type == 'superadmin':
         return redirect('/admin/')
