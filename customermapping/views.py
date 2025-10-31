@@ -177,6 +177,12 @@ def assign_customer(request):
         if CustomerAssetMapping.objects.filter(order_serial=order_serial).exists():
             return JsonResponse({"error": "This serial is already mapped."}, status=400)
 
+        asset = order_serial.order_item.asset  # ✅ Get asset object
+  # ✅ Prevent same serial from being assigned to the same customer again
+        if CustomerAssetMapping.objects.filter(    skyid=skyid, order_serial__order_item__asset=asset).exists():
+             return JsonResponse({
+                "error": "This customer already has an assigned asset. One user can have only one asset."
+            }, status=400)
         # Create new mapping
         mapping = CustomerAssetMapping.objects.create(
             order_serial=order_serial,
