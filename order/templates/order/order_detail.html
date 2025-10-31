@@ -1,19 +1,135 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Order #{{ order.order_id }} — Skyplay{% endblock %}
 
 {% block content %}
+<script>
+function printCustomInvoice() {
+  const printContent = document.getElementById('printArea').innerHTML;
+  const printWindow = window.open('', '', 'width=900,height=650');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Order #{{ order.order_id }}</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <style>
+          @media print {
+            body { margin: 1cm; }
+            table, td, th { border: 1px solid #ddd; border-collapse: collapse; }
+            th { background: #f3f4f6; }
+          }
+        </style>
+      </head>
+      <body>${printContent}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+
+
+</script>
+
 <div class="max-w-5xl mx-auto px-4 py-8 animate-fadeIn">
 
+    <!-- 🖨️ Hidden Print Area -->
+ <!-- 🖨️ Hidden Print Area -->
+<div id="printArea" class="hidden">
+  <div class="p-8 text-gray-900 font-sans">
+    <!-- 🧾 Header -->
+    <div class="text-center mb-6">
+      <img src="{% static 'images/new-logo.png' %}" alt="Skyplay Logo" class="mx-auto w-32 mb-3">
+      <h2 class="text-2xl font-bold">Order Invoice</h2>
+      <p class="text-sm text-gray-600">Order ID: {{ order.order_id }}</p>
+      <p class="text-xs text-gray-500">Date: {{ order.created_at|date:"d M Y, H:i" }}</p>
+    </div>
+
+    <!-- 👤 Customer Info -->
+    <div class="mb-4 text-sm">
+      <p><strong>Customer:</strong> {{ order.user.first_name }} {{ order.user.last_name }}</p>
+      <p><strong>User ID:</strong> {{ order.user.username }}</p>
+      {% if order.user.partner %}
+      <p><strong>Phone:</strong> {{ order.user.partner.phone }}</p>
+      <p><strong>Address:</strong> {{ order.user.partner.address|default:"—" }}</p>
+      {% endif %}
+      <p><strong>DC Number:</strong> {{ order.dc_number|default:"—" }}</p>
+    </div>
+
+    <!-- 📦 Order Items -->
+    <table class="w-full border-collapse text-sm border mb-6">
+      <thead>
+        <tr class="bg-gray-100 border">
+          <th class="border px-2 py-1 text-left">Item</th>
+          <th class="border px-2 py-1 text-center">Qty</th>
+          <th class="border px-2 py-1 text-right">Price</th>
+          <th class="border px-2 py-1 text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr class="border">
+          <td class="border px-2 py-1">{{ it.asset.name }}</td>
+          <td class="border px-2 py-1 text-center">{{ it.quantity }}</td>
+          <td class="border px-2 py-1 text-right">₹{{ it.price|floatformat:2 }}</td>
+          <td class="border px-2 py-1 text-right">₹{% widthratio it.price 1 it.quantity %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="font-semibold border-t">
+          <td colspan="3" class="text-right px-2 py-1">Total</td>
+          <td class="text-right px-2 py-1">₹{{ total_amount|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- 💳 Payment Details -->
+    <div class="text-sm border-t pt-4">
+      <h3 class="text-lg font-semibold mb-2 text-gray-800">Payment Details</h3>
+      <p><strong>Status:</strong> {{ order.status }}</p>
+      <p><strong>Payment ID:</strong> {{ order.razorpay_payment_id|default:"—" }}</p>
+      <p><strong>Signature:</strong>
+        {% if order.razorpay_signature %}
+          <span class="break-all">{{ order.razorpay_signature }}</span>
+        {% else %}
+          —
+        {% endif %}
+      </p>
+      <p>
+        <strong>Shipping Status:</strong>
+        {% if order.shipping_status == 0 %}
+          Pending
+        {% elif order.shipping_status == 1 %}
+          In Transit
+        {% elif order.shipping_status == 2 %}
+          Received
+        {% endif %}
+      </p>
+    </div>
+
+
+    <!-- 🧾 Footer -->
+    <div class="mt-8 text-center text-sm text-gray-600 border-t pt-3">
+      Thank you for your business!<br>
+      <strong>— Skyplay Team</strong>
+    </div>
+  </div>
+</div>
+
+
+
   <!-- 🧾 Order Header -->
-  <div class="bg-gradient-to-br from-red-600 to-red-700 text-white rounded-2xl p-6 shadow-lg mb-6">
+  <div class="bg-gradient-to-br from-green-600 to-green-700 text-white rounded-2xl p-6 shadow-lg mb-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
       <div>
         <h2 class="text-2xl font-bold">Order #{{ order.order_id }}</h2>
         <p class="text-sm text-red-100">Placed on {{ order.created_at|date:"d M Y, H:i" }}</p>
       </div>
-      <div class="mt-3 sm:mt-0 text-right">
-        <span class="text-xl font-semibold">₹{{ total_amount|floatformat:2 }}</span><br>
-        <span class="text-sm bg-white text-red-700 px-3 py-1 rounded-full font-semibold">
+      <div class="mt-3 p-3 sm:mt-0 text-right flex">
+        <span class="text-xl mr-4 font-semibold">₹{{ total_amount|floatformat:2 }}</span><br>
+        <span class="text-sm bg-white text-red-900 px-3 py-1 rounded-full font-semibold">
           {{ order.status }}
         </span>
       </div>
@@ -97,32 +213,270 @@
 
     <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
       <p><span class="font-semibold">Payment ID:</span> {{ order.razorpay_payment_id|default:"—" }}</p>
-
-   <p>
-  <span class="font-semibold">Signature:</span>
-  {% if order.razorpay_signature %}
-    <span id="signatureFull" class="break-all text-gray-800">{{ order.razorpay_signature }}</span>   
-  {% else %}
-    —
-  {% endif %}
-</p>
-
+      <p>
+        <span class="font-semibold">Signature:</span>
+        {% if order.razorpay_signature %}
+          <span id="signatureFull" class="break-all text-gray-800">{{ order.razorpay_signature }}</span>
+        {% else %}
+          —
+        {% endif %}
+      </p>
       <p><span class="font-semibold">Status:</span> {{ order.status }}</p>
     </div>
   </div>
+{% if shipment %}
+  <div class="mt-8 mb-8 bg-white shadow-md rounded-2xl p-6 border border-gray-100">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 3h13v6h5l-1.5 6H16m-9 5a2 2 0 110-4 2 2 0 010 4zm10 0a2 2 0 110-4 2 2 0 010 4z" />
+      </svg>
+      Shipping Details
+    </h2>
+
+    <div class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+      <p><span class="font-semibold">Courier:</span> {{ shipment.courier_name|default:"—" }}</p>
+      <p><span class="font-semibold">Tracking ID:</span>
+        {% if shipment.tracking_id %}
+          <span class="text-blue-600">{{ shipment.tracking_id }}</span>
+        {% else %}
+          —
+        {% endif %}
+      </p>
+      <p><span class="font-semibold">Dispatched On:</span>
+        {% if shipment.dispatched_at %}
+          {{ shipment.dispatched_at|date:"d M Y, H:i" }}
+        {% else %}
+          —
+        {% endif %}
+      </p>
+      <p><span class="font-semibold">Delivered On:</span>
+        {% if shipment.delivered_at %}
+          {{ shipment.delivered_at|date:"d M Y, H:i" }}
+        {% else %}
+          —
+        {% endif %}
+      </p>
+      <p><span class="font-semibold">Status:</span>
+        {% if shipment.shipping_status == 0 %}
+          <span class="text-yellow-600">Pending</span>
+        {% elif shipment.shipping_status == 1 %}
+          <span class="text-blue-600">In Transit</span>
+        {% elif shipment.shipping_status == 2 %}
+          <span class="text-green-600">Delivered</span>
+        {% elif shipment.shipping_status == 3 %}
+          <span class="text-red-600">Returned</span>
+        {% endif %}
+      </p>
+    <p>
+    {{  shipment.signature }}
+        <div class="mt-6">
+            <h3 class="font-semibold mb-1">Customer Signature:</h3>
+            {% if shipment.signature %}
+  <img src="{{ shipment.signature.url }}" alt="Signature" class="w-32 h-auto">
+{% else %}
+  <p class="text-gray-500 italic">No signature uploaded yet</p>
+{% endif %}
+        </div>
+      </p>
+    </div>
+
+    {% if shipment.remarks %}
+    <div class="mt-3">
+      <p class="text-sm text-gray-600"><span class="font-semibold">Remarks:</span> {{ shipment.remarks }}</p>
+    </div>
+    {% endif %}
+  </div>
+{% else %}
+  <!-- 🚫 Not Yet Shipped -->
+  <div class="mt-8 bg-white shadow-md rounded-2xl p-6 border border-gray-100 text-center text-gray-600">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto text-yellow-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <p class="text-lg font-medium">Not yet shipped</p>
+    <p class="text-sm text-gray-500">This order has not been dispatched yet.</p>
+  </div>
+{% endif %}
+
+
+
+
+
 
   <!-- 🔘 Actions -->
-  <div class="flex flex-col sm:flex-row gap-3 justify-end print:hidden">
-    <button onclick="window.print()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition">
-      🖨️ Print
-    </button>
-    <a href="{% url 'orders' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition text-center">
-      ⬅ Back to Orders
-    </a>
+<div class="flex flex-col my-4 sm:flex-row gap-3 justify-end print:hidden">
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+
+  <!-- ✅ Item Received -->{% if shipment and not shipment.signature %}
+  <!-- ✅ Active Button -->
+  <button
+    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition
+           bg-green-600 hover:bg-green-700 text-white"
+    data-tooltip="Mark as Received"
+    onclick="openReceivedModal('{{ order.id }}', '{{ order.order_id }}')">
+
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white"
+         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <span>Mark Received</span>
+  </button>
+{% else %}
+  <!-- 🚫 Disabled Button -->
+  <button
+    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition
+           bg-gray-400 text-gray-100 cursor-not-allowed"
+    data-tooltip="Not yet shipped"
+    disabled>
+
+
+    <span>Mark as Order Recieved</span>
+  </button>
+{% endif %}
+
+
+
+  <!-- 🖨️ Print Button -->
+  <button onclick="printCustomInvoice()"
+          class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition">
+    <!-- Printer Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M6 9V2h12v7m-9 11h6m-9 0h-2a2 2 0 01-2-2v-5h18v5a2 2 0 01-2 2h-2m-9 0v-4h6v4" />
+    </svg>
+    <span>Print</span>
+  </button>
+
+
+  <!-- ⬅ Back Button -->
+  <a href="{% url 'orders' %}"
+     class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition text-center">
+    <!-- Arrow Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M15 19l-7-7 7-7" />
+    </svg>
+    <span>Back to Orders</span>
+  </a>
+</div>
+
+
+   <!-- ✅ Modal with Signature -->
+<div id="receivedModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-md relative animate-fadeIn">
+    <h2 class="text-lg sm:text-xl font-semibold mb-2 text-gray-800">Confirm & Sign</h2>
+    <p id="modalOrderInfo" class="text-gray-600 mb-4 text-sm sm:text-base"></p>
+
+    <!-- ✍ Signature Area -->
+    <div class="border border-gray-300 rounded-lg mb-3 overflow-hidden">
+      <canvas id="signaturePad" class="w-full h-40 sm:h-48 bg-gray-50 rounded-lg touch-manipulation"></canvas>
+    </div>
+    <div class="flex justify-between mb-4 text-sm">
+      <button onclick="clearSignature()" class="text-red-600 hover:underline">Clear</button>
+      <span class="text-gray-500">Please sign above</span>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row justify-end sm:space-x-3 space-y-3 sm:space-y-0">
+      <button onclick="closeReceivedModal()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-800 font-medium transition">
+        Cancel
+      </button>
+      <button id="confirmReceivedBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
+        Confirm & Submit
+      </button>
+    </div>
+
+    <button onclick="closeReceivedModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg">✕</button>
   </div>
 </div>
 
-<!-- 🌈 Animations + Scripts -->
+
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+let currentOrderId = null;
+let signaturePad;
+
+function openReceivedModal(orderId, orderCode) {
+  currentOrderId = orderId;
+  document.getElementById("modalOrderInfo").textContent =
+    `Please sign to confirm receipt for Order #${orderCode}`;
+  document.getElementById("receivedModal").classList.remove("hidden");
+
+  const canvas = document.getElementById("signaturePad");
+  signaturePad = new SignaturePad(canvas, {
+    backgroundColor: "rgba(255,255,255,0)",
+    penColor: "rgb(0, 0, 0)",
+    throttle: 0, // smoother drawing
+  });
+
+  resizeCanvas(canvas);
+}
+
+function resizeCanvas(canvas) {
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  canvas.getContext("2d").scale(ratio, ratio);
+  if (signaturePad) signaturePad.clear();
+}
+
+window.addEventListener("resize", () => {
+  const canvas = document.getElementById("signaturePad");
+  if (canvas) resizeCanvas(canvas);
+});
+
+function clearSignature() {
+  if (signaturePad) signaturePad.clear();
+}
+
+function closeReceivedModal() {
+  document.getElementById("receivedModal").classList.add("hidden");
+  if (signaturePad) signaturePad.clear();
+}
+
+document.getElementById("confirmReceivedBtn").addEventListener("click", async () => {
+  if (!signaturePad || signaturePad.isEmpty()) {
+    alert("✍️ Please provide a signature before confirming.");
+    return;
+  }
+
+  const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const signatureData = signaturePad.toDataURL();
+
+  const response = await fetch(`/order/mark-received/${currentOrderId}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+    body: JSON.stringify({ received: true, signature: signatureData }),
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const data = await response.json();
+  if (data.success) {
+    closeReceivedModal();
+    alert("✅ Order marked as received and signed successfully!");
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    alert("❌ Something went wrong. Please try again.");
+  }
+});
+</script>
+
+
+
 <style>
 @keyframes fadeIn {
   from {opacity:0; transform:translateY(15px);}
@@ -133,7 +487,7 @@
   a, button { display:none !important; }
   .shadow-md, .shadow-lg { box-shadow:none !important; }
 }
-#signatureFull, #signatureShort { word-break:break-all; max-width:100%; display:inline-block; }
+#signatureFull { word-break:break-all; max-width:100%; display:inline-block; }
 </style>
 
 <script>

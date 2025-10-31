@@ -12,6 +12,7 @@ env/
 ENV/
 .venv/
 
+
 # Django stuff:
 *.log
 *.pot
@@ -51,3 +52,4 @@ htmlcov/
 *.swp
 .env
 */settings.py
+*/settings_local.py

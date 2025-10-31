@@ -5,12 +5,437 @@
 
 {% block content %}
 <div class="container mx-auto px-4 sm:px-6 py-8">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-900 flex items-center gap-2">
-    <svg class="w-7 h-7 text-red-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
+
+
+
+
+  <!-- Header Section -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+
+  <!-- Title -->
+  <h2 class="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
+    <svg class="w-7 h-7 text-blue-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M3 7h6v6H3V7zm12 0h6v6h-6V7zm-6 10h6v6h-6v-6zm-6-4h2v2H3v-2zm14 0h4v2h-4v-2z" />
+</svg>
+
     Customer Asset Mapping
   </h2>
+
+  <!-- Right Buttons -->
+  <div class="flex flex-wrap justify-center sm:justify-end gap-3">
+
+    <!-- 📊 View Available Assets -->
+    <button
+      onclick="openAssetModal()"
+      class="flex items-center justify-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-medium transition transform hover:scale-105"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="w-5 h-5 text-white"
+           fill="none"
+           viewBox="0 0 24 24"
+           stroke="currentColor"
+           stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 3v18h18M7 14l4-4 3 3 5-5" />
+      </svg>
+      <span>View Assets Overview</span>
+    </button>
+
+    <!-- 📈 View Asset Overview -->
+{#    <button#}
+{#      onclick="openAssetGraphModal()"#}
+{#      class="flex items-center justify-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md font-medium transition transform hover:scale-105"#}
+{#    >#}
+{#      <svg xmlns="http://www.w3.org/2000/svg"#}
+{#           class="w-5 h-5 text-white"#}
+{#           fill="none"#}
+{#           viewBox="0 0 24 24"#}
+{#           stroke="currentColor"#}
+{#           stroke-width="2">#}
+{#        <path stroke-linecap="round" stroke-linejoin="round"#}
+{#              d="M9 17v-6m4 6V9m4 8v-2M5 3v18h14" />#}
+{#      </svg>#}
+{#      <span>View Asset Overview</span>#}
+{#    </button>#}
+
+      <button
+  onclick="openScanModal()"
+  class="flex items-center justify-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md font-medium transition transform hover:scale-105"
+>
+  <svg xmlns="http://www.w3.org/2000/svg"
+       class="w-5 h-5 text-white"
+       fill="none"
+       viewBox="0 0 24 24"
+       stroke="currentColor"
+       stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 5h6M15 5h6M3 19h6M15 19h6M4 12h16M12 4v16" />
+  </svg>
+  <span>Quick Scan</span>
+</button>
+  </div>
+</div>
+
+<!-- 🔒 Scanner Modal -->
+<div id="scanModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-[90%] sm:w-[450px] text-center relative">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">📷 Scan Asset Barcode</h2>
+
+    <video id="video" class="w-full rounded-lg border border-gray-200" autoplay></video>
+    <p id="scanResult" class="mt-3 text-gray-600 text-sm"></p>
+
+    <button
+      onclick="closeScanModal()"
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+    >✖</button>
+  </div>
+</div>
+
+
+
+<!-- Modal Background -->
+<div
+  id="assetGraphModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6 sm:p-8"
+  >
+    <!-- Close Button -->
+    <button
+      onclick="closeAssetGraphModal()"
+      class="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full w-9 h-9 flex items-center justify-center transition"
+    >
+      ✕
+    </button>
+
+    <!-- Title -->
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+    <path d="M3 3a1 1 0 011-1h1a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V3zM8 8a1 1 0 011-1h1a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V8zM13 5a1 1 0 011-1h1a1 1 0 011 1v12a1 1 0 01-1 1h-1a1 1 0 01-1-1V5z" />
+  </svg>
+  Asset Availability Overview
+</h2>
+
+    {% if available_assets %}
+      <!-- Chart Canvas -->
+      <div class="relative h-[400px] sm:h-[500px]">
+        <canvas id="assetChart"></canvas>
+      </div>
+
+      <!-- Summary Table (Optional) -->
+      <div class="mt-8 overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-lg shadow-sm">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="px-4 py-2 text-left">Asset Name</th>
+              <th class="px-4 py-2 text-center">Max Allowed to Buy</th>
+              <th class="px-4 py-2 text-center">Assets in Hand</th>
+              <th class="px-4 py-2 text-center">Allowed to Purchase</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for asset in available_assets %}
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2 font-medium text-gray-800">
+                  {{ asset.name }}
+                </td>
+                <td class="px-4 py-2 text-center">{{ asset.max_allowed }}</td>
+                <td class="px-4 py-2 text-center">{{ asset.ordered_qty }}</td>
+                <td
+                  class="px-4 py-2 text-center {% if asset.remaining_qty <= 0 %}text-red-600{% else %}text-green-600{% endif %}"
+                >
+                  {{ asset.remaining_qty }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Chart Data Script -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = [{% for asset in available_assets %}"{{ asset.name }}",{% endfor %}];
+
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        label: "Owned",
+        backgroundColor: "#3b82f6",
+        borderRadius: 6,
+        data: [{% for asset in available_assets %}{{ asset.ordered_qty }},{% endfor %}],
+      },
+      {
+        label: "Remaining",
+        backgroundColor: "#10b981",
+        borderRadius: 6,
+        data: [{% for asset in available_assets %}{{ asset.remaining_qty }},{% endfor %}],
+      },
+    ],
+  };
+
+  const ctx = document.getElementById("assetChart");
+  new Chart(ctx, {
+    type: "bar",
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { color: "#1f2937", font: { size: 13 } },
+        },
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: "#374151", font: { size: 12 } },
+          grid: { display: false },
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { color: "#4b5563" },
+          grid: { color: "#e5e7eb" },
+        },
+      },
+    },
+  });
+</script>
+
+    {% else %}
+      <p class="text-gray-600 italic text-center py-8">
+        No assets available for you at the moment.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal Toggle Script -->
+<script>
+  function openAssetGraphModal() {
+    document.getElementById("assetGraphModal").classList.remove("hidden");
+  }
+
+  function closeAssetGraphModal() {
+    document.getElementById("assetGraphModal").classList.add("hidden");
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 🪟 Modal Background -->
+<div
+  id="assetModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-md transition-opacity"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl w-[95%] sm:w-[90%] lg:w-[85%] xl:w-[80%] max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative"
+  >
+    <!-- ✖ Close Button -->
+    <button
+      onclick="closeAssetModal()"
+      class="absolute top-3 right-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center transition"
+    >
+      ✕
+    </button>
+
+    <!-- Modal Title -->
+    <h2
+      class="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-7 h-7 text-blue-600"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 3v18h18M7 14l4-4 3 3 5-5"
+        />
+      </svg>
+      Available Assets Overview
+    </h2>
+
+    {% if available_assets %}
+    <div class="mt-8 overflow-x-auto">
+      <table
+        class="min-w-full border border-gray-200 rounded-lg shadow-md overflow-hidden text-sm sm:text-base"
+      >
+        <thead
+          class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white"
+        >
+          <tr>
+            <th
+              class="px-4 py-3 text-left font-semibold uppercase tracking-wide"
+            >
+              Asset Name
+            </th>
+            <th
+              class="px-4 py-3 text-center font-semibold uppercase tracking-wide"
+            >
+              Max Allowed to Buy
+            </th>
+            <th
+              class="px-4 py-3 text-center hidden md:block font-semibold uppercase tracking-wide"
+            >
+              Total Assets Bought
+            </th>
+            <th
+              class="px-4 py-3 text-center font-semibold uppercase tracking-wide"
+            >
+              Assets In hand
+            </th>
+            <th
+              class="px-4 py-3 text-center hidden md:block font-semibold uppercase tracking-wide"
+            >
+              Assets Mapped to Customer
+            </th>
+            <th
+              class="px-4 py-3 text-center font-semibold uppercase tracking-wide"
+            >
+              Allowed to Purchase
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for asset in available_assets %}
+          <tr
+            class="hover:bg-gray-50 transition"
+          >
+            <td
+              class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap"
+            >
+              {{ asset.name }}
+            </td>
+            <td class="px-4 py-3 text-center text-gray-700">
+              {{ asset.max_allowed }}
+            </td>
+            <td class="px-4 py-3  hidden md:block text-center text-gray-700">
+              {{ asset.total_assets_bought }}
+            </td>
+            <td class="px-4 py-3 text-center text-gray-700">
+              {{ asset.ordered_qty }}
+            </td>
+            <td
+              class="px-4 py-3 text-center hidden md:block text-indigo-600 font-semibold"
+            >
+              {{ asset.mapped_asset }}
+            </td>
+            <td
+              class="px-4 py-3 text-center font-semibold {% if asset.remaining_qty <= 0 %}text-red-600{% else %}text-green-600{% endif %}"
+            >
+              {{ asset.remaining_qty }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p
+      class="text-gray-600 italic text-center py-8"
+    >
+      No assets available for you at the moment.
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+
+
+<!-- Info Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <!-- Total Orders -->
+{#  <div class="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">#}
+{#    <div>#}
+{#      <p class="text-sm text-gray-500 font-medium">Total Orders</p>#}
+{#      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ total_orders|default:"0" }}</h3>#}
+{#    </div>#}
+{#    <div class="bg-red-100 text-red-600 p-3 rounded-full">#}
+{#      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">#}
+{#        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11m0 0V3m0 7l-8 8-4-4m12-5h7v7" />#}
+{#      </svg>#}
+{#    </div>#}
+{#  </div>#}
+
+  <!-- Total Assets -->
+  <div class="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">
+    <div>
+      <p class="text-sm text-gray-500 font-medium">Total Assets in-hand</p>
+      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ total_assets_in_hand|default:"0" }}</h3>
+    </div>
+    <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18m-9 5h9" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Mapped Customers -->
+  <div class="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">
+    <div>
+      <p class="text-sm text-gray-500 font-medium">Customers Mapped</p>
+      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ total_mapped|default:"0" }}</h3>
+    </div>
+    <div class="bg-green-100 text-green-600 p-3 rounded-full">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+  </div>
+    <!-- Total Orders -->
+ <div class="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">
+  <div>
+    <p class="text-sm text-gray-500 font-medium">Total Assets Ordered</p>
+    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ total_assets|default:"0" }}</h3>
+  </div>
+  <div class="bg-amber-100 text-amber-600 p-3 rounded-full">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M10 6V4a1 1 0 011-1h2a1 1 0 011 1v2m-8 0h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z" />
+    </svg>
+  </div>
+</div>
+{#  <!-- Unmapped Assets -->#}
+{#  <div class="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">#}
+{#    <div>#}
+{#      <p class="text-sm text-gray-500 font-medium">Unmapped Assets</p>#}
+{#      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ total_unmapped|default:"0" }}</h3>#}
+{#    </div>#}
+{#    <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">#}
+{#      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">#}
+{#        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M9 21h6a9 9 0 100-18H9a9 9 0 000 18z" />#}
+{#      </svg>#}
+{#    </div>#}
+{#  </div>#}
+</div>
+
 
   <!-- Modal -->
   <div
@@ -76,11 +501,83 @@
     </div>
   </div>
 
-  <!-- Asset Table -->
-  <div class="overflow-x-auto bg-white shadow-lg rounded-xl">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-100">
-        <tr class="text-gray-700 text-sm sm:text-base">
+  <!-- 🌐 Asset Table with Filters -->
+<div class="bg-white shadow-xl rounded-2xl p-4 sm:p-6">
+
+  <!-- 🔍 Filters -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+  <!-- Search Box -->
+  <div class="relative w-full sm:w-1/3">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+    </svg>
+    <input
+      type="text"
+      id="assetSearch"
+      placeholder="Search assets, serials, or customers..."
+      class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+    />
+  </div>
+
+  <!-- Dropdown Filters -->
+  <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+    <div class="relative">
+      <select
+        id="filterPayment"
+        class="appearance-none w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition cursor-pointer"
+      >
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="">All Payments</option>
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="Paid">Paid</option>
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="Pending">Pending</option>
+      </select>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+
+    <div class="relative">
+      <select
+        id="filterMapped"
+        class="appearance-none w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition cursor-pointer"
+      >
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="">All Status</option>
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="Mapped">Mapped</option>
+        <option class="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer" value="Unmapped">Unmapped</option>
+      </select>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+
+  <!-- 🖥 Desktop Table -->
+  <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
+        <tr>
           <th class="p-3 text-left">Order ID</th>
           <th class="p-3 text-left">Asset Name</th>
           <th class="p-3 text-left">Serial</th>
@@ -92,86 +589,241 @@
           <th class="p-3 text-center">Action</th>
         </tr>
       </thead>
-
-      <tbody class="divide-y divide-gray-100 text-gray-800">
+      <tbody class="divide-y divide-gray-100 text-gray-800" id="assetTableBody">
         {% for s in serials %}
         {% with mapping=s.customerassetmapping_set.first %}
-        <tr class="hover:bg-gray-50 transition">
+        <tr
+          class="hover:bg-gray-50 transition"
+          data-payment="{{ s.order_item.order.payment_status|default:'Paid' }}"
+          data-mapped="{% if mapping %}Mapped{% else %}Unmapped{% endif %}"
+        >
           <td class="p-3">{{ s.order_item.order.order_id }}</td>
           <td class="p-3">{{ s.order_item.asset.name }}</td>
           <td class="p-3 font-mono text-sm">{{ s.serial_number }}</td>
-          <td class="p-3">
+          <td class="p-3">{% if mapping %}{{ mapping.customer_name }} ({{ mapping.phone }}){% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td class="p-3">{% if mapping.skyid %}{{ mapping.skyid }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td class="p-3">{{ s.order_item.order.payment_status|default:"Paid" }}</td>
+          <td class="p-3 text-sm">{% if mapping %}{{ mapping.assigned_at|date:"d-M-Y h:i A" }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td class="p-3 text-sm">{% if mapping.assigned_by %}{{ mapping.assigned_by.username }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td class="p-3 flex align-center justify-content-center text-center">
             {% if mapping %}
-            {{ mapping.customer_name }} ({{ mapping.phone }})
-            {% else %}
-            <span class="text-gray-400">—</span>
-            {% endif %}
-          </td>
-          <td class="p-3">
-            {% if mapping.skyid %}
-            {{ mapping.skyid }}
-            {% else %}
-            <span class="text-gray-400">—</span>
-            {% endif %}
-          </td>
-          <td class="p-3">
-            {% if s.order_item.order.payment_status %}
-            {{ s.order_item.order.payment_status }}
-            {% else %}
-            Paid
-            {% endif %}
-          </td>
-          <td class="p-3 text-sm">
-            {% if mapping %}
-            {{ mapping.assigned_at|date:"d-M-Y h:i A" }}
-            {% else %}
-            <span class="text-gray-400">—</span>
-            {% endif %}
-          </td>
-          <td class="p-3 text-sm">
-            {% if mapping.assigned_by %}
-            {{ mapping.assigned_by.username }}
-            {% else %}
-            <span class="text-gray-400">—</span>
-            {% endif %}
-          </td>
-          <td class="p-3 text-center">
-            {% if mapping %}
-            <button
-              class="px-3 py-1 rounded-lg bg-gray-400 text-white flex items-center gap-1 justify-center text-sm cursor-not-allowed"
-              disabled
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Mapped
-            </button>
-            {% else %}
-            <button
-              type="button"
-              class="open-map-modal px-3 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm flex items-center gap-1 justify-center transition"
-              data-serial="{{ s.id }}"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Map Customer
-            </button>
-            {% endif %}
+  <!-- ✅ Mapped Button -->
+  <button
+    class="px-3 py-1 rounded-lg bg-gray-400 text-white text-sm flex items-center justify-center gap-1 cursor-not-allowed"
+    disabled
+  >
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="w-4 h-4 text-white"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    Mapped
+  </button>
+{% else %}
+  <!-- ➕ Map Button -->
+  <button
+    type="button"
+    class="open-map-modal px-3 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm flex items-center gap-1 justify-center transition"
+    data-serial="{{ s.id }}"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="w-4 h-4 text-white"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+    Map
+  </button>
+{% endif %}
+
           </td>
         </tr>
         {% endwith %}
         {% empty %}
-        <tr>
-          <td colspan="9" class="text-center p-6 text-gray-500">No assets available for mapping.</td>
-        </tr>
+        <tr><td colspan="9" class="text-center p-6 text-gray-500">No assets available for mapping.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  <!-- 📱 Mobile Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden" id="assetCardContainer">
+    {% for s in serials %}
+    {% with mapping=s.customerassetmapping_set.first %}
+    <div
+      class="bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
+      data-payment="{{ s.order_item.order.payment_status|default:'Paid' }}"
+      data-mapped="{% if mapping %}Mapped{% else %}Unmapped{% endif %}"
+    >
+      <div class="flex justify-between items-center">
+        <span class="font-semibold text-gray-800">{{ s.order_item.asset.name }}</span>
+        <span class="text-xs px-2 py-1 rounded-full {% if mapping %}bg-green-100 text-green-700{% else %}bg-gray-200 text-gray-600{% endif %}">
+          {% if mapping %}Mapped{% else %}Unmapped{% endif %}
+        </span>
+      </div>
+      <p class="text-sm text-gray-600">Order ID: <span class="font-medium">{{ s.order_item.order.order_id }}</span></p>
+      <p class="text-sm text-gray-600">Serial: <span class="font-mono">{{ s.serial_number }}</span></p>
+      <p class="text-sm text-gray-600">Customer: {% if mapping %}<span class="font-medium">{{ mapping.customer_name }}</span>{% else %}—{% endif %}</p>
+      <p class="text-sm text-gray-600">Sky ID: {{ mapping.skyid|default:"—" }}</p>
+      <p class="text-sm text-gray-600">Payment: {{ s.order_item.order.payment_status|default:"Paid" }}</p>
+      <p class="text-xs text-gray-500">Assigned: {% if mapping %}{{ mapping.assigned_at|date:"d-M-Y h:i A" }}{% else %}—{% endif %}</p>
+
+      <div class="mt-2">
+        {% if mapping %}
+        <button
+  class="w-full py-2 rounded-lg bg-gray-400 text-white text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+  disabled
+>
+  <svg xmlns="http://www.w3.org/2000/svg"
+       class="w-4 h-4 text-white"
+       fill="none"
+       viewBox="0 0 24 24"
+       stroke="currentColor"
+       stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+  Mapped
+</button>
+        {% else %}
+        <button
+  type="button"
+  class="open-map-modal w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm flex items-center justify-center gap-2 transition"
+  data-serial="{{ s.id }}"
+>
+  <svg xmlns="http://www.w3.org/2000/svg"
+       class="w-4 h-4 text-white"
+       fill="none"
+       viewBox="0 0 24 24"
+       stroke="currentColor"
+       stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+  </svg>
+  Map Customer
+</button>
+
+        {% endif %}
+      </div>
+    </div>
+    {% endwith %}
+    {% empty %}
+    <p class="text-gray-500 text-center col-span-full py-6">No assets found.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- 🧠 Filtering Script -->
+<script>
+
+  const searchInput = document.getElementById('assetSearch');
+  const paymentFilter = document.getElementById('filterPayment');
+  const mappedFilter = document.getElementById('filterMapped');
+
+  const filterRows = () => {
+    const searchValue = searchInput.value.toLowerCase();
+    const paymentValue = paymentFilter.value;
+    const mappedValue = mappedFilter.value;
+
+    document.querySelectorAll('#assetTableBody tr, #assetCardContainer > div').forEach(row => {
+      const text = row.innerText.toLowerCase();
+      const payment = row.dataset.payment || '';
+      const mapped = row.dataset.mapped || '';
+
+      const matchesSearch = text.includes(searchValue);
+      const matchesPayment = !paymentValue || payment.includes(paymentValue);
+      const matchesMapped = !mappedValue || mapped === mappedValue;
+
+      row.style.display = (matchesSearch && matchesPayment && matchesMapped) ? '' : 'none';
+    });
+
+  };
+
+  [searchInput, paymentFilter, mappedFilter].forEach(el => el.addEventListener('input', filterRows));
+</script>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/customer_mapping.js' %}"></script>
+    <script> function openAssetModal() {
+    document.getElementById("assetModal").classList.remove("hidden");
+    document.getElementById("assetModal").classList.add("flex");
+  }
+
+  function closeAssetModal() {
+    document.getElementById("assetModal").classList.remove("flex");
+    document.getElementById("assetModal").classList.add("hidden");
+  }</script>
+
+
+<script type="module"> import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/library@latest/+esm';
+
+  const codeReader = new BrowserMultiFormatReader();
+
+  async function openScanModal() {
+    const modal = document.getElementById('scanModal');
+    modal.classList.remove('hidden');
+
+    try {
+      const devices = await codeReader.listVideoInputDevices();
+      if (!devices.length) {
+        throw new Error("No camera devices found");
+      }
+
+      const backCam =
+        devices.find(d => d.label.toLowerCase().includes('back')) || devices[0];
+
+      codeReader.decodeFromVideoDevice(backCam.deviceId, 'video', (result, err) => {
+        if (result) {
+          document.getElementById('scanResult').textContent = `✅ Scanned: ${result.text}`;
+          console.log("Scanned Barcode:", result.text);
+
+          closeScanModal();
+          searchAsset(result.text);
+        }
+      });
+    } catch (err) {
+      console.error("Camera Error:", err);
+      document.getElementById('scanResult').textContent =
+        '⚠️ Unable to access camera. Please allow permissions or use HTTPS.';
+    }
+  }
+
+  function closeScanModal() {
+    document.getElementById('scanModal').classList.add('hidden');
+    codeReader.reset();
+  }
+
+  function searchAsset(barcode) {
+    const rows = document.querySelectorAll('table tr');
+    let found = false;
+
+    rows.forEach(row => {
+      if (row.innerText.includes(barcode)) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.classList.add('bg-green-100');
+        found = true;
+      }
+    });
+
+    if (found) {
+      openCustomerModal(barcode);
+    } else {
+      alert("❌ Asset not found for: " + barcode);
+    }
+  }
+
+  function openCustomerModal(barcode) {
+    alert(`Asset ${barcode} found — opening Customer Mapping modal...`);
+  }
+
+  // ✅ Expose to global scope for button onclicks
+  window.openScanModal = openScanModal;
+  window.closeScanModal = closeScanModal;
+</script>
 {% endblock %}

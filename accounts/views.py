@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from asset.models import Asset, Category, Banner, Cart, CartItem
-from partner.models import Partner, WalletTransaction
+from partner.models import Partner, WalletTransaction, PartnerAssetLimit
 from order.models import Order, OrderItem
 
 
@@ -38,8 +38,12 @@ def home_view(request):
     categories = Category.objects.all()
     products = Asset.objects.all()
     banners = Banner.objects.filter(is_active=True).order_by('order')
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count=0
 
-    context = {'categories': categories, 'products': products, 'banners': banners}
+    if cart:
+        cart_count =cart_items = CartItem.objects.filter(cart=cart).count()
+    context = {'categories': categories, 'products': products, 'banners': banners,"cart_count": cart_count}
 
     if user_type == 'superadmin':
         return redirect('/admin/')
@@ -98,50 +102,65 @@ def add_to_cart(request):
         try:
             asset = Asset.objects.get(id=asset_id)
             cart, _ = Cart.objects.get_or_create(user=request.user)
+            partner = Partner.objects.get(user=request.user)
+
+            # Get partner-specific asset limit (if any)
+            partner_asset_limit = PartnerAssetLimit.objects.filter(partner=partner, asset=asset).first()
+            print("Printing partner Asset info:", partner_asset_limit)
 
             # 1️⃣ Lifetime ordered quantity (excluding cancelled/failed)
             lifetime_ordered_qty = (
-                OrderItem.objects.filter(order__user=request.user, asset=asset)
-                .exclude(order__status__in=['Cancelled', 'Failed'])
-                .aggregate(total=Sum('quantity'))['total'] or 0
+                    OrderItem.objects.filter(order__user=request.user, asset=asset)
+                    .exclude(order__status__in=['Cancelled', 'Failed'])
+                    .aggregate(total=Sum('quantity'))['total'] or 0
             )
 
             # 2️⃣ Current cart quantity
             current_cart_qty = (
-                CartItem.objects.filter(cart=cart, asset=asset)
-                .aggregate(total=Sum('quantity'))['total'] or 0
+                    CartItem.objects.filter(cart=cart, asset=asset)
+                    .aggregate(total=Sum('quantity'))['total'] or 0
             )
 
             total_after_add = lifetime_ordered_qty + current_cart_qty + quantity
 
-            # 3️⃣ Max per partner restriction
-            if asset.max_order_per_partner and total_after_add > asset.max_order_per_partner:
-                remaining = asset.max_order_per_partner - (lifetime_ordered_qty + current_cart_qty)
+            # 3️⃣ Determine applicable limit
+            max_limit = asset.max_order_per_partner
+            if partner_asset_limit:
+                # If partner-specific limit is defined and lower, use it
+                max_limit = max(max_limit, partner_asset_limit.max_purchase_limit)
+
+            # 4️⃣ Enforce limit
+            if total_after_add > max_limit:
+                remaining = max_limit - (lifetime_ordered_qty + current_cart_qty)
                 if remaining <= 0:
                     return JsonResponse({
                         'success': False,
-                        'error': f"You've reached the maximum order limit ({asset.max_order_per_partner}) for {asset.name}."
+                        'error': f"You've reached the maximum order limit ({max_limit}) for {asset.name}."
                     })
                 return JsonResponse({
                     'success': False,
-                    'error': f"You can only add {remaining} more of {asset.name} (max {asset.max_order_per_partner} per partner)."
+                    'error': f"You can only add {remaining} more of {asset.name} (max {max_limit} per partner)."
                 })
 
-            # 4️⃣ Add/update cart
+            # 5️⃣ Add/update cart
             cart_item, created = CartItem.objects.get_or_create(cart=cart, asset=asset)
             cart_item.quantity = cart_item.quantity + quantity if not created else quantity
             cart_item.save()
+            final_cart_count=CartItem.objects.filter(cart=cart).count();
 
             return JsonResponse({
                 'success': True,
                 'message': f"{asset.name} added to cart",
-                'cart_count': cart.total_items(),
+                'cart_count': final_cart_count,
             })
 
         except Asset.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Asset not found'})
-
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+            return JsonResponse({'success': False, 'error': 'Asset not found.'})
+        except Partner.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Partner not found.'})
+        except Exception as e:
+            print("Error adding to cart:", e)
+            return JsonResponse({'success': False, 'error': 'Something went wrong.'})
 
 
 # ---------------------- UPDATE CART ----------------------
@@ -156,50 +175,64 @@ def update_cart(request):
             asset = Asset.objects.get(id=asset_id)
             cart = Cart.objects.get(user=request.user)
             cart_item = CartItem.objects.get(cart=cart, asset=asset)
+            partner = Partner.objects.get(user=request.user)
+
+            # ✅ Fetch partner-specific asset limit (if any)
+            partner_asset_limit = PartnerAssetLimit.objects.filter(partner=partner, asset=asset).first()
+            print("Printing Partner asset information:", partner_asset_limit)
 
             # 1️⃣ Lifetime ordered quantity (excluding cancelled/failed)
             lifetime_ordered_qty = (
-                OrderItem.objects.filter(order__user=request.user, asset=asset)
-                .exclude(order__status__in=['Cancelled', 'Failed'])
-                .aggregate(total=Sum('quantity'))['total'] or 0
+                    OrderItem.objects.filter(order__user=request.user, asset=asset)
+                    .exclude(order__status__in=['Cancelled', 'Failed'])
+                    .aggregate(total=Sum('quantity'))['total'] or 0
             )
 
-            # 2️⃣ Other cart quantity (excluding this one)
+            # 2️⃣ Other cart quantity (excluding this item)
             other_cart_qty = (
-                CartItem.objects.filter(cart=cart, asset=asset)
-                .exclude(id=cart_item.id)
-                .aggregate(total=Sum('quantity'))['total'] or 0
+                    CartItem.objects.filter(cart=cart, asset=asset)
+                    .exclude(id=cart_item.id)
+                    .aggregate(total=Sum('quantity'))['total'] or 0
             )
 
             total_after_update = lifetime_ordered_qty + other_cart_qty + new_quantity
 
-            # 3️⃣ Max per partner restriction
-            if asset.max_order_per_partner and total_after_update > asset.max_order_per_partner:
-                remaining = asset.max_order_per_partner - (lifetime_ordered_qty + other_cart_qty)
+            # 3️⃣ Determine applicable maximum limit
+            max_limit = asset.max_order_per_partner or 0
+            if partner_asset_limit:
+                # Use the stricter limit between global asset and partner-specific limit
+                max_limit = max(max_limit,
+                                partner_asset_limit.max_purchase_limit) if max_limit else partner_asset_limit.max_purchase_limit
+
+            # 4️⃣ Enforce max limit (if defined)
+            if max_limit and total_after_update > max_limit:
+                remaining = max_limit - (lifetime_ordered_qty + other_cart_qty)
                 if remaining <= 0:
                     return JsonResponse({
                         'success': False,
-                        'error': f"You've reached the maximum order limit ({asset.max_order_per_partner}) for {asset.name}."
+                        'error': f"You've reached the maximum order limit ({max_limit}) for {asset.name}."
                     })
                 return JsonResponse({
                     'success': False,
-                    'error': f"You can only keep {remaining} of {asset.name} (max {asset.max_order_per_partner} per partner)."
+                    'error': f"You can only keep {remaining} of {asset.name} (max {max_limit} per partner)."
                 })
 
-            # 4️⃣ Update cart
+            # 5️⃣ Update cart
             cart_item.quantity = new_quantity
             cart_item.save()
 
             return JsonResponse({
                 'success': True,
                 'message': f"Quantity updated to {new_quantity}",
-                'cart_count': cart.total_items(),
+                'cart_count': cart.total_items(),  # ✅ use cart.total_items(), not cart_item.count()
             })
 
         except (Asset.DoesNotExist, Cart.DoesNotExist, CartItem.DoesNotExist):
             return JsonResponse({'success': False, 'error': 'Item not in cart'})
+        except Exception as e:
+            print("Error updating cart:", e)
+            return JsonResponse({'success': False, 'error': 'Something went wrong'})
 
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 # ---------------------- DELETE CART ITEM ----------------------
 @csrf_exempt
@@ -235,11 +268,15 @@ def view_cart(request):
     # ✅ Preload asset info to reduce queries
     cart_items = cart.cartitem_set.select_related('asset').all()
 
+
+    cart_count = CartItem.objects.filter(cart=cart).count()
+
     # ✅ Render the cart page
     return render(request, 'asset/cart.html', {
         'cart': cart,
         'cart_items': cart_items,
         'total_price': cart.total_price(),
+        "cart_count":cart_count,
     })
 
 
@@ -255,6 +292,7 @@ def checkout(request):
         'total_price': cart.total_price(),
         'partner': partner,
         'razorpay_key': settings.RAZORPAY_KEY_ID,
+
     })
 
 

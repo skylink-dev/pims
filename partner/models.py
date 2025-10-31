@@ -1,6 +1,7 @@
-from django.db import models
 from accounts.models import CustomUser
 from django.utils import timezone
+from django.db import models
+
 class Partner(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, default='John')
@@ -18,8 +19,7 @@ class Partner(models.Model):
         return self.user.username
     
 
-from django.db import models
-from django.utils import timezone
+
 
 class WalletTransaction(models.Model):
     TRANSACTION_TYPES = (
@@ -71,3 +71,34 @@ class WalletTransaction(models.Model):
 
     class Meta:
         ordering = ["-transaction_date"]
+
+
+from django.db import models
+
+class PartnerAssetLimit(models.Model):
+    partner = models.ForeignKey(
+        "partner.Partner",
+        on_delete=models.CASCADE,
+        related_name="asset_limits"
+    )
+    asset = models.ForeignKey(
+        "asset.Asset",
+        on_delete=models.CASCADE,
+        related_name="partner_limits"
+    )
+    max_purchase_limit = models.PositiveIntegerField(
+        default=0,
+        help_text="Maximum quantity of this asset that the partner can purchase."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("partner", "asset")
+        verbose_name = "Partner Asset Limit"
+        verbose_name_plural = "Partner Asset Limits"
+
+    def __str__(self):
+        return f"{self.partner.user.username} - {self.asset.name} Limit: {self.max_purchase_limit}"
+
+

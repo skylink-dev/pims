@@ -51,7 +51,7 @@
     <li class="order-card bg-white rounded-2xl shadow-md border border-gray-100 p-6 flex flex-col justify-between pop-in">
       <div>
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-800">Order #{{ order.order_id }}</h2>
+          <h2 class="text-lg font-semibold text-gray-800">Order: #{{ order.order_id }}</h2>
           <span class="px-3 py-1 text-sm font-medium rounded-full
             {% if order.status == 'Delivered' %} bg-green-100 text-green-700
             {% elif order.status == 'Pending' %} bg-yellow-100 text-yellow-700
@@ -61,6 +61,7 @@
           </span>
         </div>
         <p class="text-sm text-gray-500 mt-1">Placed on {{ order.created_at|date:"d M Y, H:i" }}</p>
+      <p class="text-sm text-gray-500 mt-1">Placed by {{ order.user.first_name}}</p>
       </div>
 
       <div class="mt-6 flex items-center justify-between">
@@ -75,29 +76,29 @@
         <div class="flex items-center gap-3">
           <!-- View Order -->
           <a href="{% url 'order_detail' order.pk %}"
-             class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-200">
+             class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             View
           </a>
 
-          <!-- Track Shipping -->
-          <button class="icon-btn btn-track" data-tooltip="Track Shipping" onclick="showMessage('🚚 Tracking feature coming soon!')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                    d="M3 3h13v6h5l-1.5 6H16m-9 5a2 2 0 110-4 2 2 0 010 4zm10 0a2 2 0 110-4 2 2 0 010 4z" />
-            </svg>
-          </button>
+{#          <!-- Track Shipping -->#}
+{#          <button class="icon-btn btn-track" data-tooltip="Track Shipping" onclick="showMessage('🚚 Tracking feature coming soon!')">#}
+{#            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">#}
+{#              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"#}
+{#                    d="M3 3h13v6h5l-1.5 6H16m-9 5a2 2 0 110-4 2 2 0 010 4zm10 0a2 2 0 110-4 2 2 0 010 4z" />#}
+{#            </svg>#}
+{#          </button>#}
 
-          <!-- Item Received -->
-          <button class="icon-btn btn-received" data-tooltip="Item Received"
-                  onclick="openReceivedModal('{{ order.id }}', '{{ order.order_id }}')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                    d="M5 13l4 4L19 7" />
-            </svg>
-          </button>
+{#          <!-- Item Received -->#}
+{#          <button class="icon-btn btn-received" data-tooltip="Item Received"#}
+{#                  onclick="openReceivedModal('{{ order.id }}', '{{ order.order_id }}')">#}
+{#            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">#}
+{#              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"#}
+{#                    d="M5 13l4 4L19 7" />#}
+{#            </svg>#}
+{#          </button>#}
         </div>
       </div>
     </li>

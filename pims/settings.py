@@ -15,6 +15,15 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
+API_BASE_URL = os.getenv("API_BASE_URL")
+API_AUTH_USERNAME = os.getenv("API_AUTH_USERNAME")
+API_AUTH_PASSWORD = os.getenv("API_AUTH_PASSWORD")
+
+print("🔍 API_BASE_URL:", os.getenv("API_BASE_URL"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -25,7 +34,7 @@ SECRET_KEY = 'django-insecure-8wsq-%k%c_kzb^@c#tzlx25)ed2q))2@=74z6_4o4#svb4p0zt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -42,8 +51,8 @@ INSTALLED_APPS = [
     'partner',
     'store',
     'asset',
-        'order',
-        'customermapping',
+    'order',
+    'customermapping',
 ]
 
 MIDDLEWARE = [
@@ -147,51 +156,50 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Only needed if your static folder is outside apps
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-import os
-from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 JAZZMIN_SETTINGS = {
     "site_title": "PIMS Admin",
     "site_header": "PIMS Admin Panel",
     "welcome_sign": "Welcome to PIMS Dashboard",
-    "site_logo": None,
+    "site_brand": "Skyplay ISP Store",
 
+    # 🖼️ Logo & Favicon
+    "site_logo": "images/logo.png",          # top-left logo in header
+    "login_logo": "images/logo.png",         # logo on login screen
+    "site_icon": "images/favicon.ico",        # optional (makes it rounded)
+
+    # 🔍 Search model
     "search_model": "auth.User",
+
+    # 🔗 Top menu links
     "topmenu_links": [
         {"name": "Home", "url": "/", "permissions": ["auth.view_user"]},
         {"name": "Support", "url": "/admin/", "permissions": ["auth.view_user"]},
     ],
 
     # ✅ Sidebar behavior
-    "show_sidebar": True,            # Show sidebar
-    "navigation_expanded": False,    # Hide submenus until user clicks to open
-    "hide_apps": [],                 # Optional: show all apps
-    "hide_models": [],               # Optional: show all models
+    "show_sidebar": True,
+    "navigation_expanded": False,
+    "hide_apps": [],
+    "hide_models": [],
 
-    # Optional: custom CSS to keep things neat
+    # 🎨 Optional: add your own CSS for more control
     "custom_css": "css/jazzmin_custom.css",
 }
 
-from dotenv import load_dotenv
-load_dotenv()
-API_BASE_URL = os.getenv("API_BASE_URL")
-API_AUTH_USERNAME = os.getenv("API_AUTH_USERNAME")
-API_AUTH_PASSWORD = os.getenv("API_AUTH_PASSWORD")
 
-print("🔍 API_BASE_URL:", os.getenv("API_BASE_URL"))

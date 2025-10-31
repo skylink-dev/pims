@@ -51,8 +51,12 @@ document.addEventListener("DOMContentLoaded", function () {
           showMessage(msgBox, data.message || "Item added to cart!", true);
 
           // Update cart count if available
-          const cartCount = document.getElementById("cartCount");
-          if (cartCount) cartCount.textContent = data.cart_count;
+          const cartCount = document.getElementById("cart-count");
+          console.log(cartCount);
+          console.log(data);
+          if (cartCount){
+            cartCount.textContent = data.cart_count;
+          }
         } else {
           showMessage(msgBox, data.error || "Failed to add item to cart.", false);
         }
