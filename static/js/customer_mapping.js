@@ -129,11 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.success) {
         showToast("✅ Asset successfully mapped!", "success");
         modal.classList.add("hidden");
-
-        // Optionally refresh page after 1.5s
         setTimeout(() => location.reload(), 1500);
       } else {
-        showToast(result.message || "Mapping failed.", "error");
+        // ✅ Correctly show server error (either "error" or "message")
+        const errMsg = result.error || result.message || "Mapping failed.";
+        showToast(errMsg, "error");
+        showMessageById("assed_error_msg", errMsg || "Failed to assign.", false);
       }
     } catch (err) {
       console.error(err);
@@ -157,3 +158,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return cookieValue;
   }
 });
+
+
+function openMenu() {
+  const menu = document.getElementById("menuDropdown");
+  menu.classList.toggle("hidden");
+}
+
+function showMessageById(elementId, message, success = true) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  el.textContent = message;
+  el.style.color = success ? "#16a34a" : "#dc2626"; // green/red
+  el.style.opacity = "1";
+
+  // Hide after 3 seconds
+  setTimeout(() => {
+    el.style.opacity = "0";
+  }, 3000);
+}
