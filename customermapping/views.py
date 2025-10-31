@@ -2,8 +2,11 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+
+from partner.models import Partner, PartnerAssetLimit
 from .utils import get_customer_by_phone
 from order.models import OrderItemSerial,Order,OrderItem
+from asset.models import Cart, CartItem
 from django.db.models import Sum, F, Q
 from asset.models import Asset
 from .models import CustomerAssetMapping
@@ -35,9 +38,15 @@ from django.utils.timezone import localtime
 def customer_asset_mapping(request):
     # Get only this user's orders
     user_orders = Order.objects.filter(user=request.user)
-
+    partner = Partner.objects.get(user=request.user)
     # Related records (filtered through the user's orders)
     order_items = OrderItem.objects.filter(order__in=user_orders)
+
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = 0
+    if cart:
+        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
+
     serials = (
         OrderItemSerial.objects
         .filter(order_item__order__in=user_orders)
@@ -57,6 +66,7 @@ def customer_asset_mapping(request):
     available_assets = []
     for asset in Asset.objects.all():
         serial_count = serials.filter(order_item__asset=asset).count()
+        partner_asset_limit = PartnerAssetLimit.objects.filter(partner=partner, asset=asset).first()
        # skip assets without serials
         total_mapped_based_asset = CustomerAssetMapping.objects.filter(
             order_serial__order_item__asset=asset
@@ -65,6 +75,10 @@ def customer_asset_mapping(request):
 
         max_allowed = asset.max_order_per_partner or 0
         remaining_qty = max(max_allowed - ordered_qty-total_mapped_based_asset, 0)
+        if partner_asset_limit:
+            # If partner-specific limit is defined and lower, use it
+            max_allowed = max(max_allowed, partner_asset_limit.max_purchase_limit)
+            remaining_qty = max(max_allowed - ordered_qty - total_mapped_based_asset, 0)
 
         available_assets.append({
             "id": asset.id,
@@ -126,7 +140,8 @@ def customer_asset_mapping(request):
         "total_assets_in_hand": total_assets-total_mapped,
         "total_mapped": total_mapped,
         "total_unmapped": total_unmapped,
-        "available_assets":available_assets
+        "available_assets":available_assets,
+        "cart_count":cart_count
     })
 
 

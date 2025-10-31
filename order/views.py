@@ -1,6 +1,8 @@
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa  # pip install xhtml2pdf
+
+from asset.models import CartItem,Cart
 from .models import Order  # update this import if your model name differs
 import json
 import base64
@@ -42,9 +44,15 @@ def orders_list(request):
     """
     user = request.user
     orders = Order.objects.filter(user=user).order_by('-created_at')
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = 0
+
+    if cart:
+        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
 
     context = {
         'orders': orders,
+        "cart_count":cart_count
 
     }
     return render(request, 'order/orders_list.html', context)
@@ -60,12 +68,19 @@ def order_detail(request, pk):
     items = OrderItem.objects.filter(order=order)
     shipment = getattr(order, 'shipment', None)
     total_amount = sum(item.price * item.quantity for item in items)
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = 0
+
+    if cart:
+        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
 
     context = {
         'order': order,
         'items': items,
         'total_amount': total_amount,
         'shipment':shipment,
+        'cart_count':cart_count
+
     }
     return render(request, 'order/order_detail.html', context)
 
