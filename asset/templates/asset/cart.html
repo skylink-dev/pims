@@ -5,18 +5,18 @@
 
 {% block content %}
 <section class="container mx-auto px-4 sm:px-6 py-12">
-  <!-- Title -->
-  <div class="flex items-center justify-center mb-10 space-x-3">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24"
-      stroke="currentColor">
+  <!-- 🛒 Title -->
+  <div class="flex items-center justify-center mb-10 gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-red-600 animate-bounce-slow" fill="none"
+      viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h13L17 13M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
     </svg>
-    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">My Cart</h1>
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 tracking-tight">My Cart</h1>
   </div>
 
-  <!-- Cart Table -->
-  <div class="overflow-x-auto bg-white rounded-2xl shadow-md transition-all duration-300 hover:shadow-2xl">
+  <!-- 🧾 Cart Table -->
+  <div class="overflow-x-auto bg-white rounded-2xl shadow-lg transition-all duration-300 hover:shadow-2xl">
     <table class="min-w-full text-sm sm:text-base">
       <thead>
         <tr class="bg-gradient-to-r from-red-50 to-red-100">
@@ -28,8 +28,8 @@
       </thead>
       <tbody>
         {% for item in cart_items %}
-        <tr class="border-b hover:bg-gray-50 transition duration-300">
-          <td class="py-4 px-4 font-medium flex items-center space-x-3">
+        <tr class="border-b hover:bg-gray-50 transition duration-300 ease-in-out">
+          <td class="py-4 px-4 font-medium flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -39,16 +39,15 @@
           </td>
           <td class="py-4 px-4 text-red-600 font-bold">₹{{ item.asset.purchase_price }}</td>
           <td class="py-4 px-4">
-            <form class="update-cart-form flex items-center space-x-2" data-asset-id="{{ item.asset.id }}">
+            <form class="update-cart-form flex items-center gap-2" data-asset-id="{{ item.asset.id }}">
               {% csrf_token %}
               <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
-                class="w-14 sm:w-20 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none transition" />
+                class="w-14 sm:w-20 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none transition duration-150" />
               <button type="submit"
-                class="flex items-center bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-xs sm:text-sm">
+                class="flex items-center bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition duration-200 transform hover:scale-105 text-xs sm:text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5 13l4 4L19 7" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
                 Update
               </button>
@@ -56,12 +55,11 @@
           </td>
           <td class="py-4 px-4">
             <button
-              class="flex items-center remove-from-cart bg-gray-100 hover:bg-red-600 hover:text-white px-3 py-1 rounded-lg transition text-xs sm:text-sm"
+              class="flex items-center remove-from-cart bg-gray-100 hover:bg-red-600 hover:text-white px-3 py-1 rounded-lg transition duration-200 transform hover:scale-105 text-xs sm:text-sm"
               data-asset-id="{{ item.asset.id }}">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               Remove
             </button>
@@ -69,8 +67,8 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="4" class="py-6 px-4 text-center text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none"
+          <td colspan="4" class="py-10 px-4 text-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none"
               viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
@@ -84,20 +82,19 @@
   </div>
 
   {% if cart_items %}
-  <!-- Total -->
+  <!-- 💰 Total + Buttons -->
   <div class="mt-8 flex flex-col sm:flex-row justify-between items-center text-center sm:text-right">
     <div class="text-xl sm:text-2xl font-semibold text-gray-800">
-      Total: <span class="text-red-600 font-bold">₹{{ total_price }}</span>
+      Total:
+      <span class="text-red-600 font-bold animate-pulse-slow">₹{{ total_price }}</span>
     </div>
 
-    <!-- Buttons -->
     <div class="flex flex-col sm:flex-row mt-6 sm:mt-0 gap-4">
       <a href="{% url 'home' %}"
         class="flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold transition transform hover:scale-105">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 19l-7-7 7-7" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
         Add More Items
       </a>
@@ -107,8 +104,7 @@
         Proceed to Checkout
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 5l7 7-7 7" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </a>
     </div>
@@ -117,8 +113,9 @@
 </section>
 
 <!-- ✅ Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-lg animate-fadeIn">
+<div id="successModal"
+  class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-2xl transform scale-95 animate-fadeIn">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto text-green-500 mb-3" fill="none"
       viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,27 +123,59 @@
     </svg>
     <h2 class="text-2xl font-bold text-gray-800 mb-2">Success!</h2>
     <p id="successMessage" class="text-gray-600 mb-4"></p>
-    <button onclick="closeModal('successModal')" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-      OK
-    </button>
+    <button onclick="closeModal('successModal')"
+      class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">OK</button>
   </div>
 </div>
 
 <!-- ❌ Failure Modal -->
-<div id="failureModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-lg animate-fadeIn">
+<div id="failureModal"
+  class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl p-8 w-80 sm:w-96 text-center shadow-2xl transform scale-95 animate-fadeIn">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto text-red-500 mb-3" fill="none"
       viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M6 18L18 6M6 6l12 12" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
     </svg>
     <h2 class="text-2xl font-bold text-gray-800 mb-2">Oops!</h2>
     <p id="failureMessage" class="text-gray-600 mb-4"></p>
-    <button onclick="closeModal('failureModal')" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
-      Try Again
-    </button>
+    <button onclick="closeModal('failureModal')"
+      class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">Try Again</button>
   </div>
 </div>
+
+<!-- 🌀 Custom Animations -->
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 2s infinite;
+  }
+</style>
 {% endblock %}
-
-
