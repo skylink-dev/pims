@@ -48,7 +48,7 @@ def get_customer_by_phone(phone):
             elif "currentBillingCycleUsage" in item:
                 billing_info = item["currentBillingCycleUsage"]
 
-        if user_info:
+        if user_info and user_info.get("status") == "active":
             users.append({
                 "id": user_info.get("id", ""),
                 "name": user_info.get("name", ""),
