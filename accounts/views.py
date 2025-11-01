@@ -1,7 +1,9 @@
 import json
 import razorpay
+from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -13,6 +15,7 @@ from django.conf import settings
 from asset.models import Asset, Category, Banner, Cart, CartItem
 from partner.models import Partner, WalletTransaction, PartnerAssetLimit
 from order.models import Order, OrderItem
+from django.contrib import messages
 
 
 # ---------------------- LOGIN ----------------------
@@ -403,3 +406,27 @@ def success_page(request):
             return HttpResponse(f"Error: {str(e)}", status=500)
 
     return HttpResponse("Invalid request method", status=405)
+
+
+@login_required
+def profile_view(request):
+
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = 0
+    if cart:
+        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
+    return render(request, 'accounts/profile.html', {'user': request.user,"cart_count":cart_count})
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+
+    template_name = "registration/change_password.html"
+    success_url = reverse_lazy('password_change_done')  # or home page
+
+    def form_valid(self, form):
+        messages.success(self.request, "✅ Your password has been updated successfully!")
+        return super().form_valid(form)
+
+# class CustomPasswordChangeView(PasswordChangeView):
+#     template_name = "registration/change_password.html"
+#     success_url = reverse_lazy('home')  # or 'dashboard' or '/'

@@ -102,6 +102,7 @@
   class="hidden md:flex items-center space-x-8 text-lg font-semibold text-gray-800"
 >
   <!-- Home -->
+
   <a
     href="{% url 'home' %}"
     class="flex items-center  space-x-2 group transition  p-3 h-full {% if request.path == '/' %}bg-red-100 rounded -xl{% endif %}  "
@@ -225,6 +226,9 @@
       Asset Mapping
     </span>
   </a>
+
+
+
 </nav>
 
     <!-- ✅ Right Side Buttons -->
@@ -236,6 +240,48 @@
       >
         <i class="fas fa-bars"></i>
       </button>
+        {% if user.is_authenticated %}
+<div class="relative hidden md:flex items-center space-x-2">
+  <!-- 👤 User Button -->
+  <button id="userMenuBtn"
+    class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg shadow-inner hover:bg-gray-200 transition">
+    <i class="fas fa-user text-red-600"></i>
+    <span class="text-gray-800 font-medium">
+      {{ user.first_name|default:user.username }}
+    </span>
+    <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+  </button>
+
+  <!-- 🔽 Dropdown Menu -->
+  <div id="userMenu"
+    class="absolute right-0 top-12 hidden bg-white shadow-lg rounded-lg w-48 py-2 border border-gray-200 z-50">
+
+    <!-- 👤 View Profile -->
+    <a href="{% url 'profile' %}"
+      class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
+      <i class="fas fa-id-card text-blue-500"></i>
+      <span>View Profile</span>
+    </a>
+
+    <!-- 🔐 Change Password -->
+    <a href="{% url 'password_change' %}"
+      class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
+      <i class="fas fa-key text-yellow-500"></i>
+      <span>Change Password</span>
+    </a>
+
+    <!-- 🚪 Logout -->
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full flex items-center space-x-2 text-left px-4 py-2 text-red-600 hover:bg-red-50 transition">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
 
       <!-- Logout Button (Desktop only) -->
       <form class="hidden md:block" action="{% url 'logout' %}" method="post">
@@ -284,11 +330,24 @@
       id="mobileMenu"
       class="fixed inset-0 bg-gray-900 bg-opacity-95 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden"
     >
-      <div class="flex justify-end p-4">
-        <button id="closeMobileMenu" class="text-white text-3xl focus:outline-none">
-          <i class="fas fa-times"></i>
-        </button>
+    <!-- 🔹 Header -->
+  <div class="flex justify-between items-center p-4 border-b border-gray-700">
+    <!-- User Info -->
+    <div class="flex items-center space-x-3 text-white">
+      <div class="bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold uppercase">
+        {{ user.first_name|default:user.username|slice:":1" }}
       </div>
+      <div>
+        <p class="font-semibold text-lg">{{ user.first_name|default:user.username }}</p>
+        <p class="text-sm text-gray-400">{{ user.email }}</p>
+      </div>
+    </div>
+
+    <!-- Close Button -->
+    <button id="closeMobileMenu" class="text-white text-3xl focus:outline-none">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
       <div class="flex flex-col items-center mt-10 space-y-6">
         <a href="{% url 'home' %}" class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md {% if request.path == '/' %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %} hover:bg-gradient-to-r from-red-500/10 to-red-600/10 hover:border-red-500 text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,7 +383,30 @@
 </svg>
   <span>Asset Mapping</span>
 </a>
+      <a href="{% url 'profile' %}"
+   class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md
+   {% if '/profile/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %}
+   hover:bg-gradient-to-r from-pink-500/10 to-pink-600/10 hover:border-pink-500
+   text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M5.121 17.804A4 4 0 018 16h8a4 4 0 012.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+  <span>Profile</span>
+</a>
 
+<!-- 🔹 Change Password -->
+<a href="{% url 'password_change' %}"
+   class="w-3/4 text-center border border-transparent bg-white/10 backdrop-blur-md
+   {% if '/password_change/' in request.path %} bg-gradient-to-r from-red-400 to-red-500 border-red-500 {% endif %}
+   hover:bg-gradient-to-r from-indigo-500/10 to-indigo-600/10 hover:border-indigo-500
+   text-white py-3 rounded-xl shadow-lg text-lg font-semibold transition flex justify-center items-center space-x-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 15v3m-4-7V9a4 4 0 118 0v2m-9 4h10a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2z" />
+  </svg>
+  <span>Change Password</span>
+</a>
 
         <!-- ✅ Mobile Logout -->
         <form action="{% url 'logout' %}" method="post" class="w-3/4 text-center">
@@ -384,6 +466,26 @@
   });
 </script>
 
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const userMenuBtn = document.getElementById("userMenuBtn");
+  const userMenu = document.getElementById("userMenu");
+
+  if (userMenuBtn && userMenu) {
+    userMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      userMenu.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!userMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+        userMenu.classList.add("hidden");
+      }
+    });
+  }
+});
+</script>
 
 
 

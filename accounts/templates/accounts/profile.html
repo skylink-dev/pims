@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<section class="max-w-lg mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">👤 My Profile</h2>
+  <div class="space-y-4 text-gray-700">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+  </div>
+  <div class="mt-6 text-center">
+    <a href="{% url 'password_change' %}" class="text-red-600 hover:underline">Change Password</a>
+  </div>
+</section>
+{% endblock %}
