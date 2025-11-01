@@ -3,11 +3,23 @@ from django.utils import timezone
 from django.db import models
 
 class Partner(models.Model):
+
+    CATEGORY_CHOICES = [
+        ('platinum', 'Platinum'),
+        ('gold', 'Gold'),
+        ('silver', 'Silver'),
+    ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, default='John')
     last_name = models.CharField(max_length=50, default='Doe')
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    partner_category = models.CharField(
+        max_length=10,
+        choices=CATEGORY_CHOICES,
+        default='silver',
+        help_text="Category of the partner (Platinum, Gold, Silver)"
+    )
     code = models.CharField(max_length=20, blank=True, null=True)
     refundable_wallet = models.DecimalField(
         max_digits=10,
@@ -15,9 +27,11 @@ class Partner(models.Model):
         default=0.00,
         help_text="Refundable wallet balance for this partner"
     )
-    def __str__(self):
-        return self.user.username
+
     
+    def __str__(self):
+        category = self.get_partner_category_display()
+        return f"{self.user.username} ({category})"
 
 
 
