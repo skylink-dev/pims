@@ -2,23 +2,33 @@ from accounts.models import CustomUser
 from django.utils import timezone
 from django.db import models
 
-class Partner(models.Model):
+from django.conf import settings
+class PartnerCategory(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
 
-    CATEGORY_CHOICES = [
-        ('platinum', 'Platinum'),
-        ('gold', 'Gold'),
-        ('silver', 'Silver'),
-    ]
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = "Partner Category"
+        verbose_name_plural = "Partner Categories"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Partner(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, default='John')
     last_name = models.CharField(max_length=50, default='Doe')
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    partner_category = models.CharField(
-        max_length=10,
-        choices=CATEGORY_CHOICES,
-        default='silver',
-        help_text="Category of the partner (Platinum, Gold, Silver)"
+    partner_category = models.ForeignKey(
+        PartnerCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='partners',
+        help_text="Category of the partner (e.g., Platinum, Gold, Silver)"
     )
     code = models.CharField(max_length=20, blank=True, null=True)
     refundable_wallet = models.DecimalField(
@@ -28,13 +38,9 @@ class Partner(models.Model):
         help_text="Refundable wallet balance for this partner"
     )
 
-    
     def __str__(self):
-        category = self.get_partner_category_display()
-        return f"{self.user.username} ({category})"
-
-
-
+        category_name = self.partner_category.name if self.partner_category else "No Category"
+        return f"{self.user.username} ({category_name})"
 class WalletTransaction(models.Model):
     TRANSACTION_TYPES = (
         ("Credit", "Credit"),
@@ -116,3 +122,32 @@ class PartnerAssetLimit(models.Model):
         return f"{self.partner.user.username} - {self.asset.name} Limit: {self.max_purchase_limit}"
 
 
+
+class PartnerCategoryAssetLimit(models.Model):
+    partner_category = models.ForeignKey(
+        "partner.PartnerCategory",
+        on_delete=models.CASCADE,
+        related_name="asset_limits",
+        help_text="Partner category for which this limit applies."
+    )
+    asset = models.ForeignKey(
+        "asset.Asset",
+        on_delete=models.CASCADE,
+        related_name="category_limits",
+        help_text="Asset for which the limit applies."
+    )
+    default_limit = models.PositiveIntegerField(
+        default=0,
+        help_text="Default maximum quantity for this asset based on category."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("partner_category", "asset")
+        verbose_name = "Partner Category Asset Limit"
+        verbose_name_plural = "Partner Category Asset Limits"
+        ordering = ["partner_category__name", "asset__name"]
+
+    def __str__(self):
+        return f"{self.partner_category.name} - {self.asset.name} (Default: {self.default_limit})"
