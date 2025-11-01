@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db import models
 
 from django.conf import settings
+
 class PartnerCategory(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
