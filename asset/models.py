@@ -8,7 +8,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)  # name is not unique
     code = models.CharField(max_length=50, unique=True)  # unique code for category
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='categories/images/', blank=True, null=True)
+    image = models.ImageField(upload_to='categories/images/', blank=True, null=True,help_text="Required size: 240 × 240  (JPG/PNG only) ")
     
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -19,7 +19,7 @@ class Asset(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='assets')
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='assets/images/', blank=True, null=True)
+    image = models.ImageField(upload_to='assets/images/', blank=True, null=True,help_text="Required size: 240 × 240  (JPG/PNG only) ")
     quantity = models.PositiveIntegerField(default=1)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     asset_code = models.CharField(max_length=50, unique=True)

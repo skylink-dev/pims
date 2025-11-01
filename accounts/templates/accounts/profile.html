@@ -1,16 +1,153 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
-<section class="max-w-lg mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
-  <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">👤 My Profile</h2>
-  <div class="space-y-4 text-gray-700">
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-  </div>
-  <div class="mt-6 text-center">
-    <a href="{% url 'password_change' %}" class="text-red-600 hover:underline">Change Password</a>
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 px-4 py-12">
+  <div class="bg-white shadow-2xl rounded-3xl w-full max-w-lg p-8 text-center">
+
+    <!-- Profile Avatar -->
+    <div class="flex flex-col items-center">
+      <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-md">
+        {{ user.first_name|default:user.username|slice:":1"|upper }}
+      </div>
+      <h1 class="text-2xl font-bold mt-4 text-gray-800">{{ user.get_full_name|default:user.username }}</h1>
+      <p class="text-gray-500 text-sm mt-1">{{ user.email }}</p>
+
+      <!-- Badge -->
+      <span class="mt-3 inline-block px-4 py-1.5 rounded-full text-sm font-semibold
+        {% if user.user_type == 'partner' %}
+          bg-yellow-100 text-yellow-700
+        {% elif user.user_type == 'store' %}
+          bg-green-100 text-green-700
+        {% else %}
+          bg-red-100 text-red-700
+        {% endif %}
+      ">
+        {{ user.user_type|title }}
+      </span>
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-6 border-gray-200">
+
+    <!-- Info Section -->
+    <div class="space-y-3 text-left text-gray-700 text-base">
+      <p class="flex items-center space-x-2">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M3 5h2l2 5h14l2-5h2M16 13a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span><strong>Phone:</strong> {{ partner.phone|default:"—" }}</span>
+      </p>
+
+      <p class="flex items-center space-x-2">
+        <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M17.657 16.657L13.414 12l4.243-4.243m0 8.486L12 12l5.657-5.657M3 12h9"/></svg>
+        <span><strong>Address:</strong> {{ partner.address|default:"—" }}</span>
+      </p>
+
+      <p class="flex items-center space-x-2">
+        <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M12 8v8m-4-4h8"/></svg>
+        <span><strong>Category:</strong> {{ partner.get_partner_category_display }}</span>
+      </p>
+
+      <p class="flex items-center space-x-2">
+        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M12 8c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z"/></svg>
+        <span><strong>Wallet:</strong> ₹{{ partner.refundable_wallet }}</span>
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-8 flex flex-col sm:flex-row sm:justify-center gap-4">
+      <button id="editBtn"
+        class="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition shadow">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M11 5h2m-1 0v14m-4-4l-2 2m8-2l2 2m-6 2h4"/></svg>
+        <span>Edit Profile</span>
+      </button>
+
+      <a href="{% url 'password_change' %}"
+        class="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition shadow">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+             d="M12 11c0-1.105.895-2 2-2s2 .895 2 2v2H10v-2zM10 13v6h4v-6H10z"/></svg>
+        <span>Change Password</span>
+      </a>
+    </div>
   </div>
 </section>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fadeIn mx-4">
+    <button id="closeModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Profile</h2>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
+          <input type="text" name="first_name" value="{{ partner.first_name }}"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Last Name</label>
+          <input type="text" name="last_name" value="{{ partner.last_name }}"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
+          <input type="text" name="phone" value="{{ partner.phone }}"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+          <input type="email" name="email" value="{{ user.email }}"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Address</label>
+          <textarea name="address" rows="3"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-400">{{ partner.address }}</textarea>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-center">
+        <button type="submit"
+          class="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+               d="M5 13l4 4L19 7"/></svg>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Script -->
+<script>
+  const modal = document.getElementById('editModal');
+  const editBtn = document.getElementById('editBtn');
+  const closeModal = document.getElementById('closeModal');
+
+  editBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+  closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+  window.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-fadeIn { animation: fadeIn 0.25s ease-in-out; }
+</style>
 {% endblock %}

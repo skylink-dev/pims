@@ -38,6 +38,9 @@
             </svg>
             {{ order.created_at|date:"d M Y, h:i A" }}
           </p>
+            <p class="text-sm text-gray-600 flex items-center gap-1">
+            Ordered by: {{ order.user.get_full_name }}
+          </p>
         </div>
 
         <div class="flex flex-wrap gap-2">

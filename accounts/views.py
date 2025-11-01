@@ -418,6 +418,8 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {'user': request.user,"cart_count":cart_count})
 
 
+
+
 class CustomPasswordChangeView(PasswordChangeView):
 
     template_name = "registration/change_password.html"
