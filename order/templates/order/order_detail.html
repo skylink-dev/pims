@@ -3,34 +3,6 @@
 {% block title %}Order #{{ order.order_id }} — Skyplay{% endblock %}
 
 {% block content %}
-<script>
-function printCustomInvoice() {
-  const printContent = document.getElementById('printArea').innerHTML;
-  const printWindow = window.open('', '', 'width=900,height=650');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Print Order #{{ order.order_id }}</title>
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-        <style>
-          @media print {
-            body { margin: 1cm; }
-            table, td, th { border: 1px solid #ddd; border-collapse: collapse; }
-            th { background: #f3f4f6; }
-          }
-        </style>
-      </head>
-      <body>${printContent}</body>
-    </html>
-  `);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-  printWindow.close();
-}
-
-
-</script>
 
 <div class="max-w-5xl mx-auto px-4 py-8 animate-fadeIn">
 
@@ -339,7 +311,7 @@ function printCustomInvoice() {
 
 
   <!-- 🖨️ Print Button -->
-  <button onclick="printCustomInvoice()"
+  <button id="printButton" onclick="printCustomInvoice()"
           class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition">
     <!-- Printer Icon -->
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -475,6 +447,93 @@ document.getElementById("confirmReceivedBtn").addEventListener("click", async ()
 });
 </script>
 
+   <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const printButton = document.getElementById("printButton");
+  if (!printButton) return;
+
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  // --- Detect Android WebView ---
+  const isAndroid = /Android/i.test(ua);
+  const isAndroidWebView = isAndroid && (
+    /\bwv\b/.test(ua) ||               // "wv" indicates WebView
+    /Version\/[\d.]+/.test(ua) && !/Chrome\/\d+/.test(ua) // Chrome missing but Version present
+  );
+
+  // --- Detect iOS WebView ---
+  const isIOS = /iPhone|iPod|iPad/i.test(ua);
+  const isSafari = /Safari/.test(ua);
+  const isIOSWebView = isIOS && !isSafari; // Safari missing in iOS WebView
+
+  // --- Optional fallback: detect Cordova / Capacitor / WKWebView ---
+  const isHybridApp =
+    window.cordova ||
+    window.Capacitor ||
+    window.webkit?.messageHandlers; // native bridge indicator
+
+  if (isAndroidWebView || isIOSWebView || isHybridApp) {
+    console.log("📱 WebView or Hybrid App detected — hiding print button");
+    printButton.style.display = "none";
+  } else {
+    console.log("🖥️ Normal browser — showing print button");
+  }
+
+  // (Optional) For debugging:
+  console.log("User-Agent:", ua);
+});
+</script>
+
+<script>
+function printCustomInvoice() {
+  const printArea = document.getElementById('printArea');
+  if (!printArea) {
+    alert("Print area not found!");
+    return;
+  }
+
+  const printContent = printArea.innerHTML;
+
+  // Open the print window (mobile browsers often block popup)
+  const printWindow = window.open('', '_blank');
+
+  if (!printWindow) {
+    alert("Popup blocked! Please allow popups for this site to print.");
+    return;
+  }
+
+  // Write printable HTML
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Order</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <style>
+          body { font-family: sans-serif; padding: 20px; }
+          @media print {
+            body { margin: 1cm; }
+            table, td, th { border: 1px solid #ddd; border-collapse: collapse; }
+            th { background: #f3f4f6; }
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent}
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        <\/script>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+}
+</script>
+
+
+
 
 
 <style>
@@ -489,6 +548,7 @@ document.getElementById("confirmReceivedBtn").addEventListener("click", async ()
 }
 #signatureFull { word-break:break-all; max-width:100%; display:inline-block; }
 </style>
+
 
 <script>
 

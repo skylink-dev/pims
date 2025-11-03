@@ -144,10 +144,7 @@ def add_to_cart(request):
 
                 if category_limit:
                     # Use stricter (lower) limit between asset and category
-                    if max_limit:
-                        max_limit = min(max_limit, category_limit.default_limit)
-                    else:
-                        max_limit = category_limit.default_limit
+                    max_limit = category_limit.default_limit
 
             # 4️⃣ Enforce maximum limit
             if max_limit and total_after_add > max_limit:
@@ -227,11 +224,7 @@ def update_cart(request):
                 ).first()
 
                 if category_limit:
-                    # Use the stricter (lower) limit between asset and category
-                    if max_limit:
-                        max_limit = min(max_limit, category_limit.default_limit)
-                    else:
-                        max_limit = category_limit.default_limit
+                    max_limit = category_limit.default_limit
 
             # 4️⃣ Enforce maximum limit
             if max_limit and total_after_update > max_limit:
