@@ -459,3 +459,13 @@ class CustomPasswordChangeView(PasswordChangeView):
 # class CustomPasswordChangeView(PasswordChangeView):
 #     template_name = "registration/change_password.html"
 #     success_url = reverse_lazy('home')  # or 'dashboard' or '/'
+
+
+
+
+
+def unauthorized_page(request):
+    """
+    Simple Unauthorized Access Page
+    """
+    return render(request, 'accounts/unauthorized.html', status=403)

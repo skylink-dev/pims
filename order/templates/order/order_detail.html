@@ -154,9 +154,9 @@
         <tr class="border-b hover:bg-gray-50 transition">
           <td class="py-2 px-3">
             <div class="font-semibold text-gray-800">{{ it.asset.name }}</div>
-            {% for serial in it.serials.all %}
-              <div class="text-xs text-gray-500">SN: {{ serial.serial_number }}</div>
-            {% endfor %}
+{#            {% for serial in it.serials.all %}#}
+{#              <div class="text-xs text-gray-500">SN: {{ serial.serial_number }}</div>#}
+{#            {% endfor %}#}
           </td>
           <td class="py-2 px-3 text-center">{{ it.quantity }}</td>
           <td class="py-2 px-3 text-right">₹{{ it.price|floatformat:2 }}</td>
@@ -283,11 +283,12 @@
 
   <!-- ✅ Item Received -->{% if shipment and not shipment.signature %}
   <!-- ✅ Active Button -->
-  <button
+   <button
     class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition
            bg-green-600 hover:bg-green-700 text-white"
     data-tooltip="Mark as Received"
-    onclick="openReceivedModal('{{ order.id }}', '{{ order.order_id }}')">
+    onclick="window.location.href='{% url 'order_items_verify' %}?order_id={{ order.id }}'"
+>
 
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white"
          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -302,9 +303,7 @@
            bg-gray-400 text-gray-100 cursor-not-allowed"
     data-tooltip="Not yet shipped"
     disabled>
-
-
-    <span>Mark as Order Recieved</span>
+    <span>Mark as Order Received</span>
   </button>
 {% endif %}
 
@@ -423,17 +422,6 @@ document.getElementById("confirmReceivedBtn").addEventListener("click", async ()
     headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
     body: JSON.stringify({ received: true, signature: signatureData }),
   });
-
-
-
-
-
-
-
-
-
-
-
 
 
   const data = await response.json();
