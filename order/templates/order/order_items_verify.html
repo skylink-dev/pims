@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Order {{ order.order_id }}{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto my-10 p-6 bg-white rounded-2xl shadow">
+  <h2 class="text-2xl font-bold mb-4">Verify Order: {{ order.order_id }}</h2>
+  <p class="text-gray-600 mb-6">Please enter serial numbers to confirm each asset received.</p>
+
+  <!-- 🧾 Table -->
+  <table class="w-full border border-gray-200 rounded mb-6">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="p-3 text-left">Asset</th>
+        <th class="p-3 text-center">Status</th>
+      </tr>
+    </thead>
+    <tbody id="serialTable">
+      {% for item in order_items %}
+        {% for serial in item.serials.all %}
+        <tr class="border-b" data-serial="{{ serial.serial_number }}">
+          <td class="p-3">{{ item.asset.name }}</td>
+          <td class="p-3 text-center">
+            <span id="status-{{ serial.serial_number }}" class="text-red-500 font-semibold">❌ Pending</span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-center p-3 text-gray-500">No serial numbers found for this order.</td>
+        </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Serial input -->
+  <form id="verifyForm" method="POST" class="flex space-x-3">
+    {% csrf_token %}
+    <input type="text" name="serial_no" id="serialInput"
+           placeholder="Enter serial number to verify"
+           class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+           required />
+    <button type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg">
+      Verify
+    </button>
+  </form>
+
+  <div id="messageBox" class="mt-4 text-center font-semibold"></div>
+</section>
+   <!-- ✅ Modal with Signature -->
+<div id="receivedModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-md relative animate-fadeIn">
+    <h2 class="text-lg sm:text-xl font-semibold mb-2 text-gray-800">Confirm & Sign</h2>
+    <p id="modalOrderInfo" class="text-gray-600 mb-4 text-sm sm:text-base"></p>
+
+    <!-- ✍ Signature Area -->
+    <div class="border border-gray-300 rounded-lg mb-3 overflow-hidden">
+      <canvas id="signaturePad" class="w-full h-40 sm:h-48 bg-gray-50 rounded-lg touch-manipulation"></canvas>
+    </div>
+    <div class="flex justify-between mb-4 text-sm">
+      <button onclick="clearSignature()" class="text-red-600 hover:underline">Clear</button>
+      <span class="text-gray-500">Please sign above</span>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row justify-end sm:space-x-3 space-y-3 sm:space-y-0">
+      <button onclick="closeReceivedModal()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-800 font-medium transition">
+        Cancel
+      </button>
+      <button id="confirmReceivedBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
+        Confirm & Submit
+      </button>
+    </div>
+
+    <button onclick="closeReceivedModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg">✕</button>
+  </div>
+</div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+let currentOrderId = null;
+let signaturePad;
+
+function openReceivedModal(orderId, orderCode) {
+
+  currentOrderId = orderId;
+  document.getElementById("modalOrderInfo").textContent =
+    `Please sign to confirm receipt for Order #${orderCode}`;
+  document.getElementById("receivedModal").classList.remove("hidden");
+
+  const canvas = document.getElementById("signaturePad");
+  signaturePad = new SignaturePad(canvas, {
+    backgroundColor: "rgba(255,255,255,0)",
+    penColor: "rgb(0, 0, 0)",
+    throttle: 0, // smoother drawing
+  });
+
+  resizeCanvas(canvas);
+}
+
+function resizeCanvas(canvas) {
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  canvas.getContext("2d").scale(ratio, ratio);
+  if (signaturePad) signaturePad.clear();
+}
+
+window.addEventListener("resize", () => {
+  const canvas = document.getElementById("signaturePad");
+  if (canvas) resizeCanvas(canvas);
+});
+
+function clearSignature() {
+  if (signaturePad) signaturePad.clear();
+}
+
+function closeReceivedModal() {
+  document.getElementById("receivedModal").classList.add("hidden");
+  if (signaturePad) signaturePad.clear();
+}
+
+document.getElementById("confirmReceivedBtn").addEventListener("click", async () => {
+  if (!signaturePad || signaturePad.isEmpty()) {
+    alert("✍️ Please provide a signature before confirming.");
+    return;
+  }
+
+  const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const signatureData = signaturePad.toDataURL();
+
+  const response = await fetch(`/order/mark-received/${currentOrderId}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+    body: JSON.stringify({ received: true, signature: signatureData }),
+  });
+
+
+  const data = await response.json();
+  if (data.success) {
+    closeReceivedModal();
+    alert("✅ Order marked as received and signed successfully!");
+    setTimeout(() => window.history.back(), 2000);
+  } else {
+    alert("❌ Something went wrong. Please try again.");
+  }
+});
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const verifyForm = document.getElementById("verifyForm");
+    const serialInput = document.getElementById("serialInput");
+    const messageBox = document.getElementById("messageBox");
+
+    // Collect all serials from table
+    const serialRows = document.querySelectorAll("#serialTable tr[data-serial]");
+    const serialNumbers = {};
+    serialRows.forEach(row => {
+      const serial = row.getAttribute("data-serial");
+      serialNumbers[serial] = false; // false = not verified yet
+    });
+
+    verifyForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const enteredSerial = serialInput.value.trim();
+      serialInput.value = "";
+      messageBox.innerHTML = "";
+
+      if (!enteredSerial) {
+        showMessage("⚠️ Please enter a serial number.", "text-yellow-600");
+        return;
+      }
+
+      if (serialNumbers.hasOwnProperty(enteredSerial)) {
+        if (serialNumbers[enteredSerial] === true) {
+          showMessage(`🔁 Serial <b>${enteredSerial}</b> already verified.`, "text-blue-600");
+          return;
+        }
+
+        // ✅ Mark as verified
+        serialNumbers[enteredSerial] = true;
+        const statusEl = document.getElementById(`status-${enteredSerial}`);
+        if (statusEl) {
+          statusEl.textContent = "✅ Completed";
+          statusEl.className = "text-green-600 font-semibold";
+        }
+
+        showMessage(`✅ Serial <b>${enteredSerial}</b> verified successfully!`, "text-green-600");
+
+        // 🎉 Check if all verified
+        const allVerified = Object.values(serialNumbers).every(v => v);
+        if (allVerified) {
+          showMessage("🎉 All serial numbers have been verified!", "text-green-700 font-bold");
+          let orderId="{{ order.id }}";
+          let  orderCode= "{{ order.order_id }}";
+          openReceivedModal(orderId,orderCode)
+        }
+      } else {
+        showMessage(`❌ Serial <b>${enteredSerial}</b> not found in this order.`, "text-red-600");
+      }
+    });
+
+    function showMessage(msg, colorClass) {
+      messageBox.innerHTML = msg;
+      messageBox.className = `mt-4 text-center font-semibold ${colorClass}`;
+    }
+  });
+</script>
+
+{% endblock %}

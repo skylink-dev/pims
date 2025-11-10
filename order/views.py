@@ -8,7 +8,7 @@ import json
 import base64
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
@@ -145,3 +145,27 @@ def mark_order_received(request, order_id):
             return JsonResponse({"success": False, "message": str(e)})
 
     return JsonResponse({"success": False, "message": "Invalid request."})
+
+
+@login_required
+def order_items_verify_page(request):
+    order_id = request.GET.get("order_id")
+    order = get_object_or_404(Order, id=order_id)
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = 0
+    if cart:
+        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
+
+    # ✅ Verify that this order belongs to the logged-in user
+    if order.user != request.user:
+        return redirect("unauthorized_page")  # or show a 403 page
+
+    # ✅ Get related order items and serials
+    order_items = order.orderitem_set.prefetch_related('serials').all()
+
+    context = {
+        "order": order,
+        "order_items": order_items,
+        "cart_count":cart_count
+    }
+    return render(request, 'order/order_items_verify.html',context)

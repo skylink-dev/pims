@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
-from partner.models import Partner, PartnerAssetLimit
+from partner.models import Partner, PartnerAssetLimit, PartnerCategoryAssetLimit
 from .utils import get_customer_by_phone
 from order.models import OrderItemSerial,Order,OrderItem
 from asset.models import Cart, CartItem
@@ -38,7 +38,7 @@ from django.utils.timezone import localtime
 def customer_asset_mapping(request):
     # Get only this user's orders
     user_orders = Order.objects.filter(user=request.user)
-    partner = Partner.objects.get(user=request.user)
+
     # Related records (filtered through the user's orders)
     order_items = OrderItem.objects.filter(order__in=user_orders)
 
@@ -61,24 +61,35 @@ def customer_asset_mapping(request):
     total_mapped = CustomerAssetMapping.objects.filter(
         order_serial__order_item__order__user=request.user
     ).count()
+    partner = Partner.objects.filter(user=request.user).first()
+
     total_unmapped = max(total_assets - total_mapped, 0)
 
     available_assets = []
     for asset in Asset.objects.all():
         serial_count = serials.filter(order_item__asset=asset).count()
-        partner_asset_limit = PartnerAssetLimit.objects.filter(partner=partner, asset=asset).first()
+        max_allowed = asset.max_order_per_partner or 0
+
+        if partner and partner.partner_category:
+            partner_category = partner.partner_category
+            category_limit = PartnerCategoryAssetLimit.objects.filter(
+                partner_category=partner_category, asset=asset
+            ).first()
+            print("Partner category asset limit:", category_limit)
+
+            if category_limit:
+                # Use stricter (lower) limit between asset and category
+                max_allowed = category_limit.default_limit
        # skip assets without serials
         total_mapped_based_asset = CustomerAssetMapping.objects.filter(
-            order_serial__order_item__asset=asset
+            order_serial__order_item__asset=asset,
+            assigned_by=request.user
         ).count()
         ordered_qty = serials.filter(order_item__asset=asset).count()-total_mapped_based_asset
 
-        max_allowed = asset.max_order_per_partner or 0
         remaining_qty = max(max_allowed - ordered_qty-total_mapped_based_asset, 0)
-        if partner_asset_limit:
             # If partner-specific limit is defined and lower, use it
-            max_allowed = max(max_allowed, partner_asset_limit.max_purchase_limit)
-            remaining_qty = max(max_allowed - ordered_qty - total_mapped_based_asset, 0)
+        remaining_qty = max(max_allowed - ordered_qty - total_mapped_based_asset, 0)
 
         available_assets.append({
             "id": asset.id,

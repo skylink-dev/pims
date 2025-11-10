@@ -19,6 +19,7 @@ urlpatterns = [
     path('success/', views.success_page, name='success_page'),
 
     path('profile/', views.profile_view, name='profile'),
+path('unauthorized/', views.unauthorized_page, name='unauthorized_page'),
 
     # Password change views
     path('password/change/', CustomPasswordChangeView.as_view(), name='password_change'),

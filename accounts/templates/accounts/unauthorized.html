@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Unauthorized Access{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col justify-center items-center bg-gray-50 text-center">
+  <div class="bg-white shadow-lg rounded-2xl p-10 max-w-md">
+    <svg xmlns="http://www.w3.org/2000/svg" 
+         class="w-16 h-16 text-red-600 mx-auto mb-4" 
+         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 9v2m0 4h.01M12 5C7.03 5 3 9.03 3 14c0 4.97 4.03 9 9 9s9-4.03 9-9c0-4.97-4.03-9-9-9z" />
+    </svg>
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Unauthorized Access</h1>
+    <p class="text-gray-600 mb-6">
+      You don’t have permission to view this page.<br>
+      Redirecting you to the home page...
+    </p>
+
+    <a href="/" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+      Go to Home Now
+    </a>
+  </div>
+
+  <p class="mt-6 text-gray-400 text-sm">Redirecting in <span id="countdown">5</span> seconds...</p>
+</div>
+
+<script>
+let seconds = 5;
+const countdown = document.getElementById('countdown');
+const timer = setInterval(() => {
+  seconds--;
+  countdown.textContent = seconds;
+  if (seconds <= 0) {
+    clearInterval(timer);
+    window.location.href = '/';
+  }
+}, 1000);
+</script>
+{% endblock %}
