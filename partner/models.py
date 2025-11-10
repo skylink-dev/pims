@@ -31,7 +31,7 @@ class Partner(models.Model):
         related_name='partners',
         help_text="Category of the partner (e.g., Platinum, Gold, Silver)"
     )
-    code = models.CharField(max_length=20, blank=True, null=True)
+    code = models.CharField(max_length=50, blank=True, null=True)
     refundable_wallet = models.DecimalField(
         max_digits=10,
         decimal_places=2,
