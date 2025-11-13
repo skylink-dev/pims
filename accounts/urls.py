@@ -7,6 +7,8 @@ from accounts.views import CustomPasswordChangeView
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
+    path('verify-phone/', views.verify_phone, name='verify_phone'),
+    path('resend-otp/', views.resend_otp_view, name='resend_otp'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('', views.home_view, name='home'),
     path('asset', include('asset.urls')),

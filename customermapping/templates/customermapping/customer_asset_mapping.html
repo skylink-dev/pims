@@ -581,6 +581,9 @@
           <th class="p-3 text-left">Order ID</th>
           <th class="p-3 text-left">Asset Name</th>
           <th class="p-3 text-left">Serial</th>
+          <th class="p-3 text-left">Mac</th>
+          <th class="p-3 text-left">Make</th>
+          <th class="p-3 text-left">Model</th>
           <th class="p-3 text-left">Mapped To</th>
           <th class="p-3 text-left">Sky ID</th>
           <th class="p-3 text-left">Payment</th>
@@ -600,6 +603,9 @@
           <td class="p-3">{{ s.order_item.order.order_id }}</td>
           <td class="p-3">{{ s.order_item.asset.name }}</td>
           <td class="p-3 font-mono text-sm">{{ s.serial_number }}</td>
+          <td class="p-3 font-mono text-sm">{{ s.mac|default:'—' }}</td>
+          <td class="p-3">{{ s.asset.make|default:'—' }}</td>
+          <td class="p-3">{{ s.asset.model|default:'—' }}</td>
           <td class="p-3">{% if mapping %}{{ mapping.customer_name }} ({{ mapping.phone }}){% else %}<span class="text-gray-400">—</span>{% endif %}</td>
           <td class="p-3">{% if mapping.skyid %}{{ mapping.skyid }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
           <td class="p-3">{{ s.order_item.order.payment_status|default:"Paid" }}</td>
@@ -668,6 +674,9 @@
       </div>
       <p class="text-sm text-gray-600">Order ID: <span class="font-medium">{{ s.order_item.order.order_id }}</span></p>
       <p class="text-sm text-gray-600">Serial: <span class="font-mono">{{ s.serial_number }}</span></p>
+      <p class="text-sm text-gray-600">Mac: <span class="font-mono">{{ s.mac_id }}</span></p>
+      <p class="text-sm text-gray-600">Make: <span class="font-mono">{{ s.make }}</span></p>
+      <p class="text-sm text-gray-600">Model: <span class="font-mono">{{ s.model }}</span></p>
       <p class="text-sm text-gray-600">Customer: {% if mapping %}<span class="font-medium">{{ mapping.customer_name }}</span>{% else %}—{% endif %}</p>
       <p class="text-sm text-gray-600">Sky ID: {{ mapping.skyid|default:"—" }}</p>
       <p class="text-sm text-gray-600">Payment: {{ s.order_item.order.payment_status|default:"Paid" }}</p>

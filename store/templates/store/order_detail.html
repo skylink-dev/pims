@@ -2,31 +2,28 @@
 {% block title %}Order #{{ order.order_id }} — Skyplay{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-6 space-y-6 animate-fadeIn">
+<div class="max-w-5xl mx-auto px-3 sm:px-6 py-6 space-y-6 animate-fadeIn">
 
   <!-- 🧾 Order Summary -->
-  <div class="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+  <div class="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl shadow-lg p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
     <div>
-      <h2 class="text-2xl font-bold">Order #{{ order.order_id }}</h2>
-      <p class="text-sm text-red-100">Placed on {{ order.created_at|date:"d M Y, h:i A" }}</p>
+      <h2 class="text-xl sm:text-2xl font-bold">Order #{{ order.order_id }}</h2>
+      <p class="text-xs sm:text-sm text-red-100 mt-1">Placed on {{ order.created_at|date:"d M Y, h:i A" }}</p>
     </div>
     <div class="mt-4 sm:mt-0 text-right">
-      <p class="text-3xl font-semibold">₹{{ total_amount|floatformat:2 }}</p>
-      <span class="inline-block mt-1 bg-white text-red-700 px-3 py-1 rounded-full font-semibold text-sm">
+      <p class="text-2xl sm:text-3xl font-semibold">₹{{ total_amount|floatformat:2 }}</p>
+      <span class="inline-block mt-1 bg-white text-red-700 px-3 py-1 rounded-full font-semibold text-xs sm:text-sm">
         {{ order.status }}
       </span>
     </div>
   </div>
 
   <!-- 👤 Partner Details -->
-  <div class="bg-white rounded-xl shadow-md p-5">
+  <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
-      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-        <path d="M16 14a4 4 0 1 1-8 0m8 0a4 4 0 0 0-8 0m8 0H4m12 0h4m-8-7a3 3 0 1 1 0 6m0-6a3 3 0 0 0 0 6" />
-      </svg>
-      Partner Details
+      👤 Partner Details
     </h3>
-    <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
+    <div class="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
       <p><span class="font-semibold">Name:</span> {{ order.user.first_name }} {{ order.user.last_name }}</p>
       <p><span class="font-semibold">User ID:</span> {{ order.user.username }}</p>
       <p><span class="font-semibold">Type:</span> {{ order.user.get_user_type_display }}</p>
@@ -40,28 +37,24 @@
   </div>
 
   <!-- 🚚 Shipment Details -->
-  <div class="bg-white rounded-xl shadow-md p-5">
+  <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
-      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-        <path d="M3 7h13v10H3V7zm13 5h5l-2-3h-3v3zm-1 5h6M5 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm10 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
-      </svg>
-      Shipment Details
+      🚚 Shipment Details
     </h3>
-
     {% if shipment %}
-      <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
+      <div class="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
         <p><span class="font-semibold">Dispatch Date:</span> {{ shipment.dispatched_at|date:"d M Y, h:i A"|default:"—" }}</p>
         <p><span class="font-semibold">Delivered Date:</span> {{ shipment.delivered_at|date:"d M Y, h:i A"|default:"—" }}</p>
-        <p><span class="font-semibold">Courier Partner:</span> {{ shipment.courier_name|default:"—" }}</p>
+        <p><span class="font-semibold">Courier:</span> {{ shipment.courier_name|default:"—" }}</p>
         <p><span class="font-semibold">Tracking ID:</span> {{ shipment.tracking_id|default:"—" }}</p>
         <p class="sm:col-span-2"><span class="font-semibold">Remarks:</span> {{ shipment.remarks|default:"—" }}</p>
         <p><span class="font-semibold">Status:</span> {{ shipment.get_shipping_status_display }}</p>
       </div>
-      <a href="{% url 'edit_shipment' order.id %}" class="inline-flex items-center gap-1 mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+      <a href="{% url 'edit_shipment' order.id %}" class="inline-flex items-center gap-1 mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base">
         ✏️ Edit Delivery
       </a>
     {% else %}
-      <div class="text-gray-500 italic">
+      <div class="text-gray-500 italic text-sm sm:text-base">
         No shipment details available yet.
         <a href="{% url 'add_shipment' order.id %}" class="inline-flex items-center gap-1 mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
           ➕ Add Shipment
@@ -71,53 +64,62 @@
   </div>
 
   <!-- 📦 Ordered Items -->
-  <div class="bg-white rounded-xl shadow-md p-5 overflow-x-auto">
+  <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
-      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-        <path d="M3 7h18v10H3V7zM3 7l9 5 9-5" />
-      </svg>
-      Ordered Items
+      📦 Ordered Items
     </h3>
 
-    <table class="min-w-full border text-sm sm:text-base">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="py-2 px-3 text-left">Item</th>
-          <th class="py-2 px-3 text-center">Qty</th>
-          <th class="py-2 px-3 text-right">Price</th>
-          <th class="py-2 px-3 text-right">Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for it in items %}
-        <tr class="border-b hover:bg-gray-50">
-          <td class="py-2 px-3">
-            <div class="font-semibold text-gray-800">{{ it.asset.name }}</div>
-            {% for serial in it.serials.all %}
-              <div class="text-xs text-gray-500">SN: {{ serial.serial_number }}</div>
-            {% endfor %}
-          </td>
-          <td class="py-2 px-3 text-center">{{ it.quantity }}</td>
-          <td class="py-2 px-3 text-right">₹{{ it.price|floatformat:2 }}</td>
-          <td class="py-2 px-3 text-right">₹{% widthratio it.price 1 it.quantity %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="bg-gray-100 font-semibold">
-          <td colspan="3" class="py-2 px-3 text-right">Total</td>
-          <td class="py-2 px-3 text-right">₹{{ total_amount|floatformat:2 }}</td>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="min-w-full border text-xs sm:text-sm">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="py-2 px-3 text-left">Item</th>
+            <th class="py-2 px-3 text-center">Qty</th>
+            <th class="py-2 px-3 text-right">Price</th>
+            <th class="py-2 px-3 text-right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-2 px-3 align-top">
+              <div class="font-semibold text-gray-800">{{ it.asset.name }}</div>
+              {% for serial in it.serials.all %}
+                <div class="text-[13px] sm:text-xs text-gray-600 mt-2 border-l-2 border-gray-200 pl-2">
+                  <div><span class="font-medium text-gray-700">SN:</span> {{ serial.serial_number|default:"—" }}</div>
+
+                  {% if serial.make or serial.model or serial.mac_id %}
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 mt-1 text-gray-500">
+                    <div><span class="font-medium text-gray-700">Make:</span> {{ serial.make|default:"—" }}</div>
+                    <div><span class="font-medium text-gray-700">Model:</span> {{ serial.model|default:"—" }}</div>
+                    <div><span class="font-medium text-gray-700">MAC:</span> {{ serial.mac_id|default:"—" }}</div>
+                  </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </td>
+            <td class="py-2 px-3 text-center">{{ it.quantity }}</td>
+            <td class="py-2 px-3 text-right">₹{{ it.price|floatformat:2 }}</td>
+            <td class="py-2 px-3 text-right">₹{% widthratio it.price 1 it.quantity %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-100 font-semibold">
+            <td colspan="3" class="py-2 px-3 text-right">Total</td>
+            <td class="py-2 px-3 text-right">₹{{ total_amount|floatformat:2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
 
   <!-- 💳 Payment Info -->
-  <div class="bg-white rounded-xl shadow-md p-5">
+  <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
       💳 Payment Details
     </h3>
-    <div class="grid sm:grid-cols-2 gap-4 text-gray-700">
+    <div class="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
       <p><span class="font-semibold">Payment ID:</span> {{ order.razorpay_payment_id|default:"—" }}</p>
       <p><span class="font-semibold">Signature:</span> {{ order.razorpay_signature|default:"—" }}</p>
       <p><span class="font-semibold">Status:</span> {{ order.status }}</p>
@@ -128,13 +130,13 @@
 
   <!-- 🕒 Activity Log -->
   {% if order.activity_logs.all %}
-  <div class="bg-white rounded-xl shadow-md p-5">
+  <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
       🕒 Activity Logs
     </h3>
-    <ul class="divide-y text-sm text-gray-700">
+    <ul class="divide-y text-xs sm:text-sm text-gray-700">
       {% for log in order.activity_logs.all %}
-      <li class="py-2 flex justify-between">
+      <li class="py-2 flex flex-col sm:flex-row sm:justify-between">
         <span>{{ log.message }}</span>
         <span class="text-gray-500 text-xs">{{ log.timestamp|date:"d M Y, h:i A" }}</span>
       </li>
@@ -145,10 +147,10 @@
 
   <!-- 🔘 Actions -->
   <div class="flex flex-col sm:flex-row gap-3 justify-end">
-    <button onclick="window.print()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium">
+    <button onclick="window.print()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium text-sm sm:text-base">
       🖨️ Print
     </button>
-    <a href="{% url 'store_orders' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-center">
+    <a href="{% url 'store_orders' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-center text-sm sm:text-base">
       ⬅ Back to Orders
     </a>
   </div>
@@ -160,8 +162,6 @@
   to {opacity: 1; transform: translateY(0);}
 }
 .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
-@media (max-width: 640px) {
-  table th, table td { padding: 8px 6px; font-size: 14px; }
-}
+table th, table td { word-break: break-word; }
 </style>
 {% endblock %}

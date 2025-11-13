@@ -8,7 +8,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 
-from .models import Order, OrderItem, OrderItemSerial,OrderShipment
+from .models import Order, OrderItem, OrderItemSerial, OrderShipment
 from partner.models import Partner
 
 
@@ -34,7 +34,7 @@ class OrderItemSerialInline(admin.TabularInline):
     """Inline for serial numbers — appears under OrderItemAdmin"""
     model = OrderItemSerial
     extra = 0
-    fields = ('serial_number', 'created_at')
+    fields = ('serial_number', 'make', 'model', 'mac_id', 'created_at')
     readonly_fields = ('created_at',)
 
 
@@ -64,7 +64,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('order_id', 'user__username', 'dc_number')
     date_hierarchy = 'created_at'
-    inlines = [OrderItemInline]  # ✅ Only OrderItem here (Serial belongs to OrderItemAdmin)
+    inlines = [OrderItemInline]
 
     readonly_fields = (
         'order_id', 'user', 'amount', 'razorpay_payment_id',
@@ -83,24 +83,15 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
-    # ----------------------------
-    # FORMATTED AMOUNT DISPLAY
-    # ----------------------------
     def amount_display(self, obj):
         return f"₹{obj.amount:.2f}"
     amount_display.short_description = "Amount"
 
-    # ----------------------------
-    # LINK TO DELIVERY CHALLAN POPUP
-    # ----------------------------
     def view_summary_link(self, obj):
         url = reverse('admin:order_summary_popup', args=[obj.id])
         return mark_safe(f'<a class="button" href="{url}" target="_blank">View DC</a>')
     view_summary_link.short_description = "Delivery Challan"
 
-    # ----------------------------
-    # CUSTOM ADMIN URLS
-    # ----------------------------
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -111,9 +102,6 @@ class OrderAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    # ----------------------------
-    # POPUP SUMMARY VIEW (HTML)
-    # ----------------------------
     def order_summary_popup(self, request, order_id):
         order = Order.objects.get(pk=order_id)
         partner = getattr(order.user, 'partner', None)
@@ -123,20 +111,15 @@ class OrderAdmin(admin.ModelAdmin):
             'COMPANY_INFO': COMPANY_INFO,
         }))
 
-    # ----------------------------
-    # DOWNLOAD PDF VIEW
-    # ----------------------------
     def download_dc_pdf(self, request, order_id):
         order = Order.objects.get(pk=order_id)
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
 
-        # Header
         p.setFont("Helvetica-Bold", 16)
         p.drawString(220, height - 50, "DELIVERY CHALLAN")
 
-        # Company Info
         p.setFont("Helvetica", 10)
         y = height - 90
         p.drawString(50, y, "From: Skylink Fibernet Private Limited")
@@ -145,7 +128,6 @@ class OrderAdmin(admin.ModelAdmin):
         y -= 15
         p.drawString(50, y, "Email: info@skylink.net.in  |  Phone: (+91) 99441 99445")
 
-        # Order Info
         y -= 30
         p.setFont("Helvetica-Bold", 11)
         p.drawString(50, y, f"Challan No: {order.dc_number or '-'}")
@@ -155,7 +137,6 @@ class OrderAdmin(admin.ModelAdmin):
         p.drawString(50, y, "Mode of Transport: -")
         p.drawString(250, y, "Vehicle No: -")
 
-        # Partner Info
         partner = getattr(order.user, 'partner', None)
         y -= 40
         p.setFont("Helvetica-Bold", 11)
@@ -176,40 +157,34 @@ class OrderAdmin(admin.ModelAdmin):
         else:
             p.drawString(70, y, "No partner address available")
 
-        # Table Header
         y -= 30
         p.setFont("Helvetica-Bold", 11)
         p.drawString(50, y, "Item")
-        p.drawString(250, y, "Qty")
-        p.drawString(300, y, "Price")
-        p.drawString(370, y, "Subtotal")
-        p.drawString(460, y, "Serial No.")
+        p.drawString(200, y, "Make")
+        p.drawString(270, y, "Model")
+        p.drawString(340, y, "MAC ID")
+        p.drawString(410, y, "Serial No.")
         y -= 10
         p.line(50, y, 550, y)
 
-        # Table Rows
         y -= 20
         p.setFont("Helvetica", 10)
         for item in order.orderitem_set.all():
-            if y < 80:
-                p.showPage()
-                y = height - 50
-            subtotal = item.price * item.quantity
-            p.drawString(50, y, item.asset.name[:25])
-            p.drawString(250, y, str(item.quantity))
-            p.drawString(300, y, f"₹{item.price:.2f}")
-            p.drawString(370, y, f"₹{subtotal:.2f}")
-            # FIXED: Get serials from related model
-            serials = ", ".join([s.serial_number for s in item.orderitemserial_set.all()])
-            p.drawString(460, y, serials or "-")
-            y -= 15
+            for serial in item.orderitemserial_set.all():
+                if y < 80:
+                    p.showPage()
+                    y = height - 50
+                p.drawString(50, y, item.asset.name[:25])
+                p.drawString(200, y, serial.make or "-")
+                p.drawString(270, y, serial.model or "-")
+                p.drawString(340, y, serial.mac_id or "-")
+                p.drawString(410, y, serial.serial_number or "-")
+                y -= 15
 
-        # Total
         y -= 20
         p.setFont("Helvetica-Bold", 11)
         p.drawString(300, y, f"Total: ₹{order.amount:.2f}")
 
-        # Footer
         y -= 50
         p.line(400, y, 550, y)
         y -= 10
@@ -224,9 +199,6 @@ class OrderAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = f'attachment; filename="DC_{order.dc_number or order.order_id}.pdf"'
         return response
 
-    # ----------------------------
-    # INLINE HTML SUMMARY (ADMIN DETAIL)
-    # ----------------------------
     def order_summary(self, obj):
         items = obj.orderitem_set.all()
         if not items.exists():
@@ -243,18 +215,16 @@ class OrderAdmin(admin.ModelAdmin):
 
         rows_html = ""
         for item in items:
-            serials = ", ".join([s.serial_number for s in item.orderitemserial_set.all()])
-            rows_html += f"""
-                <tr>
-                    <td>{item.asset.name}</td>
-                    <td style='text-align:center'>{item.quantity}</td>
-                    <td style='text-align:right'>₹{item.price:.2f}</td>
-                    <td style='text-align:right'>₹{item.price * item.quantity:.2f}</td>
-                    <td style='text-align:center'>{serials or '-'}</td>
-                </tr>
-            """
-
-        total = sum(i.price * i.quantity for i in items)
+            for s in item.orderitemserial_set.all():
+                rows_html += f"""
+                    <tr>
+                        <td>{item.asset.name}</td>
+                        <td>{s.make or '-'}</td>
+                        <td>{s.model or '-'}</td>
+                        <td>{s.mac_id or '-'}</td>
+                        <td>{s.serial_number}</td>
+                    </tr>
+                """
 
         html = f"""
         <div style='margin-bottom:10px;padding:5px;background:#f9f9f9;border-radius:6px;'>
@@ -263,19 +233,13 @@ class OrderAdmin(admin.ModelAdmin):
             <div>{to_address}</div>
           </div>
           <p><strong>Challan No:</strong> {obj.dc_number or '-'}<br>
-             <strong>Date:</strong> {obj.created_at.strftime('%d-%m-%Y')}<br>
-             <strong>Mode of Transport:</strong> -<br>
-             <strong>Vehicle No:</strong> -</p>
+             <strong>Date:</strong> {obj.created_at.strftime('%d-%m-%Y')}<br></p>
         </div>
         <table style='border-collapse:collapse;width:100%;margin-top:10px;font-size:13px;'>
           <tr style='background:#f0f0f0;font-weight:600;'>
-            <th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Serial No.</th>
+            <th>Item</th><th>Make</th><th>Model</th><th>MAC ID</th><th>Serial No.</th>
           </tr>
           {rows_html}
-          <tr>
-            <td colspan='4' style='text-align:right;font-weight:bold;border-top:2px solid #555;'>Total</td>
-            <td style='text-align:right;font-weight:bold;border-top:2px solid #555;'>₹{total:.2f}</td>
-          </tr>
         </table>
         <div style='margin-top:10px;text-align:right;'>
           <a href='/admin/order/summary/{obj.id}/pdf/' class='button'>Download DC PDF</a>
@@ -298,9 +262,8 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItemSerial)
 class OrderItemSerialAdmin(admin.ModelAdmin):
-    list_display = ('order_item', 'serial_number', 'created_at')
-    search_fields = ('serial_number', 'order_item__asset__name')
-
+    list_display = ('order_item', 'serial_number', 'make', 'model', 'mac_id', 'created_at')
+    search_fields = ('serial_number', 'make', 'model', 'mac_id', 'order_item__asset__name')
 
 
 @admin.register(OrderShipment)

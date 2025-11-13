@@ -19,7 +19,7 @@
     <tbody id="serialTable">
       {% for item in order_items %}
         {% for serial in item.serials.all %}
-        <tr class="border-b" data-serial="{{ serial.serial_number }}">
+        <tr class="border-b" data-serial="{{ serial.serial_number }}"  data-mac="{{ serial.mac_id}}">
           <td class="p-3">{{ item.asset.name }}</td>
           <td class="p-3 text-center">
             <span id="status-{{ serial.serial_number }}" class="text-red-500 font-semibold">❌ Pending</span>
@@ -27,7 +27,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="3" class="text-center p-3 text-gray-500">No serial numbers found for this order.</td>
+          <td colspan="3" class="text-center p-3 text-gray-500">No serial numbers / Mac found for this order.</td>
         </tr>
         {% endfor %}
       {% endfor %}
@@ -150,64 +150,73 @@ document.getElementById("confirmReceivedBtn").addEventListener("click", async ()
   }
 });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const verifyForm = document.getElementById("verifyForm");
-    const serialInput = document.getElementById("serialInput");
-    const messageBox = document.getElementById("messageBox");
+ document.addEventListener("DOMContentLoaded", () => {
+  const verifyForm = document.getElementById("verifyForm");
+  const serialInput = document.getElementById("serialInput");
+  const messageBox = document.getElementById("messageBox");
 
-    // Collect all serials from table
-    const serialRows = document.querySelectorAll("#serialTable tr[data-serial]");
-    const serialNumbers = {};
-    serialRows.forEach(row => {
-      const serial = row.getAttribute("data-serial");
-      serialNumbers[serial] = false; // false = not verified yet
-    });
+  // Collect all rows and create a map
+  const serialRows = document.querySelectorAll("#serialTable tr[data-serial]");
+  const rowVerification = {}; // key = serial or mac, value = row object
 
-    verifyForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const enteredSerial = serialInput.value.trim();
-      serialInput.value = "";
-      messageBox.innerHTML = "";
+  serialRows.forEach(row => {
+    const serial = row.getAttribute("data-serial");
+    const mac = row.getAttribute("data-mac");
+    rowVerification[serial] = row; // map serial to row
+    if (mac && mac !== "None" && mac !== "—") {
+      rowVerification[mac] = row; // map mac to the same row
+    }
+    // add a verified flag to row
+    row.dataset.verified = "false";
+  });
 
-      if (!enteredSerial) {
-        showMessage("⚠️ Please enter a serial number.", "text-yellow-600");
+  verifyForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const entered = serialInput.value.trim();
+    serialInput.value = "";
+    messageBox.innerHTML = "";
+
+    if (!entered) {
+      showMessage("⚠️ Please enter a Serial Number or MAC ID.", "text-yellow-600");
+      return;
+    }
+
+    if (rowVerification.hasOwnProperty(entered)) {
+      const row = rowVerification[entered];
+      if (row.dataset.verified === "true") {
+        showMessage(`🔁 <b>${entered}</b> already verified.`, "text-blue-600");
         return;
       }
 
-      if (serialNumbers.hasOwnProperty(enteredSerial)) {
-        if (serialNumbers[enteredSerial] === true) {
-          showMessage(`🔁 Serial <b>${enteredSerial}</b> already verified.`, "text-blue-600");
-          return;
-        }
-
-        // ✅ Mark as verified
-        serialNumbers[enteredSerial] = true;
-        const statusEl = document.getElementById(`status-${enteredSerial}`);
-        if (statusEl) {
-          statusEl.textContent = "✅ Completed";
-          statusEl.className = "text-green-600 font-semibold";
-        }
-
-        showMessage(`✅ Serial <b>${enteredSerial}</b> verified successfully!`, "text-green-600");
-
-        // 🎉 Check if all verified
-        const allVerified = Object.values(serialNumbers).every(v => v);
-        if (allVerified) {
-          showMessage("🎉 All serial numbers have been verified!", "text-green-700 font-bold");
-          let orderId="{{ order.id }}";
-          let  orderCode= "{{ order.order_id }}";
-          openReceivedModal(orderId,orderCode)
-        }
-      } else {
-        showMessage(`❌ Serial <b>${enteredSerial}</b> not found in this order.`, "text-red-600");
+      // ✅ Mark row as verified
+      row.dataset.verified = "true";
+      const statusEl = row.querySelector("span");
+      if (statusEl) {
+        statusEl.textContent = "✅ Completed";
+        statusEl.className = "text-green-600 font-semibold";
       }
-    });
 
-    function showMessage(msg, colorClass) {
-      messageBox.innerHTML = msg;
-      messageBox.className = `mt-4 text-center font-semibold ${colorClass}`;
+      showMessage(`✅ <b>${entered}</b> verified successfully!`, "text-green-600");
+
+      // 🎉 Check if all rows verified
+      const allVerified = Array.from(serialRows).every(r => r.dataset.verified === "true");
+      if (allVerified) {
+        showMessage("🎉 All items verified!", "text-green-700 font-bold");
+        let orderId = "{{ order.id }}";
+        let orderCode = "{{ order.order_id }}";
+        openReceivedModal(orderId, orderCode);
+      }
+    } else {
+      showMessage(`❌ <b>${entered}</b> not found in this order.`, "text-red-600");
     }
   });
+
+  function showMessage(msg, colorClass) {
+    messageBox.innerHTML = msg;
+    messageBox.className = `mt-4 text-center font-semibold ${colorClass}`;
+  }
+});
+
 </script>
 
 {% endblock %}

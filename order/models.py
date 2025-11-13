@@ -76,10 +76,17 @@ class OrderItem(models.Model):
 class OrderItemSerial(models.Model):
     order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='serials')
     serial_number = models.CharField(max_length=100, unique=True)
+    
+    # New optional fields
+    make = models.CharField(max_length=100, blank=True, null=True)
+    model = models.CharField(max_length=100, blank=True, null=True)
+    mac_id = models.CharField(max_length=100, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.order_item.asset.name} - {self.serial_number}"
+
     
 
 

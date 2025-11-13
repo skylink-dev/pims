@@ -17,22 +17,107 @@ from asset.models import Asset, Category, Banner, Cart, CartItem
 from partner.models import Partner, WalletTransaction, PartnerAssetLimit, PartnerCategory, PartnerCategoryAssetLimit
 from order.models import Order, OrderItem
 from django.contrib import messages
+from .utils import generate_verification_code 
 
+import requests
+from urllib.parse import urlencode
+from django.conf import settings
+
+
+# MSG91 API Configuration
+MSG91_API_URL = "https://api.msg91.com/api/sendhttp.php"
+
+AUTH_KEY = "437052AwuTl8Nuu367ea608cP1"
+SENDER_ID = "SKYLTD"
+TEMPLATE_ID = "1407165460465145131"
 
 # ---------------------- LOGIN ----------------------
+
+def send_verification_sms(phone_number, name, user):
+    """
+    Send OTP via MSG91 and store it in the user's phone_verification_code field.
+    """
+    otp = generate_verification_code()
+    user.phone_verification_code = otp
+    user.save()
+
+    message = f"Dear {name}, your Skylink verification code is {otp}."
+    print(message)
+    params = {
+        "authkey": AUTH_KEY,
+        "mobiles": f"91{phone_number}",
+        "message": message,
+        "sender": SENDER_ID,
+        "route": "4",
+        "DLT_TE_ID": TEMPLATE_ID,
+    }
+
+    try:
+        response = requests.get(MSG91_API_URL, params=urlencode(params))
+        print(response)
+        if response.status_code == 200:
+            return {"success": True, "response": response.text}
+        else:
+            return {"success": False, "error": response.text}
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error": str(e)}
+
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('verify_phone')  # always redirect to OTP
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')
+
+            # Generate OTP
+            otp = generate_verification_code()
+            user.phone_verification_code = otp
+            user.save()
+
+            # Send SMS
+            send_verification_sms(user.phone, user.get_full_name(),user)
+
+            return redirect('verify_phone')  # OTP page
     else:
         form = AuthenticationForm()
+
     return render(request, 'accounts/login.html', {'form': form})
+
+
+@login_required
+def verify_phone(request):
+    user = request.user
+
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+
+        # Accept either the real OTP or 123456 for testing
+        if entered_otp == user.phone_verification_code or entered_otp == "123456":
+            user.phone_verification_code = ""  # clear OTP
+            user.save()
+            return redirect('home')
+        else:
+            messages.error(request, "❌ Invalid verification code. Please try again.")
+
+    return render(request, "accounts/verify_phone.html", {"phone": user.phone})
+
+# Example: resend OTP view
+@login_required
+def resend_otp_view(request):
+    user = request.user
+    result = send_verification_sms(user.phone, user.get_full_name(), user)
+    
+    if result.get("success"):
+        messages.success(request, "OTP has been resent successfully!")
+    else:
+        messages.error(request, f"Failed to resend OTP: {result.get('error')}")
+    
+    return redirect("verify_phone")  # or wherever your OTP page is
+
+
 
 
 # ---------------------- HOME VIEW ----------------------

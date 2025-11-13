@@ -15,18 +15,28 @@ def store_orders(request):
 # 🔢 Update Serial Numbers
 def update_serials(request, item_id):
     item = get_object_or_404(OrderItem, id=item_id)
+
     if request.method == 'POST':
         serials = request.POST.getlist('serial_numbers')
+        makes = request.POST.getlist('make')
+        models_ = request.POST.getlist('model')
+        mac_ids = request.POST.getlist('mac_id')
 
         # Clear old serials
         item.serials.all().delete()
 
-        # Add new serials
-        for s in serials:
+        # Add new serials with optional fields
+        for s, mk, mdl, mac in zip(serials, makes, models_, mac_ids):
             if s.strip():
-                OrderItemSerial.objects.create(order_item=item, serial_number=s.strip())
+                OrderItemSerial.objects.create(
+                    order_item=item,
+                    serial_number=s.strip(),
+                    make=mk.strip() or None,
+                    model=mdl.strip() or None,
+                    mac_id=mac.strip() or None
+                )
 
-        # ✅ Optional: Update status after all serials added
+        # ✅ Optional: Update status
         if all(i.serials.count() >= i.quantity for i in item.order.orderitem_set.all()):
             item.order.status = 'Serial Updated'
             item.order.save()
@@ -35,7 +45,6 @@ def update_serials(request, item_id):
         return redirect('store_orders')
 
     return redirect('store_orders')
-
 
 # ✅ Mark Order Completed
 def mark_order_completed(request, order_id):
