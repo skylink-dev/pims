@@ -27,7 +27,7 @@ from django.conf import settings
 # MSG91 API Configuration
 MSG91_API_URL = "https://api.msg91.com/api/sendhttp.php"
 
-AUTH_KEY = "437052AwuTl8Nuu367ea608cP1"
+AUTH_KEY = "127168AI5mZVVT57f23e45"
 SENDER_ID = "SKYLTD"
 TEMPLATE_ID = "1407165460465145131"
 
@@ -41,11 +41,15 @@ def send_verification_sms(phone_number, name, user):
     user.phone_verification_code = otp
     user.save()
 
-    message = f"Dear {name}, your Skylink verification code is {otp}."
+    message = f"Dear {name}, Your Skylink Fibernet Verification Code is {otp}."
     print(message)
+
+        # Ensure phone number has country code
+    phone_number = f"91{phone_number}"
+    print("phone_number", phone_number)
     params = {
         "authkey": AUTH_KEY,
-        "mobiles": f"91{phone_number}",
+        "mobiles": phone_number,
         "message": message,
         "sender": SENDER_ID,
         "route": "4",
@@ -53,13 +57,17 @@ def send_verification_sms(phone_number, name, user):
     }
 
     try:
-        response = requests.get(MSG91_API_URL, params=urlencode(params))
-        print(response)
-        if response.status_code == 200:
+        response = requests.get(MSG91_API_URL, params=params)
+        print("MSG91 Status Code:", response.status_code)
+        print("MSG91 Response:", response.text)
+        
+        # Check if the response actually says success
+        if "success" in response.text.lower():
             return {"success": True, "response": response.text}
         else:
             return {"success": False, "error": response.text}
     except requests.exceptions.RequestException as e:
+        print("Request Exception:", e)
         return {"success": False, "error": str(e)}
 
 def login_view(request):

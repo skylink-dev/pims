@@ -93,6 +93,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pims.wsgi.application'
 
 
+
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'developer@skylink.net.in'
+EMAIL_HOST_PASSWORD = 'vrghuycfaljvjobi'
+# Optional settings (you can leave them out if not needed)
+DEFAULT_FROM_EMAIL = 'developer@skylink.net.in'  # Default from email (optional)
+EMAIL_SUBJECT_PREFIX = '[SKYLINK] '  # Optional prefix for email subject lines
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
