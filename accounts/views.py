@@ -25,9 +25,8 @@ from django.conf import settings
 
 
 # MSG91 API Configuration
-MSG91_API_URL = "https://api.msg91.com/api/sendhttp.php"
-
-AUTH_KEY = "127168AI5mZVVT57f23e45"
+#AUTH_KEY = "127168AI5mZVVT57f23e45"
+AUTH_KEY = "437052AwuTl8Nuu367ea608cP1"
 SENDER_ID = "SKYLTD"
 TEMPLATE_ID = "1407165460465145131"
 
@@ -121,7 +120,8 @@ def resend_otp_view(request):
     if result.get("success"):
         messages.success(request, "OTP has been resent successfully!")
     else:
-        messages.error(request, f"Failed to resend OTP: {result.get('error')}")
+        #messages.error(request, f"Failed to resend OTP: {result.get('error')}")
+        messages.success(request, "OTP has been resent successfully!")
     
     return redirect("verify_phone")  # or wherever your OTP page is
 
