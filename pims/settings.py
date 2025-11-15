@@ -102,9 +102,22 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'developer@skylink.net.in'
 EMAIL_HOST_PASSWORD = 'vrghuycfaljvjobi'
-# Optional settings (you can leave them out if not needed)
-DEFAULT_FROM_EMAIL = 'developer@skylink.net.in'  # Default from email (optional)
-EMAIL_SUBJECT_PREFIX = '[SKYLINK] '  # Optional prefix for email subject lines
+
+DEFAULT_FROM_EMAIL = 'developer@skylink.net.in'
+
+EMAIL_SUBJECT_PREFIX = '[SKYLINK] '
+
+
+
+
+# ZeptoMail Configuration
+ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
+ZEPTOMAIL_API_KEY = "PHtE6r0NRe3oj2Z6oRYH5/SwR5OsM4h7/O82JFFG5ohFDqRWHk0Dq40tkzPmo0sjAPlEEaLOy9pssejKseKBIme4N2saWmqyqK3sx/VYSPOZsbq6x00YuFUSdkffUILuc9Vi3CTUud3aNA=="
+ZEPTOMAIL_FROM_EMAIL = "info@skylink.net.in"
+
+EMAIL_BACKEND = "accounts.zeptomail_backend.ZeptoMailBackend"
+
+DEFAULT_FROM_EMAIL = "info@skylink.net.in"
 
 
 # Database

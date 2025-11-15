@@ -18,7 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -32,6 +32,7 @@ urlpatterns = [
     path('order/', include('order.urls')),
     path('store/', include('store.urls')),  # store-related pages
     path('customer-mapping/', include('customermapping.urls')),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 # ✅ Serve media files in debug mode
