@@ -75,7 +75,7 @@ class OrderItem(models.Model):
 
 class OrderItemSerial(models.Model):
     order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='serials')
-    serial_number = models.CharField(max_length=100, unique=True)
+    serial_number = models.CharField(max_length=100)
     
     # New optional fields
     make = models.CharField(max_length=100, blank=True, null=True)

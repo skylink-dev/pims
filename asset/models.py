@@ -9,7 +9,9 @@ class Category(models.Model):
     code = models.CharField(max_length=50, unique=True)  # unique code for category
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='categories/images/', blank=True, null=True,help_text="Required size: 240 × 240  (JPG/PNG only) ")
-    
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
     def __str__(self):
         return f"{self.name} ({self.code})"
 

@@ -19,9 +19,10 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
-API_BASE_URL = os.getenv("API_BASE_URL")
-API_AUTH_USERNAME = os.getenv("API_AUTH_USERNAME")
-API_AUTH_PASSWORD = os.getenv("API_AUTH_PASSWORD")
+
+API_BASE_URL = config("API_BASE_URL")
+API_AUTH_USERNAME = config("API_AUTH_USERNAME")
+API_AUTH_PASSWORD = config("API_AUTH_PASSWORD")
 
 print("🔍 API_BASE_URL:", os.getenv("API_BASE_URL"))
 
@@ -95,17 +96,17 @@ WSGI_APPLICATION = 'pims.wsgi.application'
 
 
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'developer@skylink.net.in'
-EMAIL_HOST_PASSWORD = 'vrghuycfaljvjobi'
+# # Email settings
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'developer@skylink.net.in'
+# EMAIL_HOST_PASSWORD = 'vrghuycfaljvjobi'
 
-DEFAULT_FROM_EMAIL = 'developer@skylink.net.in'
+# DEFAULT_FROM_EMAIL = 'developer@skylink.net.in'
 
-EMAIL_SUBJECT_PREFIX = '[SKYLINK] '
+# EMAIL_SUBJECT_PREFIX = '[SKYLINK] '
 
 
 
@@ -228,6 +229,14 @@ JAZZMIN_SETTINGS = {
 
     # 🎨 Optional: add your own CSS for more control
     "custom_css": "css/jazzmin_custom.css",
+
+    
+    "custom_apps": {
+        "auth": {
+            "name": "Groups",     # 👈 New name in sidebar
+            "icon": "fas fa-users-cog",
+        },
+    }
 }
 
 

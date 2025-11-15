@@ -16,5 +16,10 @@ class CustomerAssetMapping(models.Model):
     )
     assigned_at = models.DateTimeField(auto_now_add=True)
     skyid = models.CharField(max_length=100, blank=True, null=True)  
+
+    class Meta:
+        verbose_name = "Customer Device Mapping"
+        verbose_name_plural = "Customer Device Mappings"
+        
     def __str__(self):
         return f"{self.customer_name} ({self.phone}) - {self.order_serial}"

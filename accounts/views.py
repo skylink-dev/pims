@@ -23,6 +23,8 @@ import requests
 from urllib.parse import urlencode
 from django.conf import settings
 
+# MSG91 API Configuration
+MSG91_API_URL = "https://api.msg91.com/api/sendhttp.php"
 
 # MSG91 API Configuration
 #AUTH_KEY = "127168AI5mZVVT57f23e45"
