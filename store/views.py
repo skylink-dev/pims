@@ -7,9 +7,25 @@ from order.models import Order, OrderItem, OrderItemSerial, OrderShipment
 
 
 # 🧾 Store Orders List
+from django.core.paginator import Paginator
+
+
 def store_orders(request):
     orders = Order.objects.all().order_by('-created_at')
-    return render(request, 'store/order_list.html', {'orders': orders})
+
+    # Get current page ?page=1,2,3...
+    page_number = request.GET.get('page')
+
+    # Create paginator (show 10 orders per page)
+    paginator = Paginator(orders, 2)
+
+    # Get paginated page
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'store/order_list.html', {
+        'page_obj': page_obj,       # main pagination object
+        'orders': page_obj.object_list,  # optional
+    })
 
 
 # 🔢 Update Serial Numbers

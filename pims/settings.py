@@ -124,29 +124,29 @@ DEFAULT_FROM_EMAIL = "info@skylink.net.in"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pims',     # Database name (same as you created in pgAdmin)
-        'USER': 'postgres',           # Default PostgreSQL user
-        'PASSWORD': 'Admin@123',  # Password you set during installation
-        'HOST': 'localhost',          # Database host
-        'PORT': '5433',               # Default PostgreSQL port
-    }
-}
-
-
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'pims',     # Database name (same as you created in pgAdmin)
 #         'USER': 'postgres',           # Default PostgreSQL user
-#         'PASSWORD': 'postgres',  # Password you set during installation
+#         'PASSWORD': 'Admin@123',  # Password you set during installation
 #         'HOST': 'localhost',          # Database host
-#         'PORT': '5432',               # Default PostgreSQL port
+#         'PORT': '5433',               # Default PostgreSQL port
 #     }
 # }
+
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pims',     # Database name (same as you created in pgAdmin)
+        'USER': 'postgres',           # Default PostgreSQL user
+        'PASSWORD': 'postgres',  # Password you set during installation
+        'HOST': 'localhost',          # Database host
+        'PORT': '5432',               # Default PostgreSQL port
+    }
+}
 
 
 # Password validation

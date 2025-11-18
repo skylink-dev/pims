@@ -18,8 +18,8 @@
     </h1>
   </div>
 
-  {% if orders %}
-    {% for order in orders %}
+{% if page_obj %}
+  {% for order in page_obj %}
     <div class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
       <!-- Order Header -->
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-indigo-100 border-b border-gray-200">
@@ -108,7 +108,7 @@
       {% if order.status != 'Completed' %}
       <form action="{% url 'update_serials' item.id %}" method="post" class="space-y-3" onsubmit="return validateSerials(this)">
         {% csrf_token %}
-        
+
         <!-- Table for Serial + Make + Model + MAC ID -->
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm border border-gray-200 rounded-lg">
@@ -184,6 +184,7 @@
           </tbody>
         </table>
       </div>
+
       {% endif %}
     </div>
   </div>
@@ -192,6 +193,23 @@
 
     </div>
     {% endfor %}
+    <!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center items-center gap-2 mt-6">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}"
+       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+  {% endif %}
+
+  <span class="px-3 py-1">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}"
+       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+  {% endif %}
+</div>
+{% endif %}
+
   {% else %}
   <div class="text-center py-16 text-gray-500 italic">
     <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3 h-10 w-10 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -200,6 +218,7 @@
     </svg>
     No orders available at the moment.
   </div>
+
   {% endif %}
 </div>
 
@@ -226,3 +245,4 @@ function validateSerials(form) {
 .animate-bounce-slow { animation: bounceSlow 2s infinite; }
 </style>
 {% endblock %}
+

@@ -3,6 +3,8 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa  # pip install xhtml2pdf
 
 from asset.models import CartItem,Cart
+from django.core.paginator import Paginator
+
 from .models import Order  # update this import if your model name differs
 import json
 import base64
@@ -36,28 +38,32 @@ def order_summary_pdf(request, order_id):
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
-
 @login_required
 def orders_list(request):
     """
-    Display all orders for the logged-in user.
+    Display all orders for the logged-in user with pagination.
     """
     user = request.user
     orders = Order.objects.filter(user=user).order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(orders, 3)  # show 10 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Cart count
     cart = Cart.objects.filter(user=request.user).first()
     cart_count = 0
 
     if cart:
-        cart_count = cart_items = CartItem.objects.filter(cart=cart).count()
+        cart_count = CartItem.objects.filter(cart=cart).count()
 
     context = {
-        'orders': orders,
-        "cart_count":cart_count
-
+        'page_obj': page_obj,   # important!
+        'orders': page_obj,     # if your template expects 'orders'
+        'cart_count': cart_count,
     }
     return render(request, 'order/orders_list.html', context)
-
-
 @login_required
 def order_detail(request, pk):
     """
