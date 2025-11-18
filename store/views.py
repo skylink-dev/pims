@@ -17,7 +17,7 @@ def store_orders(request):
     page_number = request.GET.get('page')
 
     # Create paginator (show 10 orders per page)
-    paginator = Paginator(orders, 2)
+    paginator = Paginator(orders, 10)
 
     # Get paginated page
     page_obj = paginator.get_page(page_number)
